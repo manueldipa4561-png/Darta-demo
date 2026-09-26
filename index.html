@@ -1,0 +1,742 @@
+<!doctype html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Darta Barber Studio | Barbiere a Pescara, Via Gobetti 184</title>
+<meta name="description" content="Il barber studio di Thomas D'Attanasio a Pescara. Skin fade, barba e stile. Via Gobetti 184, aperto da martedì a sabato. Prenota dall'app.">
+<meta name="robots" content="noindex">
+<meta name="theme-color" content="#0b0b0a">
+<meta property="og:title" content="Darta Barber Studio, Pescara">
+<meta property="og:description" content="Tagli da campioni in Via Gobetti 184. Prenota dall'app.">
+<meta property="og:image" content="img/sign.webp">
+<link rel="icon" href="img/logo.png">
+<link rel="preload" as="image" href="img/sign.webp" fetchpriority="high">
+<link rel="preload" as="font" type="font/woff2" href="fonts/BarlowCondensed-800.woff2" crossorigin>
+<link rel="preload" as="font" type="font/woff2" href="fonts/Barlow-400.woff2" crossorigin>
+<script>/* set GL layout before first paint to avoid a layout jump */if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('gl')</script>
+<style>
+@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/Barlow-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/Barlow-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/Barlow-600.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-display:swap;src:url(fonts/BarlowCondensed-800i.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/BarlowCondensed-800.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
+:root{
+  --bg:#0b0b0a; --bg2:#121210; --surface:#171715; --line:#2b2a27;
+  --text:#efe9df; --muted:#aaa498; --dim:#8a857c;
+  --accent:#6cc0b8; /* teal of the Via Gobetti wall sign: the only accent */
+  --r:14px; --pill:999px;
+  --g:clamp(20px,5vw,64px);
+  --sec:clamp(5.5rem,15vw,10rem);
+  --fd:"Barlow Condensed",system-ui,sans-serif;
+  --fb:"Barlow",system-ui,sans-serif;
+  --ease:cubic-bezier(.16,1,.3,1);
+  color-scheme:dark;
+}
+*{box-sizing:border-box;margin:0;padding:0}
+html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
+body{background:var(--bg);color:var(--text);font:400 1.0625rem/1.6 var(--fb);-webkit-font-smoothing:antialiased;overflow-x:clip}
+img{display:block;max-width:100%;height:auto}
+[id]{scroll-margin-top:84px}
+a{color:inherit;text-decoration:none}
+button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
+svg.i{width:1.25em;height:1.25em;flex:none}
+:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
+.wrap{max-width:1320px;margin:0 auto;padding:0 var(--g)}
+
+/* type */
+.d{font-family:var(--fd);font-weight:800;text-transform:uppercase;letter-spacing:-.005em;line-height:.88}
+.d em{font-style:italic;color:var(--accent)}
+.h1{font-size:clamp(3.6rem,min(17vw,17vh),10.5rem)}
+.h2{font-size:clamp(3rem,12.5vw,7.25rem)}
+.h3{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(1.6rem,6vw,2.1rem);line-height:1}
+.lead{color:var(--muted);max-width:44ch;font-size:clamp(1.0625rem,2.6vw,1.2rem)}
+.eyebrow{font:600 .8125rem/1 var(--fb);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
+.num{font-variant-numeric:tabular-nums}
+.ln{display:block;overflow:hidden;padding-bottom:.14em;margin-bottom:-.14em}
+.ln>span{display:block}
+
+/* buttons */
+.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:52px;padding:0 1.6em;border-radius:var(--pill);font:600 1rem/1 var(--fb);letter-spacing:.02em;white-space:nowrap;transition:transform .25s var(--ease),background .25s,border-color .25s}
+.btn:active{transform:scale(.97)}
+.btn-p{background:var(--text);color:var(--bg)}
+.btn-p:hover{background:#fff}
+.btn-g{border:1px solid rgba(239,233,223,.34);color:var(--text);background:rgba(11,11,10,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
+.btn-g:hover{border-color:var(--text)}
+.btn svg{width:1.15em;height:1.15em}
+
+/* header */
+.hdr{position:fixed;inset:0 0 auto;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:calc(env(safe-area-inset-top) + 14px) var(--g) 14px;transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
+.hdr.solid{background:rgba(11,11,10,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-color:var(--line)}
+.hdr .logo img{width:clamp(104px,26vw,138px);height:auto}
+.hdr nav{display:none;gap:2rem;font:500 .9375rem/1 var(--fb);color:var(--muted)}
+.hdr nav a:hover{color:var(--text)}
+.hdr .btn{min-height:44px;padding:0 1.25em;font-size:.9375rem}
+@media(min-width:900px){.hdr nav{display:flex}}
+
+/* ===== journey: hero + 3D corridor ===== */
+#journey{position:relative}
+#stage{position:relative;min-height:100svh;overflow:hidden;background:var(--bg)}
+#stage canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .8s}
+.gl-ready #stage canvas{opacity:1}
+.hero-img{position:absolute;inset:0;width:100%;height:100svh;object-fit:cover;filter:brightness(.62)}
+.gl-ready .hero-img{opacity:0;transition:opacity .8s}
+#stage::before,#stage::after{content:"";position:absolute;left:0;right:0;pointer-events:none;z-index:2}
+#stage::before{top:0;height:22%;background:linear-gradient(rgba(11,11,10,.75),transparent)}
+#stage::after{bottom:0;height:58%;background:linear-gradient(transparent,rgba(11,11,10,.55) 40%,rgba(11,11,10,.94))}
+.hero-copy{position:absolute;z-index:3;left:0;right:0;top:0;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--g) calc(env(safe-area-inset-bottom) + clamp(28px,7vh,72px));will-change:opacity,transform}
+.hero-copy .h1{margin-bottom:.22em}
+.hero-copy .lead{margin-bottom:1.6rem;color:#d3cdc2}
+.cta-row{display:flex;flex-wrap:wrap;gap:.75rem}
+
+/* cuts: captions over the 3D corridor (GL) / swipe rail (fallback) */
+.cuts{list-style:none;position:relative;z-index:3}
+.cut figcaption strong{display:block;font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,9vw,4.4rem);line-height:.9;margin-bottom:.35rem}
+.cut figcaption span{color:var(--muted)}
+.end-copy{display:none}
+
+html:not(.gl) #stage{overflow:visible}
+html:not(.gl) .hero-copy{position:relative}
+html:not(.gl) .cuts{display:grid;grid-auto-flow:column;grid-auto-columns:min(78vw,380px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:var(--sec) var(--g) 0;scroll-padding:0 var(--g);scrollbar-width:none}
+html:not(.gl) .cuts::-webkit-scrollbar{display:none}
+html:not(.gl) .cut{scroll-snap-align:start}
+html:not(.gl) .cut img{aspect-ratio:4/5;width:100%;object-fit:cover;border-radius:var(--r);margin-bottom:1rem}
+html:not(.gl) .cut figcaption strong{font-size:2rem}
+html:not(.gl) #stage::after{height:100svh;top:0;bottom:auto;background:linear-gradient(transparent 42%,rgba(11,11,10,.94))}
+
+.gl #journey{height:560svh}
+.gl #stage{position:sticky;top:0;height:100svh}
+.gl .cuts{position:absolute;inset:auto 0 0;pointer-events:none;height:0}
+.gl .cut{position:absolute;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0;transform:translateY(24px);transition:opacity .45s var(--ease),transform .6s var(--ease)}
+.gl .cut.on{opacity:1;transform:none}
+.gl .cut img{display:none}
+.gl .end-copy{display:block;position:absolute;z-index:3;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0;transform:translateY(24px);transition:opacity .5s var(--ease),transform .7s var(--ease);pointer-events:none}
+.gl .end-copy.on{opacity:1;transform:none;pointer-events:auto}
+.end-copy .h2{margin-bottom:1.25rem}
+@media(min-width:900px){.gl .cut,.gl .end-copy{padding-bottom:64px}}
+
+/* ===== sections ===== */
+section{position:relative}
+.sec{padding:var(--sec) 0}
+
+.proof{display:grid;gap:2.75rem;padding:var(--sec) 0 0}
+.proof b{display:block;font-family:var(--fd);font-weight:800;font-size:clamp(4.2rem,20vw,7.5rem);line-height:.85;text-transform:uppercase}
+.proof b small{font-size:.42em;color:var(--accent);vertical-align:.95em;margin-left:.08em}
+.proof p{color:var(--muted);max-width:30ch;margin-top:.5rem}
+@media(min-width:900px){.proof{grid-template-columns:1.25fr 1fr 1fr;align-items:end}}
+
+.menu{display:grid;gap:3rem}
+.menu-head .lead{margin-top:1.25rem}
+.menu-head .note{margin-top:1rem;font-size:.875rem;color:var(--dim)}
+.grp+.grp{margin-top:2.75rem}
+.grp h3{color:var(--accent);margin-bottom:.75rem}
+.row{display:grid;grid-template-columns:1fr auto;gap:.2rem 1rem;padding:1.05rem 0;border-bottom:1px solid var(--line);align-items:baseline}
+.row .n{font:600 1.125rem/1.3 var(--fb)}
+.row .t{grid-column:1;color:var(--dim);font-size:.9375rem}
+.row .p{grid-row:1/span 2;grid-column:2;font-family:var(--fd);font-weight:800;font-size:2rem;line-height:1}
+.menu .btn{margin-top:2.25rem}
+@media(min-width:900px){.menu{grid-template-columns:5fr 7fr;gap:6vw}.menu-head{position:sticky;top:120px;align-self:start}}
+
+.story .h2{margin-bottom:1.5rem}
+.tl{list-style:none;margin-top:3.5rem;position:relative;display:grid;gap:2.5rem;padding-left:28px}
+.tl::before,.tl::after{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
+.tl::after{background:var(--accent);transform-origin:top}
+.tl li{position:relative}
+.tl li::before{content:"";position:absolute;left:-28px;top:.55em;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
+.tl .h3{margin-bottom:.35rem}
+.tl p{color:var(--muted);max-width:46ch}
+@media(min-width:900px){.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:6vw}.tl{margin-top:0}}
+
+.champs{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2)}
+.clubs{list-style:none;margin:2.25rem 0 2.5rem}
+.clubs li{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(3.6rem,17vw,11rem);line-height:.9;color:transparent;-webkit-text-stroke:1.5px rgba(239,233,223,.55);transition:color .5s var(--ease)}
+.clubs li.lit{color:var(--text)}
+.champs .lead strong{color:var(--text);font-weight:600}
+
+.team-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,400px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:2.5rem;padding:0 var(--g) 6px;scroll-padding:0 var(--g);scrollbar-width:none}
+.team-rail::-webkit-scrollbar{display:none}
+.mate{scroll-snap-align:start;position:relative;overflow:hidden;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);padding:1.5rem;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end}
+.mate .ini{position:absolute;top:-.12em;right:-.04em;font-family:var(--fd);font-weight:800;font-size:17rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(108,192,184,.4);pointer-events:none}
+.mate.lead-mate{background:linear-gradient(160deg,#16302e,#101312 70%)}
+.mate .role{color:var(--accent);font-weight:600;font-size:.9375rem;margin-bottom:.25rem}
+.mate .h3{font-size:clamp(2.2rem,9vw,2.9rem)}
+.mate p{color:var(--muted);margin:.6rem 0 1.25rem;max-width:32ch}
+.mate .btn{align-self:flex-start}
+@media(min-width:1100px){.team-rail{grid-auto-flow:row;grid-template-columns:1.3fr 1fr 1fr;overflow:visible;max-width:1320px;margin-left:auto;margin-right:auto}}
+
+.club-grid{display:grid;gap:3rem}
+/* loyalty card: wallet pass look, 3D tilt + sheen */
+.lc-stage{margin-top:2rem;perspective:1100px}
+.lc{--rx:0deg;--ry:0deg;--mx:50%;--my:30%;--ink:#efe9df;--sub:rgba(239,233,223,.62);--stroke:rgba(239,233,223,.28);--fill:#6cc0b8;--on:#0b0b0a;
+  position:relative;width:100%;max-width:420px;border-radius:20px;padding:clamp(14px,4.4vw,22px);color:var(--ink);overflow:hidden;
+  display:grid;gap:clamp(14px,4vw,18px);transform:rotateX(var(--rx)) rotateY(var(--ry));transform-style:preserve-3d;transition:transform .5s var(--ease),background .5s;
+  background:radial-gradient(120% 90% at 100% 0%,#26302f 0%,transparent 55%),linear-gradient(150deg,#1d1d1b,#0c0c0b 70%);
+  border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 40px 70px -30px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4);touch-action:pan-y;user-select:none;-webkit-user-select:none}
+.lc.drag{transition:background .5s}
+.lc-sheen{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.22),transparent 45%);mix-blend-mode:overlay}
+.lc[data-f=gobetti]{background:radial-gradient(110% 80% at 0% 0%,#3d8c86 0%,transparent 60%),linear-gradient(160deg,#1e4a47,#0d2322 75%);--stroke:rgba(239,233,223,.34);--fill:#efe9df}
+.lc[data-f=chrome]{background:linear-gradient(125deg,#8d918f 0%,#e9ebe8 28%,#9ea3a0 46%,#f4f5f2 62%,#7f8482 100%);--ink:#101110;--sub:rgba(16,17,16,.62);--stroke:rgba(16,17,16,.3);--fill:#101110;--on:#e9ebe8}
+.lc[data-f=holo]{background:linear-gradient(115deg,#1a1a2e,#101216 40%),#101216;--fill:#efe9df}
+.lc[data-f=holo] .lc-sheen{mix-blend-mode:color-dodge;opacity:.9;background:linear-gradient(115deg,transparent 20%,rgba(108,192,184,.55) 36%,rgba(173,140,255,.45) 48%,rgba(255,170,200,.4) 58%,transparent 74%);background-size:220% 220%;background-position:var(--mx) var(--my)}
+.lc[data-f=chrome] .lc-top img{filter:invert(1)}
+.lc-top{display:flex;justify-content:space-between;align-items:center}
+.lc-top img{width:clamp(78px,22vw,104px)}
+.lc-tier{font:600 .6875rem/1 var(--fb);letter-spacing:.16em;text-transform:uppercase;padding:.45em .8em;border-radius:var(--pill);border:1px solid var(--stroke);color:var(--sub)}
+.lc-k{display:block;font:600 .625rem/1 var(--fb);letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin-bottom:.35em}
+.lc-mid{display:flex;justify-content:space-between;align-items:end}
+.lc-count{font-family:var(--fd);font-weight:800;font-size:clamp(1.9rem,8vw,2.5rem);line-height:.8}
+.lc-count small{font-size:.5em;color:var(--sub);margin-left:.08em}
+.lc-bot{display:grid;grid-template-columns:1.5fr 1fr auto;gap:.75rem;align-items:end}
+.lc-bot b{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(1rem,4.6vw,1.3rem);line-height:1;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.lc-no{text-align:right}
+.stamps{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(5px,1.8vw,9px);align-content:center}
+.stamp{aspect-ratio:1;max-height:100%;border-radius:50%;border:1.5px dashed var(--stroke);display:grid;place-items:center;font:800 clamp(.7rem,2.6vw,.9rem)/1 var(--fd);color:var(--sub);transition:transform .35s var(--ease),background .3s,border-color .3s,color .3s}
+.stamp svg{grid-area:1/1;width:50%;height:50%;opacity:0;transform:scale(.3) rotate(-40deg);transition:opacity .35s var(--ease),transform .5s cubic-bezier(.34,1.56,.64,1)}
+.stamp b{grid-area:1/1;transition:opacity .2s}
+.stamp.on{background:var(--fill);border:1.5px solid var(--fill);color:var(--on)}
+.stamp.on svg{opacity:1;transform:none}
+.stamp.on b{opacity:0}
+.stamp.gift:not(.on){border-style:solid;color:var(--ink)}
+.lc.idle:not(.drag){animation:float 6s ease-in-out infinite}
+@keyframes float{0%,100%{transform:rotateX(4deg) rotateY(-8deg)}50%{transform:rotateX(-3deg) rotateY(8deg)}}
+.lc.full{animation:win .9s var(--ease)}
+@keyframes win{30%{transform:rotateX(0) rotateY(0) scale(1.04)}}
+.lc-msg{margin:1.1rem 0 1rem;color:var(--muted);min-height:1.6em}
+.lc-msg b{color:var(--accent)}
+.lc-actions{display:flex;flex-wrap:wrap;gap:.75rem}
+.lc-edit{display:grid;gap:1.6rem;align-content:start;padding:1.5rem;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
+.fld{border:0;display:grid;gap:.6rem}
+.fld>span,.fld legend{font:600 .875rem/1 var(--fb);color:var(--text);margin-bottom:.6rem}
+.fld input[type=text],.fld input:not([type]){height:52px;border-radius:12px;border:1px solid #45433e;background:var(--bg);color:var(--text);padding:0 1rem;font:500 1.0625rem var(--fb)}
+.fld input::placeholder{color:#8a857c}
+.fld input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
+.chips{display:flex;flex-wrap:wrap;gap:8px}
+.chips input{position:absolute;opacity:0;pointer-events:none}
+.chips span{display:inline-flex;align-items:center;gap:.5em;min-height:44px;padding:0 1em;border-radius:var(--pill);border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:.9375rem;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
+.chips input:checked+span{border-color:var(--accent);color:var(--text);background:rgba(108,192,184,.1)}
+.chips input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
+.sw{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
+.sw-onyx{background:#1b1b19}.sw-gobetti{background:#2f6f6a}.sw-chrome{background:linear-gradient(135deg,#8d918f,#f4f5f2,#8d918f)}.sw-holo{background:conic-gradient(#6cc0b8,#ad8cff,#ffaac8,#6cc0b8)}
+.toast{position:fixed;z-index:60;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);transform:translate(-50%,20px);opacity:0;background:var(--text);color:var(--bg);padding:.85rem 1.2rem;border-radius:var(--pill);font-weight:600;font-size:.9375rem;transition:opacity .3s,transform .4s var(--ease);pointer-events:none;width:max-content;max-width:calc(100vw - 32px)}
+.toast.show{opacity:1;transform:translate(-50%,0)}
+.ideas{list-style:none}
+.ideas-row{display:grid;gap:0;margin-top:clamp(3rem,8vw,5rem)}
+.ideas li{padding:1.4rem 0;border-bottom:1px solid var(--line)}
+@media(min-width:900px){.ideas-row{grid-template-columns:repeat(2,1fr);column-gap:6vw}}
+.ideas .h3{font-size:1.6rem;margin-bottom:.3rem}
+.ideas p{color:var(--muted)}
+.ex{display:inline-block;margin-top:.5rem;font-size:.8125rem;color:var(--dim)}
+@media(min-width:900px){.club-grid{grid-template-columns:1fr 1fr;gap:6vw;align-items:start}}
+
+.info-grid{display:grid;gap:3rem}
+.status{display:inline-flex;align-items:center;gap:.6rem;margin:1.25rem 0 2rem;font-weight:600}
+.status i{width:10px;height:10px;border-radius:50%;background:var(--dim)}
+.status.open i{background:var(--accent);box-shadow:0 0 0 5px rgba(108,192,184,.16)}
+.hours{list-style:none}
+.hours li{display:flex;justify-content:space-between;padding:.9rem 0;border-bottom:1px solid var(--line);color:var(--muted)}
+.hours li.today{color:var(--text);font-weight:600}
+.hours li.today span:first-child::after{content:" oggi";color:var(--accent);font-weight:500}
+.facts{color:var(--muted);margin:0 0 2rem;max-width:44ch}
+.social{display:flex;gap:.75rem;margin-top:1rem}
+.social a{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
+.social a:hover{border-color:var(--text)}
+.social svg{width:22px;height:22px}
+@media(min-width:900px){.info-grid{grid-template-columns:1.2fr 1fr;gap:6vw;align-items:end}}
+
+footer{border-top:1px solid var(--line);padding:3rem 0 calc(env(safe-area-inset-bottom) + 120px);color:var(--dim);font-size:.9375rem}
+footer .wrap{display:grid;gap:1.25rem}
+footer img{width:120px;opacity:.9}
+footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
+@media(min-width:900px){footer{padding-bottom:3rem}footer .wrap{grid-template-columns:auto 1fr auto;align-items:center}}
+
+.dock{position:fixed;z-index:45;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);display:grid;grid-template-columns:1fr 56px 56px;gap:8px;padding:8px;border-radius:var(--pill);background:rgba(23,23,21,.88);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(239,233,223,.12);transform:translateY(140%);transition:transform .5s var(--ease)}
+.dock.show{transform:none}
+.dock .btn{min-height:48px}
+.dock .ic{height:48px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
+.dock .ic svg{width:22px;height:22px}
+@media(min-width:900px){.dock{display:none}}
+
+dialog{margin:auto auto 0;width:100%;max-width:560px;max-height:none;border:0;border-radius:22px 22px 0 0;background:var(--surface);color:var(--text);padding:1.5rem var(--g) calc(env(safe-area-inset-bottom) + 1.5rem);border-top:1px solid var(--line)}
+dialog::backdrop{background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
+dialog[open]{animation:up .45s var(--ease)}
+@keyframes up{from{transform:translateY(100%)}}
+@media(min-width:700px){dialog{margin:auto;border-radius:22px;border:1px solid var(--line);padding:2rem}}
+.sh-top{display:flex;justify-content:space-between;align-items:start;gap:1rem;margin-bottom:.5rem}
+.sh-top .h3{font-size:2.3rem}
+.x{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex:none}
+.sheet p{color:var(--muted);margin-bottom:1.25rem}
+.sheet p b{color:var(--text);font-weight:600}
+.opts{display:grid;gap:10px}
+.opts .btn{width:100%;justify-content:flex-start;padding:0 1.25em}
+.opts .btn span{margin-left:auto;font-weight:500;opacity:.65;font-size:.875rem}
+.demo-note{margin:1rem 0 0;font-size:.8125rem;color:var(--dim)}
+
+.rv{opacity:0;transform:translateY(28px);transition:opacity .9s var(--ease),transform 1s var(--ease);transition-delay:calc(var(--i,0)*80ms)}
+.rv.in{opacity:1;transform:none}
+.ln>span.rv{transform:translateY(105%);opacity:1}
+.ln>span.rv.in{transform:none}
+
+@supports (animation-timeline:view()){
+  .tl::after{animation:fill linear both;animation-timeline:view();animation-range:entry 40% cover 60%}
+  @keyframes fill{from{transform:scaleY(0)}to{transform:scaleY(1)}}
+}
+@media (prefers-reduced-motion:reduce){
+  *,*::before,*::after{animation:none!important;transition:none!important}
+  .rv,.ln>span.rv{opacity:1;transform:none}
+  html{scroll-behavior:auto}
+}
+</style>
+</head>
+<body>
+
+<svg width="0" height="0" style="position:absolute" aria-hidden="true">
+  <!-- Phosphor Icons (regular), MIT -->
+  <symbol id="i-cal" viewBox="0 0 256 256"><path fill="currentColor" d="M208,32H184V24a8,8,0,0,0-16,0v8H88V24a8,8,0,0,0-16,0v8H48A16,16,0,0,0,32,48V208a16,16,0,0,0,16,16H208a16,16,0,0,0,16-16V48A16,16,0,0,0,208,32ZM72,48v8a8,8,0,0,0,16,0V48h80v8a8,8,0,0,0,16,0V48h24V80H48V48ZM208,208H48V96H208V208Zm-38.34-85.66a8,8,0,0,1,0,11.32l-48,48a8,8,0,0,1-11.32,0l-24-24a8,8,0,0,1,11.32-11.32L116,164.69l42.34-42.35A8,8,0,0,1,169.66,122.34Z"/></symbol>
+  <symbol id="i-phone" viewBox="0 0 256 256"><path fill="currentColor" d="M222.37,158.46l-47.11-21.11-.13-.06a16,16,0,0,0-15.17,1.4,8.12,8.12,0,0,0-.75.56L134.87,160c-15.42-7.49-31.34-23.29-38.83-38.51l20.78-24.71c.2-.25.39-.5.57-.77a16,16,0,0,0,1.32-15.06l0-.12L97.54,33.64a16,16,0,0,0-16.62-9.52A56.26,56.26,0,0,0,32,80c0,79.4,64.6,144,144,144a56.26,56.26,0,0,0,55.88-48.92A16,16,0,0,0,222.37,158.46ZM176,208A128.14,128.14,0,0,1,48,80,40.2,40.2,0,0,1,82.87,40a.61.61,0,0,0,0,.12l21,47L83.2,111.86a6.13,6.13,0,0,0-.57.77,16,16,0,0,0-1,15.7c9.06,18.53,27.73,37.06,46.46,46.11a16,16,0,0,0,15.75-1.14,8.44,8.44,0,0,0,.74-.56L168.89,152l47,21.05h0s.08,0,.11,0A40.21,40.21,0,0,1,176,208Z"/></symbol>
+  <symbol id="i-pin" viewBox="0 0 256 256"><path fill="currentColor" d="M128,64a40,40,0,1,0,40,40A40,40,0,0,0,128,64Zm0,64a24,24,0,1,1,24-24A24,24,0,0,1,128,128Zm0-112a88.1,88.1,0,0,0-88,88c0,31.4,14.51,64.68,42,96.25a254.19,254.19,0,0,0,41.45,38.3,8,8,0,0,0,9.18,0A254.19,254.19,0,0,0,174,200.25c27.45-31.57,42-64.85,42-96.25A88.1,88.1,0,0,0,128,16Zm0,206c-16.53-13-72-60.75-72-118a72,72,0,0,1,144,0C200,161.23,144.53,209,128,222Z"/></symbol>
+  <symbol id="i-ig" viewBox="0 0 256 256"><path fill="currentColor" d="M128,80a48,48,0,1,0,48,48A48.05,48.05,0,0,0,128,80Zm0,80a32,32,0,1,1,32-32A32,32,0,0,1,128,160ZM176,24H80A56.06,56.06,0,0,0,24,80v96a56.06,56.06,0,0,0,56,56h96a56.06,56.06,0,0,0,56-56V80A56.06,56.06,0,0,0,176,24Zm40,152a40,40,0,0,1-40,40H80a40,40,0,0,1-40-40V80A40,40,0,0,1,80,40h96a40,40,0,0,1,40,40ZM192,76a12,12,0,1,1-12-12A12,12,0,0,1,192,76Z"/></symbol>
+  <symbol id="i-tt" viewBox="0 0 256 256"><path fill="currentColor" d="M224,72a48.05,48.05,0,0,1-48-48,8,8,0,0,0-8-8H128a8,8,0,0,0-8,8V156a20,20,0,1,1-28.57-18.08A8,8,0,0,0,96,130.69V88a8,8,0,0,0-9.4-7.88C50.91,86.48,24,119.1,24,156a76,76,0,0,0,152,0V116.29A103.25,103.25,0,0,0,224,128a8,8,0,0,0,8-8V80A8,8,0,0,0,224,72Zm-8,39.64a87.19,87.19,0,0,1-43.33-16.15A8,8,0,0,0,160,102v54a60,60,0,0,1-120,0c0-25.9,16.64-49.13,40-57.6v27.67A36,36,0,1,0,136,156V32h24.5A64.14,64.14,0,0,0,216,87.5Z"/></symbol>
+  <symbol id="i-scissors" viewBox="0 0 256 256"><path fill="currentColor" d="M157.73,113.13A8,8,0,0,1,159.82,102L227.48,55.7a8,8,0,0,1,9,13.21l-67.67,46.3a7.92,7.92,0,0,1-4.51,1.4A8,8,0,0,1,157.73,113.13Zm80.87,85.09a8,8,0,0,1-11.12,2.08L136,137.7,93.49,166.78a36,36,0,1,1-9-13.19L121.83,128,84.44,102.41a35.86,35.86,0,1,1,9-13.19l143,97.87A8,8,0,0,1,238.6,198.22ZM80,180a20,20,0,1,0-5.86,14.14A19.85,19.85,0,0,0,80,180ZM74.14,90.13a20,20,0,1,0-28.28,0A19.85,19.85,0,0,0,74.14,90.13Z"/></symbol>
+  <symbol id="i-apple" viewBox="0 0 256 256"><path fill="currentColor" d="M223.3,169.59a8.07,8.07,0,0,0-2.8-3.4C203.53,154.53,200,134.64,200,120c0-17.67,13.47-33.06,21.5-40.67a8,8,0,0,0,0-11.62C208.82,55.74,187.82,48,168,48a72.2,72.2,0,0,0-40,12.13,71.56,71.56,0,0,0-90.71,9.09A74.63,74.63,0,0,0,16,123.4a127.06,127.06,0,0,0,40.14,89.73A39.8,39.8,0,0,0,83.59,224h87.68a39.84,39.84,0,0,0,29.12-12.57,125,125,0,0,0,17.82-24.6C225.23,174,224.33,172,223.3,169.59Zm-34.63,30.94a23.76,23.76,0,0,1-17.4,7.47H83.59a23.82,23.82,0,0,1-16.44-6.51A111.14,111.14,0,0,1,32,123,58.5,58.5,0,0,1,48.65,80.47,54.81,54.81,0,0,1,88,64h.78A55.45,55.45,0,0,1,123,76.28a8,8,0,0,0,10,0A55.44,55.44,0,0,1,168,64a70.64,70.64,0,0,1,36,10.35c-13,14.52-20,30.47-20,45.65,0,23.77,7.64,42.73,22.18,55.3A105.82,105.82,0,0,1,188.67,200.53ZM128.23,30A40,40,0,0,1,167,0h1a8,8,0,0,1,0,16h-1a24,24,0,0,0-23.24,18,8,8,0,1,1-15.5-4Z"/></symbol>
+  <symbol id="i-play" viewBox="0 0 256 256"><path fill="currentColor" d="M239.82,114.19,72,18.16a16,16,0,0,0-16.12,0A15.68,15.68,0,0,0,48,31.87V224.13a15.68,15.68,0,0,0,7.92,13.67,16,16,0,0,0,16.12,0l167.78-96a15.75,15.75,0,0,0,0-27.62ZM64,212.67V43.33L148.69,128Zm96-73.36,18.92,18.92-88.5,50.66ZM90.4,47.1l88.53,50.67L160,116.69ZM193.31,150l-22-22,22-22,38.43,22Z"/></symbol>
+  <symbol id="i-bolt" viewBox="0 0 256 256"><path fill="currentColor" d="M215.79,118.17a8,8,0,0,0-5-5.66L153.18,90.9l14.66-73.33a8,8,0,0,0-13.69-7l-112,120a8,8,0,0,0,3,13l57.63,21.61L88.16,238.43a8,8,0,0,0,13.690,7l112-120A8,8,0,0,0,215.79,118.17ZM109.37,214l10.47-52.38a8,8,0,0,0-5-9.06L62,132.71l84.62-90.66L136.16,94.43a8,8,0,0,0,5,9.06l52.8,19.8Z"/></symbol>
+  <symbol id="i-crown" viewBox="0 0 256 256"><path fill="currentColor" d="M248,80a28,28,0,1,0-51.12,15.77l-26.79,33L146,73.4a28,28,0,1,0-36.06,0L85.91,128.74l-26.79-33a28,28,0,1,0-26.6,12L47,194.63A16,16,0,0,0,62.78,208H193.22A16,16,0,0,0,209,194.63l14.47-86.85A28,28,0,0,0,248,80ZM128,40a12,12,0,1,1-12,12A12,12,0,0,1,128,40ZM24,80A12,12,0,1,1,36,92,12,12,0,0,1,24,80ZM193.22,192H62.78L48.86,108.52,81.79,149A8,8,0,0,0,88,152a7.83,7.83,0,0,0,1.08-.07,8,8,0,0,0,6.26-4.74l29.3-67.4a27,27,0,0,0,6.72,0l29.3,67.4a8,8,0,0,0,6.26,4.74A7.830,7.830,0,0,0,168,152a8,8,0,0,0,6.21-3l32.93-40.52ZM220,92a12,12,0,1,1,12-12A12,12,0,0,1,220,92Z"/></symbol>
+  <symbol id="i-fire" viewBox="0 0 256 256"><path fill="currentColor" d="M183.89,153.34a57.6,57.6,0,0,1-46.56,46.55A8.75,8.75,0,0,1,136,200a8,8,0,0,1-1.32-15.89c16.57-2.79,30.63-16.85,33.44-33.45a8,8,0,0,1,15.78,2.68ZM216,144a88,88,0,0,1-176,0c0-27.92,11-56.47,32.66-84.85a8,8,0,0,1,11.93-.89l24.12,23.41,22-60.41a8,8,0,0,1,12.63-3.41C165.21,36,216,84.55,216,144Zm-16,0c0-46.090-35.79-85.92-58.21-106.33L119.52,98.74a8,8,0,0,1-13.09,3L80.06,76.160C64.09,99.21,56,122,56,144a72,72,0,0,0,144,0Z"/></symbol>
+  <symbol id="i-x" viewBox="0 0 256 256"><path fill="currentColor" d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol>
+</svg>
+
+<header class="hdr" id="hdr">
+  <a class="logo" href="#top" aria-label="Darta Barber Studio, torna su"><img src="img/logo.png" alt="Darta Barber Studio" width="790" height="342"></a>
+  <nav aria-label="Principale"><a href="#lavori">Lavori</a><a href="#listino">Listino</a><a href="#storia">Storia</a><a href="#orari">Orari</a></nav>
+  <button class="btn btn-p" data-book>Prenota</button>
+</header>
+
+<main id="top">
+  <div id="journey">
+    <div id="stage">
+      <img class="hero-img" src="img/sign.webp" alt="L'insegna Darta Barber Studio sulla parete del salone" width="463" height="566" fetchpriority="high">
+      <canvas id="gl" aria-hidden="true"></canvas>
+
+      <div class="hero-copy" id="heroCopy">
+        <h1 class="d h1"><span class="ln"><span class="rv">Tagli da</span></span><span class="ln"><span class="rv" style="--i:1"><em>campioni.</em></span></span></h1>
+        <p class="lead rv" style="--i:2">Il barber studio di Thomas D'Attanasio. Fade, barba e stile in Via Gobetti 184, Pescara.</p>
+        <div class="cta-row rv" style="--i:3">
+          <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+          <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>Chiama</a>
+        </div>
+      </div>
+
+      <ol class="cuts" id="lavori" aria-label="Lavori recenti">
+        <li class="cut"><figure><img src="img/fade.webp" alt="Skin fade con barba definita" width="463" height="570" loading="lazy"><figcaption><strong>Skin fade &amp; barba</strong><span>Sfumatura a pelle, contorni della barba a lama.</span></figcaption></figure></li>
+        <li class="cut"><figure><img src="img/curly.webp" alt="Ricci naturali con barba piena" width="463" height="546" loading="lazy"><figcaption><strong>Ricci &amp; barba piena</strong><span>Volume sotto controllo, linee pulite.</span></figcaption></figure></li>
+        <li class="cut"><figure><img src="img/platinum.webp" alt="Taglio corto decolorato platino" width="463" height="619" loading="lazy"><figcaption><strong>Platino</strong><span>Decolorazione totale su un corto texturizzato.</span></figcaption></figure></li>
+        <li class="cut"><figure><img src="img/sidepart.webp" alt="Side part con riga a rasoio e sfumatura" width="463" height="571" loading="lazy"><figcaption><strong>Side part</strong><span>Riga a rasoio e sfumatura bassa.</span></figcaption></figure></li>
+      </ol>
+
+      <div class="end-copy" id="endCopy">
+        <h2 class="d h2">La tua poltrona<br>ti aspetta.</h2>
+        <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <div class="proof">
+      <div class="rv"><b class="num">5,0<small>&#9733;</small></b><p>Media su 44 recensioni Google, dal primo giorno di apertura.</p></div>
+      <div class="rv" style="--i:1"><b>4 club</b><p>Barber di fiducia per i calciatori di Pescara, Salernitana, Pineto e Chieti.</p></div>
+      <div class="rv" style="--i:2"><b>Milano</b><p>Nel backstage delle sfilate della Milano Fashion Week.</p></div>
+    </div>
+  </div>
+
+  <section class="sec" id="listino">
+    <div class="wrap menu">
+      <div class="menu-head">
+        <h2 class="d h2"><span class="ln"><span class="rv">Listino</span></span></h2>
+        <p class="lead rv">Scegli il servizio e il barber direttamente dall'app. Conferma in pochi secondi.</p>
+        <p class="note">Prezzi e durate indicativi per la demo, da confermare con il salone.</p>
+      </div>
+      <div>
+        <div class="grp rv">
+          <h3 class="h3">Capelli</h3>
+          <div class="row"><span class="n">Taglio uomo</span><span class="t">30 min</span><span class="p num">20&euro;</span></div>
+          <div class="row"><span class="n">Skin fade</span><span class="t">40 min</span><span class="p num">25&euro;</span></div>
+          <div class="row"><span class="n">Taglio e styling</span><span class="t">45 min</span><span class="p num">28&euro;</span></div>
+          <div class="row"><span class="n">Taglio bambino</span><span class="t">Fino a 12 anni, 30 min</span><span class="p num">15&euro;</span></div>
+        </div>
+        <div class="grp rv">
+          <h3 class="h3">Barba</h3>
+          <div class="row"><span class="n">Regolazione barba</span><span class="t">20 min</span><span class="p num">12&euro;</span></div>
+          <div class="row"><span class="n">Barba panno caldo e lama</span><span class="t">30 min</span><span class="p num">18&euro;</span></div>
+          <div class="row"><span class="n">Rasatura tradizionale</span><span class="t">30 min</span><span class="p num">20&euro;</span></div>
+        </div>
+        <div class="grp rv">
+          <h3 class="h3">Combo</h3>
+          <div class="row"><span class="n">Taglio e barba</span><span class="t">60 min</span><span class="p num">35&euro;</span></div>
+          <div class="row"><span class="n">Platino e taglio</span><span class="t">Su consulenza, 120 min</span><span class="p num">da 60&euro;</span></div>
+        </div>
+        <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+      </div>
+    </div>
+  </section>
+
+  <section class="sec story" id="storia">
+    <div class="wrap story-grid">
+      <div>
+        <h2 class="d h2"><span class="ln"><span class="rv">Di padre</span></span><span class="ln"><span class="rv" style="--i:1">in <em>figlio.</em></span></span></h2>
+        <p class="lead rv">Thomas cresce tra le poltrone de La Bottega dei Parrucchieri, il salone di papà Fabio a Pescara. Poi parte, studia, torna e apre il suo studio.</p>
+      </div>
+      <ol class="tl">
+        <li class="rv"><h3 class="h3">Pescara</h3><p>Gli inizi nel salone di famiglia, fin dall'adolescenza.</p></li>
+        <li class="rv"><h3 class="h3">Rotterdam</h3><p>A 18 anni studia in Olanda lo stile classico old school di Schorem.</p></li>
+        <li class="rv"><h3 class="h3">Andrea Buluggiu</h3><p>Si forma sul taglio anglosassone con uno dei suoi maggiori esponenti.</p></li>
+        <li class="rv"><h3 class="h3">Milano Fashion Week</h3><p>Nel backstage delle sfilate, con La Bottega dei Parrucchieri.</p></li>
+        <li class="rv"><h3 class="h3">Via Gobetti 184</h3><p>L'8 novembre 2025 apre Darta Barber Studio, un salone su due piani.</p></li>
+      </ol>
+    </div>
+  </section>
+
+  <section class="sec champs">
+    <div class="wrap">
+      <h2 class="d h2"><span class="ln"><span class="rv">Sulla sua poltrona</span></span></h2>
+      <ul class="clubs" id="clubs" aria-label="Squadre dei calciatori clienti">
+        <li>Pescara</li><li>Salernitana</li><li>Pineto</li><li>Chieti</li>
+      </ul>
+      <p class="lead rv">Calciatori, volti dello spettacolo e ragazzi del quartiere. Tra i clienti di Thomas: <strong>Lorenzo Insigne, Fabrizio Corona, Lorenzo Venuti e Marco Pompetti.</strong></p>
+    </div>
+  </section>
+
+  <section class="sec" id="team">
+    <div class="wrap"><h2 class="d h2"><span class="ln"><span class="rv">Il team</span></span></h2></div>
+    <div class="team-rail">
+      <article class="mate lead-mate rv"><span class="ini" aria-hidden="true">T</span><p class="role">Fondatore</p><h3 class="h3">Thomas D'Attanasio</h3><p>Fade, barba e taglio anglosassone. Il barber dei calciatori.</p><button class="btn btn-p" data-book data-who="Thomas">Prenota con Thomas</button></article>
+      <article class="mate rv" style="--i:1"><span class="ini" aria-hidden="true">M</span><p class="role">Barber</p><h3 class="h3">Mattia</h3><p>Nel team di Via Gobetti. Sceglilo direttamente dall'app.</p><button class="btn btn-g" data-book data-who="Mattia">Prenota con Mattia</button></article>
+      <article class="mate rv" style="--i:2"><span class="ini" aria-hidden="true">R</span><p class="role">Barber</p><h3 class="h3">Rrapi</h3><p>Nel team di Via Gobetti. Sceglilo direttamente dall'app.</p><button class="btn btn-g" data-book data-who="Rrapi">Prenota con Rrapi</button></article>
+    </div>
+  </section>
+
+  <section class="sec" id="club">
+    <div class="wrap club-grid">
+      <div>
+        <p class="eyebrow rv">Idee per il salone</p>
+        <h2 class="d h2" style="margin-top:1rem"><span class="ln"><span class="rv">Darta <em>club.</em></span></span></h2>
+        <p class="lead rv">La tessera fedeltà vive nel wallet del telefono. Creala a tuo gusto, poi tocca Timbra.</p>
+        <div class="lc-stage rv">
+          <div class="lc" id="lc" data-f="onyx">
+            <div class="lc-sheen" aria-hidden="true"></div>
+            <div class="lc-top"><img src="img/logo.png" alt="Darta" width="790" height="342" loading="lazy"><span class="lc-tier" id="lcTier">Member</span></div>
+            <div class="lc-mid"><span class="lc-k">Timbri</span><b class="lc-count num" id="lcCount">0<small>/10</small></b></div>
+            <div class="stamps" id="stamps"></div>
+            <div class="lc-bot">
+              <div><span class="lc-k">Titolare</span><b class="lc-name" id="lcName">Il tuo nome</b></div>
+              <div><span class="lc-k">Barber</span><b class="lc-barber" id="lcBarber">Thomas</b></div>
+              <div class="lc-no num"><span class="lc-k">N.</span><b>0184</b></div>
+            </div>
+          </div>
+        </div>
+        <p class="lc-msg" id="stampTxt" aria-live="polite">Il decimo taglio è omaggio.</p>
+        <div class="lc-actions">
+          <button class="btn btn-p" id="stampBtn"><svg class="i"><use href="#i-scissors"/></svg>Timbra</button>
+          <button class="btn btn-g" id="walletBtn">Aggiungi al Wallet</button>
+        </div>
+      </div>
+      <form class="lc-edit" id="lcEdit" aria-label="Personalizza la tessera">
+        <h3 class="h3">Personalizzala</h3>
+        <label class="fld"><span>Nome sulla tessera</span><input id="inName" maxlength="16" autocomplete="off" placeholder="Es. Lorenzo"></label>
+        <fieldset class="fld"><legend>Finitura</legend>
+          <div class="chips" id="inFinish">
+            <label><input type="radio" name="f" value="onyx" checked><span><i class="sw sw-onyx"></i>Onyx</span></label>
+            <label><input type="radio" name="f" value="gobetti"><span><i class="sw sw-gobetti"></i>Gobetti</span></label>
+            <label><input type="radio" name="f" value="chrome"><span><i class="sw sw-chrome"></i>Chrome</span></label>
+            <label><input type="radio" name="f" value="holo"><span><i class="sw sw-holo"></i>Holo</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="fld"><legend>Timbro</legend>
+          <div class="chips" id="inIcon">
+            <label><input type="radio" name="ic" value="scissors" checked><span><svg class="i"><use href="#i-scissors"/></svg>Forbici</span></label>
+            <label><input type="radio" name="ic" value="bolt"><span><svg class="i"><use href="#i-bolt"/></svg>Fulmine</span></label>
+            <label><input type="radio" name="ic" value="crown"><span><svg class="i"><use href="#i-crown"/></svg>Corona</span></label>
+            <label><input type="radio" name="ic" value="fire"><span><svg class="i"><use href="#i-fire"/></svg>Fuoco</span></label>
+          </div>
+        </fieldset>
+        <fieldset class="fld"><legend>Il tuo barber</legend>
+          <div class="chips" id="inBarber">
+            <label><input type="radio" name="b" value="Thomas" checked><span>Thomas</span></label>
+            <label><input type="radio" name="b" value="Mattia"><span>Mattia</span></label>
+            <label><input type="radio" name="b" value="Rrapi"><span>Rrapi</span></label>
+          </div>
+        </fieldset>
+      </form>
+    </div>
+    <div class="wrap">
+      <ul class="ideas ideas-row">
+        <li class="rv"><h3 class="h3">Promemoria WhatsApp</h3><p>Il giorno prima arriva un messaggio con orario e barber. Meno buchi in agenda.</p></li>
+        <li class="rv"><h3 class="h3">Porta un amico</h3><p>Chi presenta un nuovo cliente riceve uno sconto, e anche l'amico.</p><span class="ex">Esempio: 5&euro; a testa</span></li>
+        <li class="rv"><h3 class="h3">Abbonamento mensile</h3><p>Due tagli al mese a prezzo fisso, per chi vuole il fade sempre fresco.</p><span class="ex">Esempio: 2 tagli, 36&euro; al mese</span></li>
+        <li class="rv"><h3 class="h3">Statistiche prenotazioni</h3><p>Giorni pieni, servizi più richiesti, clienti da richiamare. Tutto in un pannello.</p></li>
+      </ul>
+    </div>
+  </section>
+
+  <section class="sec" id="orari">
+    <div class="wrap info-grid">
+      <div>
+        <h2 class="d h2"><span class="ln"><span class="rv">Via Gobetti</span></span><span class="ln"><span class="rv" style="--i:1"><em>184.</em></span></span></h2>
+        <p class="status" id="status" aria-live="polite"><i></i><span>Orari</span></p>
+        <p class="facts rv">65129 Pescara. Ingresso accessibile, pagamento con carta e contactless. Prenotazione consigliata.</p>
+        <div class="cta-row rv">
+          <a class="btn btn-p" href="https://www.google.com/maps/dir/?api=1&amp;destination=Via+Piero+Gobetti+184+65129+Pescara" target="_blank" rel="noopener"><svg class="i"><use href="#i-pin"/></svg>Indicazioni</a>
+          <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>393 903 1656</a>
+        </div>
+        <div class="social rv">
+          <a href="https://www.instagram.com/darta_barberstudio/" target="_blank" rel="noopener" aria-label="Instagram @darta_barberstudio"><svg><use href="#i-ig"/></svg></a>
+          <a href="https://www.tiktok.com/@darta.barber" target="_blank" rel="noopener" aria-label="TikTok @darta.barber"><svg><use href="#i-tt"/></svg></a>
+        </div>
+      </div>
+      <ul class="hours rv num" id="hours">
+        <li data-d="1"><span>Lunedì</span><span>Chiuso</span></li>
+        <li data-d="2"><span>Martedì</span><span>10:00-19:00</span></li>
+        <li data-d="3"><span>Mercoledì</span><span>10:00-19:00</span></li>
+        <li data-d="4"><span>Giovedì</span><span>10:00-19:00</span></li>
+        <li data-d="5"><span>Venerdì</span><span>10:00-19:00</span></li>
+        <li data-d="6"><span>Sabato</span><span>10:00-19:00</span></li>
+        <li data-d="0"><span>Domenica</span><span>Chiuso</span></li>
+      </ul>
+    </div>
+  </section>
+</main>
+
+<footer>
+  <div class="wrap">
+    <img src="img/logo.png" alt="Darta Barber Studio" width="790" height="342" loading="lazy">
+    <p>Darta Barber Studio, Via Piero Gobetti 184, Pescara.</p>
+    <p>Demo realizzata da <a href="https://puntoduestudio.it" target="_blank" rel="noopener">Punto Due Studio</a></p>
+  </div>
+</footer>
+
+<div class="toast" id="toast" role="status"></div>
+<div class="dock" id="dock">
+  <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+  <a class="ic" href="tel:+393939031656" aria-label="Chiama il salone"><svg><use href="#i-phone"/></svg></a>
+  <a class="ic" href="https://www.google.com/maps/dir/?api=1&amp;destination=Via+Piero+Gobetti+184+65129+Pescara" target="_blank" rel="noopener" aria-label="Indicazioni stradali"><svg><use href="#i-pin"/></svg></a>
+</div>
+
+<dialog id="sheet" class="sheet" aria-labelledby="shTitle">
+  <div class="sh-top"><h2 class="h3" id="shTitle">Prenota</h2><button class="x" id="shClose" aria-label="Chiudi"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <p id="shTxt">Scegli servizio, barber e orario dall'app Darta. Il salone conferma in pochi minuti.</p>
+  <div class="opts">
+    <a class="btn btn-p" data-os="ios" href="https://apps.apple.com/it/app/darta-barber-studio-app/id6755042985" target="_blank" rel="noopener"><svg class="i"><use href="#i-apple"/></svg>App Store<span>iPhone</span></a>
+    <a class="btn btn-g" data-os="android" href="https://play.google.com/store/apps/details?id=dartabarberstudioapp.digitalevolutionitalia.it" target="_blank" rel="noopener"><svg class="i"><use href="#i-play"/></svg>Google Play<span>Android</span></a>
+    <a class="btn btn-g" href="https://application.zetabarber.it/barber/dartabs" target="_blank" rel="noopener"><svg class="i"><use href="#i-scissors"/></svg>Prenota online<span>Web</span></a>
+    <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>Chiama<span>393 903 1656</span></a>
+  </div>
+  <p class="demo-note">Questa è una demo: i link aprono i canali di prenotazione reali del salone.</p>
+</dialog>
+
+<script>
+(()=>{
+const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
+const root=document.documentElement, hdr=$('#hdr'), dock=$('#dock'), journey=$('#journey');
+
+/* reveal on enter */
+const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
+$$('.rv').forEach(el=>io.observe(el));
+
+/* club names fill as they cross the middle of the screen */
+const clubIO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('lit',e.isIntersecting)),{rootMargin:'-40% 0px -40% 0px'});
+$$('#clubs li').forEach(li=>clubIO.observe(li));
+
+/* booking sheet */
+const sheet=$('#sheet');
+if(/Android/.test(navigator.userAgent)){const a=$('[data-os=android]'),i=$('[data-os=ios]');a.className='btn btn-p';i.className='btn btn-g';i.before(a)}
+const defTxt=$('#shTxt').textContent;
+$$('[data-book]').forEach(b=>b.addEventListener('click',()=>{
+  const who=b.dataset.who;
+  const t=$('#shTxt');t.textContent=who?"Nell'app scegli il servizio, poi ":defTxt;
+  if(who){const b=document.createElement('b');b.textContent=who;t.append(b," come barber e l'orario che preferisci.")}
+  sheet.showModal();
+}));
+$('#shClose').onclick=()=>sheet.close();
+sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.close()});
+
+/* live opening status, Europe/Rome */
+(()=>{
+  const p=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()).map(x=>[x.type,x.value]));
+  const d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday), m=(+p.hour%24)*60+(+p.minute);
+  const openDay=d>=2&&d<=6, open=openDay&&m>=600&&m<1140, st=$('#status');
+  st.classList.toggle('open',open);
+  st.lastElementChild.textContent=open?'Aperto ora, chiude alle 19:00':(openDay&&m<600)?'Chiuso, apre oggi alle 10:00':`Chiuso, riapre ${d===6||d===0?'martedì':'domani'} alle 10:00`;
+  const li=$(`#hours li[data-d="${d}"]`); li&&li.classList.add('today');
+})();
+
+/* loyalty card: customise, stamp, tilt */
+(()=>{
+  const lc=$('#lc'), box=$('#stamps'), txt=$('#stampTxt'), K='darta-card';
+  let s={name:'',f:'onyx',ic:'scissors',b:'Thomas',n:0};
+  const OK={f:['onyx','gobetti','chrome','holo'],ic:['scissors','bolt','crown','fire'],b:['Thomas','Mattia','Rrapi']};
+  try{const v=JSON.parse(localStorage.getItem(K))||{};
+    if(typeof v.name==='string')s.name=v.name.slice(0,16);
+    for(const k in OK)if(OK[k].includes(v[k]))s[k]=v[k];
+    if(Number.isInteger(v.n)&&v.n>=0&&v.n<=10)s.n=v.n;}catch(e){}
+  const save=()=>{try{localStorage.setItem(K,JSON.stringify(s))}catch(e){}};
+  for(let i=1;i<=10;i++){const d=document.createElement('span');d.className='stamp'+(i===10?' gift':'');d.innerHTML=`<b>${i===10?'FREE':i}</b><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#i-scissors"/></svg>`;box.appendChild(d)}
+  const st=[...box.children];
+  function render(){
+    lc.dataset.f=s.f;
+    $('#lcName').textContent=s.name.trim()||'Il tuo nome';
+    $('#lcBarber').textContent=s.b;
+    $('#lcCount').firstChild.textContent=s.n;
+    $('#lcTier').textContent=s.n>=10?'Gold':s.n>=5?'Regular':'Member';
+    st.forEach((d,i)=>{d.classList.toggle('on',i<s.n);d.querySelector('use').setAttribute('href','#i-'+s.ic)});
+    txt.innerHTML=s.n>=10?'<b>Taglio omaggio sbloccato.</b> Tocca Timbra per ricominciare.':s.n===0?'Il decimo taglio è omaggio.':`Ancora ${10-s.n} ${10-s.n===1?'taglio':'tagli'} al taglio omaggio.`;
+  }
+  $('#lcEdit').addEventListener('submit',e=>e.preventDefault());
+  // form -> state
+  const nm=$('#inName');nm.value=s.name;
+  nm.addEventListener('input',()=>{s.name=nm.value;render();save()});
+  [['f','#inFinish'],['ic','#inIcon'],['b','#inBarber']].forEach(([k,sel])=>{
+    const box=$(sel),r=box.querySelector(`input[value="${s[k]}"]`);r&&(r.checked=true);
+    box.addEventListener('change',e=>{if(OK[k].includes(e.target.value)){s[k]=e.target.value;render();save()}});
+  });
+  $('#stampBtn').onclick=()=>{
+    s.n=s.n>=10?0:s.n+1;render();save();
+    if(s.n===10){lc.classList.remove('full');void lc.offsetWidth;lc.classList.add('full')}
+    navigator.vibrate&&navigator.vibrate(s.n===10?[30,40,60]:18);
+  };
+  const toast=$('#toast');
+  $('#walletBtn').onclick=()=>{toast.textContent='Demo: qui la tessera si aggiunge ad Apple o Google Wallet.';toast.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>toast.classList.remove('show'),2600)};
+  // tilt: pointer on desktop, drag on touch (vertical scroll stays native)
+  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
+    const set=(x,y)=>{lc.style.setProperty('--ry',(x-.5)*22+'deg');lc.style.setProperty('--rx',(.5-y)*18+'deg');lc.style.setProperty('--mx',x*100+'%');lc.style.setProperty('--my',y*100+'%')};
+    const at=e=>{const r=lc.getBoundingClientRect();set(cl01((e.clientX-r.left)/r.width),cl01((e.clientY-r.top)/r.height))};
+    const cl01=v=>Math.max(0,Math.min(1,v));
+    lc.addEventListener('pointermove',e=>{lc.classList.add('drag');at(e)});
+    lc.addEventListener('pointerleave',()=>{lc.classList.remove('drag');set(.5,.3)});
+    lc.addEventListener('pointerup',()=>{if(e_touch){lc.classList.remove('drag');set(.5,.3)}});
+    let e_touch=false;lc.addEventListener('pointerdown',e=>{e_touch=e.pointerType!=='mouse';at(e)});
+    // idle shimmer on phones so the card feels alive without touching it
+    new IntersectionObserver(([en])=>{lc.classList.toggle('idle',en.isIntersecting)},{threshold:.6}).observe(lc);
+  }
+  render();
+})();
+
+/* header + dock without GL */
+function plainChrome(){
+  new IntersectionObserver(([e])=>{dock.classList.toggle('show',!e.isIntersecting);hdr.classList.toggle('solid',!e.isIntersecting)}).observe($('.hero-copy .cta-row'));
+}
+
+/* ===== WebGL 3D scroll journey (raw WebGL1, no library) ===== */
+const canvas=$('#gl');
+const gl=root.classList.contains('gl')&&canvas.getContext('webgl',{antialias:false,alpha:false,powerPreference:'high-performance'});
+if(!gl){root.classList.remove('gl');plainChrome();return}
+
+const VS=`attribute vec2 aP;uniform mat4 uM;uniform float uBend;varying vec2 vUv;
+void main(){vUv=aP+.5;vec3 p=vec3(aP,0.);p.z+=sin(vUv.x*3.14159)*uBend;gl_Position=uM*vec4(p,1.);}`;
+const FS=`precision mediump float;uniform sampler2D uT;uniform vec2 uC,uS;uniform float uA,uSat,uW,uTm,uR,uDk;varying vec2 vUv;
+void main(){vec2 uv=(vUv-.5)*uC+.5;uv.x+=sin(uv.y*11.+uTm*2.2)*uW*.012;float s=uW*.007;
+vec3 c=vec3(texture2D(uT,uv+vec2(s,0.)).r,texture2D(uT,uv).g,texture2D(uT,uv-vec2(s,0.)).b);
+float g=dot(c,vec3(.299,.587,.114));c=mix(vec3(g),c,uSat)*uDk;
+vec2 q=abs(vUv-.5)*uS;vec2 h=uS*.5-uR;vec2 e=q-h;float d=length(max(e,0.))+min(max(e.x,e.y),0.)-uR;float m=uR>0.?1.-smoothstep(-.006,.006,d):1.;
+float v=smoothstep(.9,.3,length(vUv-.5));gl_FragColor=vec4(c*mix(.72,1.,v),m*uA);}`;
+function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);return s}
+const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
+if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){root.classList.remove('gl');plainChrome();return}
+gl.useProgram(pr);
+const U={};['uM','uBend','uT','uC','uS','uA','uSat','uW','uTm','uR','uDk'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
+// subdivided quad so planes can bend with scroll speed
+const N=16,pos=[],idx=[];
+for(let y=0;y<=N;y++)for(let x=0;x<=N;x++)pos.push(x/N-.5,y/N-.5);
+for(let y=0;y<N;y++)for(let x=0;x<N;x++){const a=y*(N+1)+x,b=a+1,c=a+N+1,d=c+1;idx.push(a,c,b,b,c,d)}
+gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(pos),gl.STATIC_DRAW);
+gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(idx),gl.STATIC_DRAW);
+const aP=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,2,gl.FLOAT,false,0,0);
+gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(11/255,11/255,10/255,1);gl.uniform1i(U.uT,0);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
+
+function tex(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{try{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);res({t,a:im.naturalWidth/im.naturalHeight})}catch(e){rej(e)}};im.onerror=rej;im.src=src})}
+
+// column-major mat4
+function mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s}return o}
+function persp(f,a,n,fa){const t=1/Math.tan(f/2),nf=1/(n-fa);return new Float32Array([t/a,0,0,0,0,t,0,0,0,0,(fa+n)*nf,-1,0,0,2*fa*n*nf,0])}
+function model(x,y,z,ry,sx,sy){const c=Math.cos(ry),s=Math.sin(ry);return new Float32Array([c*sx,0,-s*sx,0,0,sy,0,0,s,0,c,0,x,y,z,1])}
+const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+
+// scene: hero sign plane at z=0, four cuts behind it; camera dives through the sign
+const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),D=2.4,Z0=3.2;
+const frameZ=[-2.5,-7,-11.5,-16];
+const stops=[Z0,...frameZ.map(z=>z+D),frameZ[3]+D-3];
+let dirty=true,P,hero=null,frames=[],cur=Z0,vel=0,raf=0,visible=true,lastCap=-2,endOn=false;
+const caps=$$('.cut'),endCopy=$('#endCopy'),heroCopy=$('#heroCopy');
+
+function layout(){
+  const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
+  const A=W/H,dpr=Math.min(devicePixelRatio||1,W<768?1.5:1.75); // ponytail: dpr cap keeps phones at 60fps
+  canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);gl.viewport(0,0,canvas.width,canvas.height);
+  P=persp(FOV,A,.05,60);
+  const vh=2*D*TAN,vw=vh*A,mob=A<.9;
+  frames.forEach((f,i)=>{
+    const h=mob?Math.min(vw*.84/f.a,vh*.6):vh*.66;
+    Object.assign(f,{h,w:h*f.a,x:(mob?.05:.21)*vw*(i%2?1:-1),y:mob?vh*.1:0,z:frameZ[i]});
+  });
+  if(hero){hero.h=2*Z0*TAN*1.08;hero.w=hero.h*A}
+  dirty=true;draw();
+}
+function plane(o,alpha,sat,bend,wave,rad,dark,ry){
+  const V=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,-cur,1]);
+  gl.uniformMatrix4fv(U.uM,false,mul(P,mul(V,model(o.x,o.y,o.z,ry,o.w,o.h))));
+  const pa=o.w/o.h;gl.uniform2f(U.uC,pa>o.a?1:pa/o.a,pa>o.a?o.a/pa:1);
+  gl.uniform2f(U.uS,o.w,o.h);gl.uniform1f(U.uA,alpha);gl.uniform1f(U.uSat,sat);
+  gl.uniform1f(U.uBend,bend);gl.uniform1f(U.uW,wave);gl.uniform1f(U.uR,rad);gl.uniform1f(U.uDk,dark);
+  gl.bindTexture(gl.TEXTURE_2D,o.t);gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
+}
+function draw(){
+  if(!hero||!P)return;
+  gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform1f(U.uTm,performance.now()/1000);
+  for(let i=frames.length-1;i>=0;i--){ // far to near
+    const f=frames[i],dz=cur-f.z;
+    if(dz<.15)continue; // behind camera
+    const focus=1-cl(Math.abs(dz-D)/3.6,0,1), fog=cl(1-(dz-D-2)/12,0,1);
+    plane(f,cl((dz-.15)/.9,0,1)*fog,.12+.88*Math.pow(focus,.8),cl(vel*1.4,-.3,.3),cl(Math.abs(vel)*4,0,.8),.035,1,(f.x>0?-1:1)*.42*(1-focus));
+  }
+  if(cur>.12){
+    const dive=cl((Z0-cur)/Z0,0,1);
+    plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.5,0,cl(Math.abs(vel)*5,0,.7)+dive*1.4,0,.66,0);
+  }
+}
+function camFor(p){ // smootherstep between stops = the camera lingers on each cut
+  const n=stops.length-1,s=p*n,i=Math.min(Math.floor(s),n-1),t=s-i,e=t*t*t*(t*(t*6-15)+10);
+  return stops[i]+(stops[i+1]-stops[i])*e;
+}
+function ui(r){
+  const ho=cl((cur-2.3)/.8,0,1);
+  heroCopy.style.opacity=ho;heroCopy.style.transform=`translateY(${(1-ho)*-40}px)`;heroCopy.style.visibility=ho<.01?'hidden':'visible';
+  let k=-1;frames.forEach((f,i)=>{if(Math.abs(cur-(f.z+D))<.95)k=i});
+  if(k!==lastCap){caps.forEach((c,i)=>c.classList.toggle('on',i===k));lastCap=k}
+  const e=cur<frameZ[3]+D-1.3;if(e!==endOn){endCopy.classList.toggle('on',e);endOn=e}
+  dock.classList.toggle('show',-r.top>innerHeight*.55);
+  hdr.classList.toggle('solid',r.bottom<innerHeight*.2);
+}
+function tick(){
+  raf=0;if(!visible)return;
+  const r=journey.getBoundingClientRect(),p=cl(-r.top/(r.height-innerHeight),0,1),target=camFor(p);
+  vel=target-cur;const moving=vel!==0;cur+=vel*.14;if(Math.abs(vel)<.0004){cur=target;vel=0}
+  if(moving||dirty){draw();ui(r);dirty=false}
+  raf=requestAnimationFrame(tick);
+}
+new IntersectionObserver(([e])=>{
+  visible=e.isIntersecting;
+  if(visible){if(!raf)raf=requestAnimationFrame(tick)}else{dock.classList.add('show');hdr.classList.add('solid')}
+}).observe(journey);
+new ResizeObserver(layout).observe(canvas);
+// GPU reset on phones: drop to the static layout instead of a blank stage
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();visible=false;hero=null;heroCopy.removeAttribute('style');caps.forEach(c=>c.classList.remove('on'));root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
+
+Promise.all(['sign','fade','curly','platinum','sidepart'].map(n=>tex(`img/${n}.webp`))).then(([h,...fs])=>{
+  hero={t:h.t,a:h.a,x:0,y:0,z:0};frames=fs.map(f=>({t:f.t,a:f.a}));layout();
+  root.classList.add('gl-ready');if(!raf)raf=requestAnimationFrame(tick);
+}).catch(()=>{root.classList.remove('gl');plainChrome()});
+})();
+</script>
+</body>
+</html>

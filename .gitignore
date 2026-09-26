@@ -1,0 +1,5 @@
+_src/
+.claude/
+.netlify/
+*.log
+research/
