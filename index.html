@@ -724,13 +724,13 @@ function tick(){
   if(moving||dirty){draw();ui(r);dirty=false}
   raf=requestAnimationFrame(tick);
 }
-new IntersectionObserver(([e])=>{
+const jio=new IntersectionObserver(([e])=>{
   visible=e.isIntersecting;
   if(visible){if(!raf)raf=requestAnimationFrame(tick)}else{dock.classList.add('show');hdr.classList.add('solid')}
-}).observe(journey);
+});jio.observe(journey);
 new ResizeObserver(layout).observe(canvas);
 // GPU reset on phones: drop to the static layout instead of a blank stage
-canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();visible=false;hero=null;heroCopy.removeAttribute('style');caps.forEach(c=>c.classList.remove('on'));root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');caps.forEach(c=>c.classList.remove('on'));root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
 
 Promise.all(['sign','fade','curly','platinum','sidepart'].map(n=>tex(`img/${n}.webp`))).then(([h,...fs])=>{
   hero={t:h.t,a:h.a,x:0,y:0,z:0};frames=fs.map(f=>({t:f.t,a:f.a}));layout();
