@@ -10,14 +10,21 @@ function plainChrome(){
 
 /* ===== WebGL 3D scroll journey (raw WebGL1, no library) ===== */
 const canvas=$('#gl');
-const gl=root.classList.contains('gl')&&canvas.getContext('webgl',{antialias:false,alpha:false,powerPreference:'high-performance'});
+const gl=root.classList.contains('gl')&&canvas.getContext('webgl',{antialias:true,alpha:false,powerPreference:'high-performance'});
 if(!gl){root.classList.remove('gl');plainChrome();return}
 
 const VS=`attribute vec2 aP;uniform mat4 uM;uniform float uBend;varying vec2 vUv;
 void main(){vUv=aP+.5;vec3 p=vec3(aP,0.);p.z+=sin(vUv.x*3.14159)*uBend;gl_Position=uM*vec4(p,1.);}`;
-const FS=`precision mediump float;uniform sampler2D uT;uniform vec2 uC,uS;uniform float uA,uSat,uW,uTm,uR,uDk;varying vec2 vUv;
+const FS=`#ifdef GL_FRAGMENT_PRECISION_HIGH
+precision highp float;
+#else
+precision mediump float;
+#endif
+uniform sampler2D uT;uniform vec2 uC,uS,uPx;uniform float uA,uSat,uW,uTm,uR,uDk,uSh;varying vec2 vUv;
 void main(){vec2 uv=(vUv-.5)*uC+.5;uv.x+=sin(uv.y*11.+uTm*2.2)*uW*.012;float s=uW*.007;
 vec3 c=vec3(texture2D(uT,uv+vec2(s,0.)).r,texture2D(uT,uv).g,texture2D(uT,uv-vec2(s,0.)).b);
+vec2 o=uPx*uC;vec3 bl=(texture2D(uT,uv+vec2(o.x,0.)).rgb+texture2D(uT,uv-vec2(o.x,0.)).rgb+texture2D(uT,uv+vec2(0.,o.y)).rgb+texture2D(uT,uv-vec2(0.,o.y)).rgb)*.25;
+c=clamp(c+(c-bl)*uSh,0.,1.); // unsharp mask, one screen pixel wide
 float g=dot(c,vec3(.299,.587,.114));c=mix(vec3(g),c,uSat)*uDk;
 c*=vec3(.96,1.,1.015);c+=(fract(sin(dot(gl_FragCoord.xy+uTm*61.,vec2(12.9898,78.233)))*43758.5453)-.5)*.045;
 vec2 q=abs(vUv-.5)*uS;vec2 h=uS*.5-uR;vec2 e=q-h;float d=length(max(e,0.))+min(max(e.x,e.y),0.)-uR;float m=uR>0.?1.-smoothstep(-.006,.006,d):1.;
@@ -26,7 +33,7 @@ function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileS
 const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
 if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){root.classList.remove('gl');plainChrome();return}
 gl.useProgram(pr);
-const U={};['uM','uBend','uT','uC','uS','uA','uSat','uW','uTm','uR','uDk'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
+const U={};['uM','uBend','uT','uC','uS','uPx','uSh','uA','uSat','uW','uTm','uR','uDk'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
 // subdivided quad so planes can bend with scroll speed
 const N=16,pos=[],idx=[];
 for(let y=0;y<=N;y++)for(let x=0;x<=N;x++)pos.push(x/N-.5,y/N-.5);
@@ -36,10 +43,20 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ELEMEN
 const aP=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,2,gl.FLOAT,false,0,0);
 gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(11/255,11/255,10/255,1);gl.uniform1i(U.uT,0);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
 
-function tex(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{try{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
+const ANISO=gl.getExtension('EXT_texture_filter_anisotropic'),MAXTEX=Math.min(2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));
+const potNear=n=>Math.pow(2,Math.round(Math.log2(Math.max(2,n))));
+// Photos are resampled once to a power-of-two canvas so the GPU can build mipmaps: big uploads then shrink cleanly
+// (no shimmer) and small ones are not sharpened by accident. UVs are normalised, so the stretch is invisible.
+function tex(src){return new Promise((res,rej)=>{const im=new Image();im.decoding='async';im.onload=()=>{try{
+  const W0=im.naturalWidth,H0=im.naturalHeight,k=Math.min(1,MAXTEX/Math.max(W0,H0));
+  const w=Math.min(MAXTEX,potNear(W0*k)),h=Math.min(MAXTEX,potNear(H0*k));
+  const c=document.createElement('canvas');c.width=w;c.height=h;const x=c.getContext('2d');x.imageSmoothingEnabled=true;x.imageSmoothingQuality='high';x.drawImage(im,0,0,w,h);
+  const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
   gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);res({t,a:im.naturalWidth/im.naturalHeight})}catch(e){rej(e)}};im.onerror=rej;im.src=src})}
+  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGBA,gl.RGBA,gl.UNSIGNED_BYTE,c);gl.generateMipmap(gl.TEXTURE_2D);
+  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR_MIPMAP_LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
+  if(ANISO)gl.texParameterf(gl.TEXTURE_2D,ANISO.TEXTURE_MAX_ANISOTROPY_EXT,Math.min(8,gl.getParameter(ANISO.MAX_TEXTURE_MAX_ANISOTROPY_EXT)));
+  res({t,a:W0/H0})}catch(e){rej(e)}};im.onerror=rej;im.src=src})}
 
 // column-major mat4
 function mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s}return o}
@@ -51,14 +68,14 @@ const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),D=2.4,Z0=3.2;
 const frameZ=[-2.5,-7,-11.5,-16];
 const stops=[Z0,...frameZ.map(z=>z+D),frameZ[3]+D-3];
-let dirty=true,P,hero=null,frames=[],cur=Z0,vel=0,raf=0,visible=true,lastCap=-2,endOn=false;
+let ASP=1,dirty=true,P,hero=null,frames=[],cur=Z0,vel=0,raf=0,visible=true,lastCap=-2,endOn=false;
 const caps=$$('.cut'),endCopy=$('#endCopy'),heroCopy=$('#heroCopy');
 
 function layout(){
   const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
-  const A=W/H,dpr=Math.min(devicePixelRatio||1,W<768?1.5:1.75); // ponytail: dpr cap keeps phones at 60fps
+  const A=W/H,dpr=Math.min(devicePixelRatio||1,2); // native sharpness on retina screens, capped at 2x for phones
   canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);gl.viewport(0,0,canvas.width,canvas.height);
-  P=persp(FOV,A,.05,60);
+  ASP=A;P=persp(FOV,A,.05,60);
   const vh=2*D*TAN,vw=vh*A,mob=A<.9;
   frames.forEach((f,i)=>{
     const h=mob?Math.min(vw*.84/f.a,vh*.6):vh*.66;
@@ -71,6 +88,8 @@ function plane(o,alpha,sat,bend,wave,rad,dark,ry){
   const V=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,-cur,1]);
   gl.uniformMatrix4fv(U.uM,false,mul(P,mul(V,model(o.x,o.y,o.z,ry,o.w,o.h))));
   const pa=o.w/o.h;gl.uniform2f(U.uC,pa>o.a?1:pa/o.a,pa>o.a?o.a/pa:1);
+  const dz=Math.max(.05,cur-o.z),pxW=o.w/(2*dz*TAN*ASP)*canvas.width,pxH=o.h/(2*dz*TAN)*canvas.height;
+  gl.uniform2f(U.uPx,1/Math.max(1,pxW),1/Math.max(1,pxH));gl.uniform1f(U.uSh,.55*(1-cl(Math.abs(vel)*3,0,.6)));
   gl.uniform2f(U.uS,o.w,o.h);gl.uniform1f(U.uA,alpha);gl.uniform1f(U.uSat,sat);
   gl.uniform1f(U.uBend,bend);gl.uniform1f(U.uW,wave);gl.uniform1f(U.uR,rad);gl.uniform1f(U.uDk,dark);
   gl.bindTexture(gl.TEXTURE_2D,o.t);gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
@@ -117,7 +136,10 @@ new ResizeObserver(layout).observe(canvas);
 // GPU reset on phones: drop to the static layout instead of a blank stage
 canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');caps.forEach(c=>c.classList.remove('on'));root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
 
-Promise.all(['sign','fade','curly','platinum','sidepart'].map(n=>tex(`img/${n}.webp`))).then(([h,...fs])=>{
+// Sources come from the markup: .hero-img (optional data-wide for landscape screens) and the four .cut images.
+const heroEl=$('.hero-img'),wideScreen=innerWidth/innerHeight>1.15;
+const SRC=[(wideScreen&&heroEl.dataset.wide)||heroEl.getAttribute('src'),...$$('.cut img').map(i=>i.getAttribute('src'))];
+Promise.all(SRC.map(tex)).then(([h,...fs])=>{
   hero={t:h.t,a:h.a,x:0,y:0,z:0};frames=fs.map(f=>({t:f.t,a:f.a}));layout();
   root.classList.add('gl-ready');if(!raf)raf=requestAnimationFrame(tick);
 }).catch(()=>{root.classList.remove('gl');plainChrome()});
