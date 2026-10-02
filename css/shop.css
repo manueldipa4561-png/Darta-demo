@@ -35,9 +35,17 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 .cu-p:nth-child(1){left:0}.cu-p:nth-child(2){right:0}
 .cu-logo{position:absolute;left:50%;top:50%;width:min(54vw,270px);translate:-50% -56%;opacity:0}
 .cu-line{position:absolute;left:50%;top:calc(50% + 62px);width:min(40vw,210px);height:2px;background:var(--accent);translate:-50% 0;transform-origin:left;transform:scaleX(0)}
+/* the header logo waits for the loader logo to land on it (CSS failsafe reveals it if JS never runs) */
+.intro .hdr .logo img{opacity:0;animation:cuHome 0s 3.9s forwards}
+@keyframes cuHome{to{opacity:1}}
+.hdr .logo img,.cu-logo{filter:drop-shadow(0 1px 8px rgba(0,0,0,.5))}
 .intro .hero-copy .rv{transition-delay:calc(var(--i,0)*80ms + 1.7s)}
 
 /* ===== hero kicker + ticker + manifesto ===== */
+.hero-copy{padding-top:calc(env(safe-area-inset-top) + 96px)}   /* the copy never slides under the header/logo */
+@media(max-height:720px){.hero-copy .kicker{display:none}}
+@media(max-height:620px){.hero-copy .lead{display:none}.hero-copy .h1{font-size:clamp(2.6rem,min(14vw,15vh),6rem)}.hero-copy{padding-top:calc(env(safe-area-inset-top) + 78px)}}
+@media(max-height:430px){.hero-copy .h1{font-size:clamp(2.2rem,min(12vw,13vh),4rem)}.hero-copy .cta-row .btn{min-height:44px}}
 .kicker{display:flex;align-items:center;flex-wrap:wrap;gap:.7rem;margin-bottom:1.15rem;font:500 .75rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:#d3cdc2}
 .kicker b{width:4px;height:4px;border-radius:50%;background:var(--accent)}
 .tick{overflow:hidden;border-block:1px solid var(--line);background:var(--bg2);padding:1.05rem 0;user-select:none}
