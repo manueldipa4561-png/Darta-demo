@@ -8,7 +8,8 @@ if(!A||reduce){$('#curtain')&&$('#curtain').remove();root.classList.remove('intr
 
 const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-/* 1. first-visit curtain: logo, hairline, then two panels wipe away */
+/* 1. first-visit curtain: the logo draws in, then travels to the top-left and lands exactly on the header logo
+      while two panels wipe away. The header logo stays hidden until the hand-off, so there is never a double or a pop. */
 function curtain(){
   const c=$('#curtain');if(!c)return;
   if(!root.classList.contains('intro')){c.remove();return}
@@ -16,12 +17,17 @@ function curtain(){
   const done=()=>{if(over)return;over=true;root.classList.remove('intro');c.remove()};
   if(document.hidden){done();return}          // opened in a background tab: don't leave the curtain waiting for frames
   setTimeout(done,4200);                       // failsafe if the timeline is ever throttled
-  A.createTimeline({defaults:{ease:'outExpo'},onComplete:done})
-    .add('#curtain .cu-logo',{opacity:[0,1],y:[26,0],duration:760},0)
+  const logo=$('#curtain .cu-logo'),home=$('.hdr .logo img');
+  // measure BEFORE any transform runs: where the header logo sits, relative to the centred loader logo
+  const a=logo.getBoundingClientRect(),b=home.getBoundingClientRect();
+  const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2),sc=b.width/a.width;
+  const tl=A.createTimeline({defaults:{ease:'outExpo'},onComplete:done})
+    .add(logo,{opacity:[0,1],y:[26,0],duration:760},0)
     .add('#curtain .cu-line',{scaleX:[0,1],duration:980},120)
-    .add('#curtain .cu-logo',{opacity:[1,0],y:[0,-18],duration:380,ease:'inQuad'},980)
-    .add('#curtain .cu-line',{opacity:[1,0],duration:300,ease:'inQuad'},1000)
+    .add('#curtain .cu-line',{opacity:[1,0],duration:300,ease:'inQuad'},980)
+    .add(logo,{x:dx,y:dy,scale:sc,duration:1050,ease:'inOutExpo'},1000)
     .add('#curtain .cu-p',{scaleY:[1,0],duration:820,delay:A.stagger(90),ease:'inOutExpo'},1180);
+  D.motion&&(D.motion.tl=tl);
 }
 
 /* 2. count-ups on the proof numbers */
