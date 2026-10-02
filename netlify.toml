@@ -15,10 +15,12 @@
     X-Permitted-Cross-Domain-Policies = "none"
     X-Robots-Tag = "noindex, nofollow"            # demo: also covers images and JSON. Remove at go-live
 
+# Images keep their file names when they are replaced (new photos, new logo), so they must revalidate.
+# A long max-age here also pinned a 404 for a logo that was uploaded a few minutes after the page that used it.
 [[headers]]
   for = "/img/*"
   [headers.values]
-    Cache-Control = "public, max-age=2592000"
+    Cache-Control = "public, max-age=3600, must-revalidate"
 
 [[headers]]
   for = "/fonts/*"
