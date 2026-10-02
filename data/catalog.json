@@ -1,0 +1,83 @@
+{
+  "currency": "EUR",
+  "shipping": { "flat": 490, "freeFrom": 4000 },
+  "coupons": { "BENVENUTO10": { "pct": 10, "label": "Benvenuto, 10% sui prodotti" } },
+  "cats": [
+    { "id": "tutti", "label": "Tutti" },
+    { "id": "capelli", "label": "Capelli" },
+    { "id": "barba", "label": "Barba" },
+    { "id": "kit", "label": "Kit" },
+    { "id": "regali", "label": "Regali" },
+    { "id": "club", "label": "Club" }
+  ],
+  "products": [
+    {
+      "id": "clay", "slug": "matte-clay", "no": "01", "name": "Matte Clay", "tag": "Argilla opaca",
+      "cat": "capelli", "kind": "jar", "size": "100 ml", "price": 1600,
+      "short": "Tenuta forte, finish opaco.",
+      "desc": "L'argilla che Thomas usa per texture e volume senza lucido. Si lavora a secco o sui capelli appena asciugati e tiene per tutta la giornata.",
+      "use": ["Scalda una noce di prodotto tra i palmi.", "Distribuisci dalla nuca verso la fronte.", "Rimodella quando vuoi: non indurisce."],
+      "specs": [["Tenuta", 4], ["Lucido", 1]],
+      "look": { "body": "#1b1b19", "lid": "#8f9694", "lidMetal": true, "label": "#0f0f0e", "accent": "#6cc0b8" },
+      "label": { "no": "N°01", "name": "Matte Clay", "sub": "Argilla opaca", "vol": "100 ML" }
+    },
+    {
+      "id": "pomata", "slug": "pomata-shine", "no": "02", "name": "Pomata Shine", "tag": "Pomata lucida",
+      "cat": "capelli", "kind": "jar", "size": "100 ml", "price": 1500,
+      "short": "Riga a rasoio e lucido pulito.",
+      "desc": "Pomata a base acqua per side part, riga netta e finish lucido. Si toglie con un normale shampoo e non lascia residui.",
+      "use": ["Applica su capelli umidi con le dita.", "Pettina dalla riga verso l'esterno.", "Fissa con il phon per un lucido più asciutto."],
+      "specs": [["Tenuta", 3], ["Lucido", 5]],
+      "look": { "body": "#1e4a47", "lid": "#efe9df", "lidMetal": false, "label": "#102928", "accent": "#efe9df" },
+      "label": { "no": "N°02", "name": "Pomata Shine", "sub": "Pomata lucida", "vol": "100 ML" }
+    },
+    {
+      "id": "olio", "slug": "olio-barba", "no": "03", "name": "Olio Barba", "tag": "Olio per barba",
+      "cat": "barba", "kind": "dropper", "size": "30 ml", "price": 1400,
+      "short": "Morbida, ordinata, profumata.",
+      "desc": "Poche gocce per ammorbidire la barba, domare i peli ribelli e dare un finish naturale. Note di legno e ambra.",
+      "use": ["Versa 3-4 gocce nel palmo.", "Scalda e distribuisci dalla radice alla punta.", "Pettina per definire la forma."],
+      "specs": [["Morbidezza", 5], ["Profumo", 3]],
+      "look": { "glass": "#b4570d", "label": "#0f0f0e", "accent": "#6cc0b8" },
+      "label": { "no": "N°03", "name": "Olio Barba", "sub": "Legno e ambra", "vol": "30 ML" }
+    },
+    {
+      "id": "sale", "slug": "sea-salt-spray", "no": "04", "name": "Sea Salt Spray", "tag": "Spray texturizzante",
+      "cat": "capelli", "kind": "spray", "size": "150 ml", "price": 1300,
+      "short": "Volume e texture da spiaggia.",
+      "desc": "Il pre-styling che dà corpo ai capelli fini e texture ai tagli corti. Si asciuga in pochi secondi, senza irrigidire.",
+      "use": ["Spruzza sui capelli umidi.", "Asciuga con il phon scompigliando.", "Finisci con Matte Clay se vuoi più tenuta."],
+      "specs": [["Volume", 4], ["Tenuta", 2]],
+      "look": { "body": "#2f6f6a", "label": "#0e1b1a", "accent": "#efe9df" },
+      "label": { "no": "N°04", "name": "Sea Salt", "sub": "Spray texturizzante", "vol": "150 ML" }
+    },
+    {
+      "id": "kit", "slug": "kit-fade", "no": "05", "name": "Kit Fade", "tag": "Clay, Sea Salt, Olio",
+      "cat": "kit", "kind": "kit", "size": "3 prodotti", "price": 3900, "items": ["clay", "sale", "olio"],
+      "short": "Tutto il fade di casa, risparmiando.",
+      "desc": "Matte Clay, Sea Salt Spray e Olio Barba nello stesso ordine. Il set che Thomas consiglia a chi esce dalla poltrona con un fade nuovo.",
+      "use": ["Sea Salt sui capelli umidi.", "Matte Clay per texture e tenuta.", "Olio Barba per rifinire."],
+      "specs": [["Tenuta", 4], ["Lucido", 1]],
+      "look": { "accent": "#6cc0b8" }
+    },
+    {
+      "id": "gift", "slug": "gift-card", "no": "06", "name": "Gift Card", "tag": "Regala un taglio",
+      "cat": "regali", "kind": "card", "size": "Digitale", "price": 5000, "digital": true,
+      "variants": [ { "id": "25", "label": "25€", "price": 2500 }, { "id": "50", "label": "50€", "price": 5000 }, { "id": "100", "label": "100€", "price": 10000 } ],
+      "short": "Per un taglio, una barba o un prodotto.",
+      "desc": "Arriva via email subito dopo l'ordine, pronta da inoltrare. Vale per tutti i servizi e i prodotti del salone, per 12 mesi.",
+      "use": ["Scegli l'importo.", "La ricevi via email in pochi minuti.", "Chi la riceve prenota nell'app e la mostra in cassa."],
+      "specs": [["Validità", 5], ["Facilità", 5]],
+      "look": { "finish": "gift", "accent": "#6cc0b8" }
+    },
+    {
+      "id": "club", "slug": "abbonamento-fade", "no": "07", "name": "Abbonamento Fade", "tag": "2 tagli al mese",
+      "cat": "club", "kind": "card", "size": "Mensile", "price": 3600, "digital": true, "recurring": true,
+      "short": "Il fade sempre fresco, a prezzo fisso.",
+      "desc": "Due tagli al mese a 36€ invece di 50€. Si attiva alla prima prenotazione e si disdice quando vuoi.",
+      "use": ["Attivi l'abbonamento.", "Prenoti i due tagli nell'app.", "Disdici dal salone, senza penali."],
+      "specs": [["Risparmio", 4], ["Flessibilità", 5]],
+      "look": { "finish": "club", "accent": "#6cc0b8" }
+    }
+  ]
+}
