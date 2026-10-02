@@ -1,291 +1,23 @@
-<!doctype html>
+<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Darta Barber Studio | Barbiere a Pescara, Via Gobetti 184</title>
-<meta name="description" content="Il barber studio di Thomas D'Attanasio a Pescara. Skin fade, barba e stile. Via Gobetti 184, aperto da martedì a sabato. Prenota dall'app.">
+<title>Darta Barber Studio | Barbiere e shop a Pescara, Via Gobetti 184</title>
+<meta name="description" content="Il barber studio di Thomas D'Attanasio a Pescara. Skin fade, barba e stile in Via Gobetti 184, prodotti e gift card nello shop online. Prenota dall'app.">
 <meta name="robots" content="noindex">
 <meta name="theme-color" content="#0b0b0a">
 <meta property="og:title" content="Darta Barber Studio, Pescara">
-<meta property="og:description" content="Tagli da campioni in Via Gobetti 184. Prenota dall'app.">
+<meta property="og:description" content="Tagli da campioni in Via Gobetti 184. Prenota dall'app e porta a casa i prodotti di Thomas.">
 <meta property="og:image" content="img/sign.webp">
 <link rel="icon" href="img/logo.png">
 <link rel="preload" as="image" href="img/sign.webp" fetchpriority="high">
 <link rel="preload" as="font" type="font/woff2" href="fonts/BarlowCondensed-800.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="fonts/Barlow-400.woff2" crossorigin>
-<script>/* set GL layout before first paint to avoid a layout jump */if(!matchMedia('(prefers-reduced-motion: reduce)').matches)document.documentElement.classList.add('gl')</script>
-<style>
-@font-face{font-family:'Barlow';font-style:normal;font-weight:400;font-display:swap;src:url(fonts/Barlow-400.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
-@font-face{font-family:'Barlow';font-style:normal;font-weight:500;font-display:swap;src:url(fonts/Barlow-500.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
-@font-face{font-family:'Barlow';font-style:normal;font-weight:600;font-display:swap;src:url(fonts/Barlow-600.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
-@font-face{font-family:'Barlow Condensed';font-style:italic;font-weight:800;font-display:swap;src:url(fonts/BarlowCondensed-800i.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
-@font-face{font-family:'Barlow Condensed';font-style:normal;font-weight:800;font-display:swap;src:url(fonts/BarlowCondensed-800.woff2) format('woff2');unicode-range:U+0000-00FF, U+0131, U+0152-0153, U+02BB-02BC, U+02C6, U+02DA, U+02DC, U+0304, U+0308, U+0329, U+2000-206F, U+20AC, U+2122, U+2191, U+2193, U+2212, U+2215, U+FEFF, U+FFFD}
-:root{
-  --bg:#0b0b0a; --bg2:#121210; --surface:#171715; --line:#2b2a27;
-  --text:#efe9df; --muted:#aaa498; --dim:#8a857c;
-  --accent:#6cc0b8; /* teal of the Via Gobetti wall sign: the only accent */
-  --r:14px; --pill:999px;
-  --g:clamp(20px,5vw,64px);
-  --sec:clamp(5.5rem,15vw,10rem);
-  --fd:"Barlow Condensed",system-ui,sans-serif;
-  --fb:"Barlow",system-ui,sans-serif;
-  --ease:cubic-bezier(.16,1,.3,1);
-  color-scheme:dark;
-}
-*{box-sizing:border-box;margin:0;padding:0}
-html{-webkit-text-size-adjust:100%;scroll-behavior:smooth}
-body{background:var(--bg);color:var(--text);font:400 1.0625rem/1.6 var(--fb);-webkit-font-smoothing:antialiased;overflow-x:clip}
-img{display:block;max-width:100%;height:auto}
-[id]{scroll-margin-top:84px}
-a{color:inherit;text-decoration:none}
-button{font:inherit;color:inherit;background:none;border:0;cursor:pointer}
-svg.i{width:1.25em;height:1.25em;flex:none}
-:focus-visible{outline:2px solid var(--accent);outline-offset:3px;border-radius:6px}
-.wrap{max-width:1320px;margin:0 auto;padding:0 var(--g)}
-
-/* type */
-.d{font-family:var(--fd);font-weight:800;text-transform:uppercase;letter-spacing:-.005em;line-height:.88}
-.d em{font-style:italic;color:var(--accent)}
-.h1{font-size:clamp(3.6rem,min(17vw,17vh),10.5rem)}
-.h2{font-size:clamp(3rem,12.5vw,7.25rem)}
-.h3{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(1.6rem,6vw,2.1rem);line-height:1}
-.lead{color:var(--muted);max-width:44ch;font-size:clamp(1.0625rem,2.6vw,1.2rem)}
-.eyebrow{font:600 .8125rem/1 var(--fb);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
-.num{font-variant-numeric:tabular-nums}
-.ln{display:block;overflow:hidden;padding-bottom:.14em;margin-bottom:-.14em}
-.ln>span{display:block}
-
-/* buttons */
-.btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:52px;padding:0 1.6em;border-radius:var(--pill);font:600 1rem/1 var(--fb);letter-spacing:.02em;white-space:nowrap;transition:transform .25s var(--ease),background .25s,border-color .25s}
-.btn:active{transform:scale(.97)}
-.btn-p{background:var(--text);color:var(--bg)}
-.btn-p:hover{background:#fff}
-.btn-g{border:1px solid rgba(239,233,223,.34);color:var(--text);background:rgba(11,11,10,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.btn-g:hover{border-color:var(--text)}
-.btn svg{width:1.15em;height:1.15em}
-
-/* header */
-.hdr{position:fixed;inset:0 0 auto;z-index:40;display:flex;align-items:center;justify-content:space-between;gap:1rem;padding:calc(env(safe-area-inset-top) + 14px) var(--g) 14px;transition:background .35s,border-color .35s;border-bottom:1px solid transparent}
-.hdr.solid{background:rgba(11,11,10,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-color:var(--line)}
-.hdr .logo img{width:clamp(104px,26vw,138px);height:auto}
-.hdr nav{display:none;gap:2rem;font:500 .9375rem/1 var(--fb);color:var(--muted)}
-.hdr nav a:hover{color:var(--text)}
-.hdr .btn{min-height:44px;padding:0 1.25em;font-size:.9375rem}
-@media(min-width:900px){.hdr nav{display:flex}}
-
-/* ===== journey: hero + 3D corridor ===== */
-#journey{position:relative}
-#stage{position:relative;min-height:100svh;overflow:hidden;background:var(--bg)}
-#stage canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .8s}
-.gl-ready #stage canvas{opacity:1}
-.hero-img{position:absolute;inset:0;width:100%;height:100svh;object-fit:cover;filter:brightness(.62)}
-.gl-ready .hero-img{opacity:0;transition:opacity .8s}
-#stage::before,#stage::after{content:"";position:absolute;left:0;right:0;pointer-events:none;z-index:2}
-#stage::before{top:0;height:22%;background:linear-gradient(rgba(11,11,10,.75),transparent)}
-#stage::after{bottom:0;height:58%;background:linear-gradient(transparent,rgba(11,11,10,.55) 40%,rgba(11,11,10,.94))}
-.hero-copy{position:absolute;z-index:3;left:0;right:0;top:0;min-height:100svh;display:flex;flex-direction:column;justify-content:flex-end;padding:0 var(--g) calc(env(safe-area-inset-bottom) + clamp(28px,7vh,72px));will-change:opacity,transform}
-.hero-copy .h1{margin-bottom:.22em}
-.hero-copy .lead{margin-bottom:1.6rem;color:#d3cdc2}
-.cta-row{display:flex;flex-wrap:wrap;gap:.75rem}
-
-/* cuts: captions over the 3D corridor (GL) / swipe rail (fallback) */
-.cuts{list-style:none;position:relative;z-index:3}
-.cut figcaption strong{display:block;font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,9vw,4.4rem);line-height:.9;margin-bottom:.35rem}
-.cut figcaption span{color:var(--muted)}
-.end-copy{display:none}
-
-html:not(.gl) #stage{overflow:visible}
-html:not(.gl) .hero-copy{position:relative}
-html:not(.gl) .cuts{display:grid;grid-auto-flow:column;grid-auto-columns:min(78vw,380px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:var(--sec) var(--g) 0;scroll-padding:0 var(--g);scrollbar-width:none}
-html:not(.gl) .cuts::-webkit-scrollbar{display:none}
-html:not(.gl) .cut{scroll-snap-align:start}
-html:not(.gl) .cut img{aspect-ratio:4/5;width:100%;object-fit:cover;border-radius:var(--r);margin-bottom:1rem}
-html:not(.gl) .cut figcaption strong{font-size:2rem}
-html:not(.gl) #stage::after{height:100svh;top:0;bottom:auto;background:linear-gradient(transparent 42%,rgba(11,11,10,.94))}
-
-.gl #journey{height:560svh}
-.gl #stage{position:sticky;top:0;height:100svh}
-.gl .cuts{position:absolute;inset:auto 0 0;pointer-events:none;height:0}
-.gl .cut{position:absolute;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0;transform:translateY(24px);transition:opacity .45s var(--ease),transform .6s var(--ease)}
-.gl .cut.on{opacity:1;transform:none}
-.gl .cut img{display:none}
-.gl .end-copy{display:block;position:absolute;z-index:3;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0;transform:translateY(24px);transition:opacity .5s var(--ease),transform .7s var(--ease);pointer-events:none}
-.gl .end-copy.on{opacity:1;transform:none;pointer-events:auto}
-.end-copy .h2{margin-bottom:1.25rem}
-@media(min-width:900px){.gl .cut,.gl .end-copy{padding-bottom:64px}}
-
-/* ===== sections ===== */
-section{position:relative}
-.sec{padding:var(--sec) 0}
-
-.proof{display:grid;gap:2.75rem;padding:var(--sec) 0 0}
-.proof b{display:block;font-family:var(--fd);font-weight:800;font-size:clamp(4.2rem,20vw,7.5rem);line-height:.85;text-transform:uppercase}
-.proof b small{font-size:.42em;color:var(--accent);vertical-align:.95em;margin-left:.08em}
-.proof p{color:var(--muted);max-width:30ch;margin-top:.5rem}
-@media(min-width:900px){.proof{grid-template-columns:1.25fr 1fr 1fr;align-items:end}}
-
-.menu{display:grid;gap:3rem}
-.menu-head .lead{margin-top:1.25rem}
-.menu-head .note{margin-top:1rem;font-size:.875rem;color:var(--dim)}
-.grp+.grp{margin-top:2.75rem}
-.grp h3{color:var(--accent);margin-bottom:.75rem}
-.row{display:grid;grid-template-columns:1fr auto;gap:.2rem 1rem;padding:1.05rem 0;border-bottom:1px solid var(--line);align-items:baseline}
-.row .n{font:600 1.125rem/1.3 var(--fb)}
-.row .t{grid-column:1;color:var(--dim);font-size:.9375rem}
-.row .p{grid-row:1/span 2;grid-column:2;font-family:var(--fd);font-weight:800;font-size:2rem;line-height:1}
-.menu .btn{margin-top:2.25rem}
-@media(min-width:900px){.menu{grid-template-columns:5fr 7fr;gap:6vw}.menu-head{position:sticky;top:120px;align-self:start}}
-
-.story .h2{margin-bottom:1.5rem}
-.tl{list-style:none;margin-top:3.5rem;position:relative;display:grid;gap:2.5rem;padding-left:28px}
-.tl::before,.tl::after{content:"";position:absolute;left:5px;top:6px;bottom:6px;width:2px;background:var(--line)}
-.tl::after{background:var(--accent);transform-origin:top}
-.tl li{position:relative}
-.tl li::before{content:"";position:absolute;left:-28px;top:.55em;width:12px;height:12px;border-radius:50%;background:var(--bg);border:2px solid var(--accent)}
-.tl .h3{margin-bottom:.35rem}
-.tl p{color:var(--muted);max-width:46ch}
-@media(min-width:900px){.story-grid{display:grid;grid-template-columns:1fr 1fr;gap:6vw}.tl{margin-top:0}}
-
-.champs{border-top:1px solid var(--line);border-bottom:1px solid var(--line);background:var(--bg2)}
-.clubs{list-style:none;margin:2.25rem 0 2.5rem}
-.clubs li{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(3.6rem,17vw,11rem);line-height:.9;color:transparent;-webkit-text-stroke:1.5px rgba(239,233,223,.55);transition:color .5s var(--ease)}
-.clubs li.lit{color:var(--text)}
-.champs .lead strong{color:var(--text);font-weight:600}
-
-.team-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,400px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:2.5rem;padding:0 var(--g) 6px;scroll-padding:0 var(--g);scrollbar-width:none}
-.team-rail::-webkit-scrollbar{display:none}
-.mate{scroll-snap-align:start;position:relative;overflow:hidden;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);padding:1.5rem;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end}
-.mate .ini{position:absolute;top:-.12em;right:-.04em;font-family:var(--fd);font-weight:800;font-size:17rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(108,192,184,.4);pointer-events:none}
-.mate.lead-mate{background:linear-gradient(160deg,#16302e,#101312 70%)}
-.mate .role{color:var(--accent);font-weight:600;font-size:.9375rem;margin-bottom:.25rem}
-.mate .h3{font-size:clamp(2.2rem,9vw,2.9rem)}
-.mate p{color:var(--muted);margin:.6rem 0 1.25rem;max-width:32ch}
-.mate .btn{align-self:flex-start}
-@media(min-width:1100px){.team-rail{grid-auto-flow:row;grid-template-columns:1.3fr 1fr 1fr;overflow:visible;max-width:1320px;margin-left:auto;margin-right:auto}}
-
-.club-grid{display:grid;gap:3rem}
-/* loyalty card: wallet pass look, 3D tilt + sheen */
-.lc-stage{margin-top:2rem;perspective:1100px}
-.lc{--rx:0deg;--ry:0deg;--mx:50%;--my:30%;--ink:#efe9df;--sub:rgba(239,233,223,.62);--stroke:rgba(239,233,223,.28);--fill:#6cc0b8;--on:#0b0b0a;
-  position:relative;width:100%;max-width:420px;border-radius:20px;padding:clamp(14px,4.4vw,22px);color:var(--ink);overflow:hidden;
-  display:grid;gap:clamp(14px,4vw,18px);transform:rotateX(var(--rx)) rotateY(var(--ry));transform-style:preserve-3d;transition:transform .5s var(--ease),background .5s;
-  background:radial-gradient(120% 90% at 100% 0%,#26302f 0%,transparent 55%),linear-gradient(150deg,#1d1d1b,#0c0c0b 70%);
-  border:1px solid rgba(255,255,255,.1);box-shadow:inset 0 1px 0 rgba(255,255,255,.12),0 40px 70px -30px rgba(0,0,0,.9),0 0 0 1px rgba(0,0,0,.4);touch-action:pan-y;user-select:none;-webkit-user-select:none}
-.lc.drag{transition:background .5s}
-.lc-sheen{position:absolute;inset:0;pointer-events:none;background:radial-gradient(circle at var(--mx) var(--my),rgba(255,255,255,.22),transparent 45%);mix-blend-mode:overlay}
-.lc[data-f=gobetti]{background:radial-gradient(110% 80% at 0% 0%,#3d8c86 0%,transparent 60%),linear-gradient(160deg,#1e4a47,#0d2322 75%);--stroke:rgba(239,233,223,.34);--fill:#efe9df}
-.lc[data-f=chrome]{background:linear-gradient(125deg,#8d918f 0%,#e9ebe8 28%,#9ea3a0 46%,#f4f5f2 62%,#7f8482 100%);--ink:#101110;--sub:rgba(16,17,16,.62);--stroke:rgba(16,17,16,.3);--fill:#101110;--on:#e9ebe8}
-.lc[data-f=holo]{background:linear-gradient(115deg,#1a1a2e,#101216 40%),#101216;--fill:#efe9df}
-.lc[data-f=holo] .lc-sheen{mix-blend-mode:color-dodge;opacity:.9;background:linear-gradient(115deg,transparent 20%,rgba(108,192,184,.55) 36%,rgba(173,140,255,.45) 48%,rgba(255,170,200,.4) 58%,transparent 74%);background-size:220% 220%;background-position:var(--mx) var(--my)}
-.lc[data-f=chrome] .lc-top img{filter:invert(1)}
-.lc-top{display:flex;justify-content:space-between;align-items:center}
-.lc-top img{width:clamp(78px,22vw,104px)}
-.lc-tier{font:600 .6875rem/1 var(--fb);letter-spacing:.16em;text-transform:uppercase;padding:.45em .8em;border-radius:var(--pill);border:1px solid var(--stroke);color:var(--sub)}
-.lc-k{display:block;font:600 .625rem/1 var(--fb);letter-spacing:.14em;text-transform:uppercase;color:var(--sub);margin-bottom:.35em}
-.lc-mid{display:flex;justify-content:space-between;align-items:end}
-.lc-count{font-family:var(--fd);font-weight:800;font-size:clamp(1.9rem,8vw,2.5rem);line-height:.8}
-.lc-count small{font-size:.5em;color:var(--sub);margin-left:.08em}
-.lc-bot{display:grid;grid-template-columns:1.5fr 1fr auto;gap:.75rem;align-items:end}
-.lc-bot b{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(1rem,4.6vw,1.3rem);line-height:1;display:block;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
-.lc-no{text-align:right}
-.stamps{display:grid;grid-template-columns:repeat(5,1fr);gap:clamp(5px,1.8vw,9px);align-content:center}
-.stamp{aspect-ratio:1;max-height:100%;border-radius:50%;border:1.5px dashed var(--stroke);display:grid;place-items:center;font:800 clamp(.7rem,2.6vw,.9rem)/1 var(--fd);color:var(--sub);transition:transform .35s var(--ease),background .3s,border-color .3s,color .3s}
-.stamp svg{grid-area:1/1;width:50%;height:50%;opacity:0;transform:scale(.3) rotate(-40deg);transition:opacity .35s var(--ease),transform .5s cubic-bezier(.34,1.56,.64,1)}
-.stamp b{grid-area:1/1;transition:opacity .2s}
-.stamp.on{background:var(--fill);border:1.5px solid var(--fill);color:var(--on)}
-.stamp.on svg{opacity:1;transform:none}
-.stamp.on b{opacity:0}
-.stamp.gift:not(.on){border-style:solid;color:var(--ink)}
-.lc.idle:not(.drag){animation:float 6s ease-in-out infinite}
-@keyframes float{0%,100%{transform:rotateX(4deg) rotateY(-8deg)}50%{transform:rotateX(-3deg) rotateY(8deg)}}
-.lc.full{animation:win .9s var(--ease)}
-@keyframes win{30%{transform:rotateX(0) rotateY(0) scale(1.04)}}
-.lc-msg{margin:1.1rem 0 1rem;color:var(--muted);min-height:1.6em}
-.lc-msg b{color:var(--accent)}
-.lc-actions{display:flex;flex-wrap:wrap;gap:.75rem}
-.lc-edit{display:grid;gap:1.6rem;align-content:start;padding:1.5rem;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
-.fld{border:0;display:grid;gap:.6rem}
-.fld>span,.fld legend{font:600 .875rem/1 var(--fb);color:var(--text);margin-bottom:.6rem}
-.fld input[type=text],.fld input:not([type]){height:52px;border-radius:12px;border:1px solid #45433e;background:var(--bg);color:var(--text);padding:0 1rem;font:500 1.0625rem var(--fb)}
-.fld input::placeholder{color:#8a857c}
-.fld input:focus{outline:2px solid var(--accent);outline-offset:1px;border-color:transparent}
-.chips{display:flex;flex-wrap:wrap;gap:8px}
-.chips input{position:absolute;opacity:0;pointer-events:none}
-.chips span{display:inline-flex;align-items:center;gap:.5em;min-height:44px;padding:0 1em;border-radius:var(--pill);border:1px solid var(--line);color:var(--muted);font-weight:600;font-size:.9375rem;cursor:pointer;transition:border-color .2s,color .2s,background .2s}
-.chips input:checked+span{border-color:var(--accent);color:var(--text);background:rgba(108,192,184,.1)}
-.chips input:focus-visible+span{outline:2px solid var(--accent);outline-offset:2px}
-.sw{width:18px;height:18px;border-radius:50%;border:1px solid rgba(255,255,255,.25)}
-.sw-onyx{background:#1b1b19}.sw-gobetti{background:#2f6f6a}.sw-chrome{background:linear-gradient(135deg,#8d918f,#f4f5f2,#8d918f)}.sw-holo{background:conic-gradient(#6cc0b8,#ad8cff,#ffaac8,#6cc0b8)}
-.toast{position:fixed;z-index:60;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);transform:translate(-50%,20px);opacity:0;background:var(--text);color:var(--bg);padding:.85rem 1.2rem;border-radius:var(--pill);font-weight:600;font-size:.9375rem;transition:opacity .3s,transform .4s var(--ease);pointer-events:none;width:max-content;max-width:calc(100vw - 32px)}
-.toast.show{opacity:1;transform:translate(-50%,0)}
-.ideas{list-style:none}
-.ideas-row{display:grid;gap:0;margin-top:clamp(3rem,8vw,5rem)}
-.ideas li{padding:1.4rem 0;border-bottom:1px solid var(--line)}
-@media(min-width:900px){.ideas-row{grid-template-columns:repeat(2,1fr);column-gap:6vw}}
-.ideas .h3{font-size:1.6rem;margin-bottom:.3rem}
-.ideas p{color:var(--muted)}
-.ex{display:inline-block;margin-top:.5rem;font-size:.8125rem;color:var(--dim)}
-@media(min-width:900px){.club-grid{grid-template-columns:1fr 1fr;gap:6vw;align-items:start}}
-
-.info-grid{display:grid;gap:3rem}
-.status{display:inline-flex;align-items:center;gap:.6rem;margin:1.25rem 0 2rem;font-weight:600}
-.status i{width:10px;height:10px;border-radius:50%;background:var(--dim)}
-.status.open i{background:var(--accent);box-shadow:0 0 0 5px rgba(108,192,184,.16)}
-.hours{list-style:none}
-.hours li{display:flex;justify-content:space-between;padding:.9rem 0;border-bottom:1px solid var(--line);color:var(--muted)}
-.hours li.today{color:var(--text);font-weight:600}
-.hours li.today span:first-child::after{content:" oggi";color:var(--accent);font-weight:500}
-.facts{color:var(--muted);margin:0 0 2rem;max-width:44ch}
-.social{display:flex;gap:.75rem;margin-top:1rem}
-.social a{width:52px;height:52px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center}
-.social a:hover{border-color:var(--text)}
-.social svg{width:22px;height:22px}
-@media(min-width:900px){.info-grid{grid-template-columns:1.2fr 1fr;gap:6vw;align-items:end}}
-
-footer{border-top:1px solid var(--line);padding:3rem 0 calc(env(safe-area-inset-bottom) + 120px);color:var(--dim);font-size:.9375rem}
-footer .wrap{display:grid;gap:1.25rem}
-footer img{width:120px;opacity:.9}
-footer a{color:var(--muted);text-decoration:underline;text-underline-offset:3px}
-@media(min-width:900px){footer{padding-bottom:3rem}footer .wrap{grid-template-columns:auto 1fr auto;align-items:center}}
-
-.dock{position:fixed;z-index:45;left:12px;right:12px;bottom:calc(env(safe-area-inset-bottom) + 12px);display:grid;grid-template-columns:1fr 56px 56px;gap:8px;padding:8px;border-radius:var(--pill);background:rgba(23,23,21,.88);-webkit-backdrop-filter:blur(16px);backdrop-filter:blur(16px);border:1px solid rgba(239,233,223,.12);transform:translateY(140%);transition:transform .5s var(--ease)}
-.dock.show{transform:none}
-.dock .btn{min-height:48px}
-.dock .ic{height:48px;border-radius:50%;display:grid;place-items:center;border:1px solid var(--line)}
-.dock .ic svg{width:22px;height:22px}
-@media(min-width:900px){.dock{display:none}}
-
-dialog{margin:auto auto 0;width:100%;max-width:560px;max-height:none;border:0;border-radius:22px 22px 0 0;background:var(--surface);color:var(--text);padding:1.5rem var(--g) calc(env(safe-area-inset-bottom) + 1.5rem);border-top:1px solid var(--line)}
-dialog::backdrop{background:rgba(0,0,0,.6);-webkit-backdrop-filter:blur(4px);backdrop-filter:blur(4px)}
-dialog[open]{animation:up .45s var(--ease)}
-@keyframes up{from{transform:translateY(100%)}}
-@media(min-width:700px){dialog{margin:auto;border-radius:22px;border:1px solid var(--line);padding:2rem}}
-.sh-top{display:flex;justify-content:space-between;align-items:start;gap:1rem;margin-bottom:.5rem}
-.sh-top .h3{font-size:2.3rem}
-.x{width:44px;height:44px;border-radius:50%;border:1px solid var(--line);display:grid;place-items:center;flex:none}
-.sheet p{color:var(--muted);margin-bottom:1.25rem}
-.sheet p b{color:var(--text);font-weight:600}
-.opts{display:grid;gap:10px}
-.opts .btn{width:100%;justify-content:flex-start;padding:0 1.25em}
-.opts .btn span{margin-left:auto;font-weight:500;opacity:.65;font-size:.875rem}
-.demo-note{margin:1rem 0 0;font-size:.8125rem;color:var(--dim)}
-
-.rv{opacity:0;transform:translateY(28px);transition:opacity .9s var(--ease),transform 1s var(--ease);transition-delay:calc(var(--i,0)*80ms)}
-.rv.in{opacity:1;transform:none}
-.ln>span.rv{transform:translateY(105%);opacity:1}
-.ln>span.rv.in{transform:none}
-
-@supports (animation-timeline:view()){
-  .tl::after{animation:fill linear both;animation-timeline:view();animation-range:entry 40% cover 60%}
-  @keyframes fill{from{transform:scaleY(0)}to{transform:scaleY(1)}}
-}
-@media (prefers-reduced-motion:reduce){
-  *,*::before,*::after{animation:none!important;transition:none!important}
-  .rv,.ln>span.rv{opacity:1;transform:none}
-  html{scroll-behavior:auto}
-}
-</style>
+<link rel="preload" as="fetch" href="data/catalog.json" crossorigin="anonymous">
+<script>/* set layout flags before first paint: GL corridor, first-visit curtain */(function(d){var r=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!r){d.classList.add('gl');try{if(!sessionStorage.getItem('darta-seen')&&!location.hash){d.classList.add('intro');sessionStorage.setItem('darta-seen','1')}}catch(e){}}})(document.documentElement)</script>
+<link rel="stylesheet" href="css/styles.css">
+<link rel="stylesheet" href="css/shop.css">
 </head>
 <body>
 
@@ -303,26 +35,43 @@ dialog[open]{animation:up .45s var(--ease)}
   <symbol id="i-crown" viewBox="0 0 256 256"><path fill="currentColor" d="M248,80a28,28,0,1,0-51.12,15.77l-26.79,33L146,73.4a28,28,0,1,0-36.06,0L85.91,128.74l-26.79-33a28,28,0,1,0-26.6,12L47,194.63A16,16,0,0,0,62.78,208H193.22A16,16,0,0,0,209,194.63l14.47-86.85A28,28,0,0,0,248,80ZM128,40a12,12,0,1,1-12,12A12,12,0,0,1,128,40ZM24,80A12,12,0,1,1,36,92,12,12,0,0,1,24,80ZM193.22,192H62.78L48.86,108.52,81.79,149A8,8,0,0,0,88,152a7.83,7.83,0,0,0,1.08-.07,8,8,0,0,0,6.26-4.74l29.3-67.4a27,27,0,0,0,6.72,0l29.3,67.4a8,8,0,0,0,6.26,4.74A7.830,7.830,0,0,0,168,152a8,8,0,0,0,6.21-3l32.93-40.52ZM220,92a12,12,0,1,1,12-12A12,12,0,0,1,220,92Z"/></symbol>
   <symbol id="i-fire" viewBox="0 0 256 256"><path fill="currentColor" d="M183.89,153.34a57.6,57.6,0,0,1-46.56,46.55A8.75,8.75,0,0,1,136,200a8,8,0,0,1-1.32-15.89c16.57-2.79,30.63-16.85,33.44-33.45a8,8,0,0,1,15.78,2.68ZM216,144a88,88,0,0,1-176,0c0-27.92,11-56.47,32.66-84.85a8,8,0,0,1,11.93-.89l24.12,23.41,22-60.41a8,8,0,0,1,12.63-3.41C165.21,36,216,84.55,216,144Zm-16,0c0-46.090-35.79-85.92-58.21-106.33L119.52,98.74a8,8,0,0,1-13.09,3L80.06,76.160C64.09,99.21,56,122,56,144a72,72,0,0,0,144,0Z"/></symbol>
   <symbol id="i-x" viewBox="0 0 256 256"><path fill="currentColor" d="M205.66,194.34a8,8,0,0,1-11.32,11.32L128,139.31,61.66,205.66a8,8,0,0,1-11.32-11.32L116.69,128,50.34,61.66A8,8,0,0,1,61.66,50.34L128,116.69l66.34-66.35a8,8,0,0,1,11.32,11.32L139.31,128Z"/></symbol>
+  <symbol id="s-bag" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5.5 8.5h13l-1 11.5h-11z"/><path d="M9 8.5V7a3 3 0 0 1 6 0v1.5"/></g></symbol>
+  <symbol id="s-plus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M12 5v14M5 12h14"/></g></symbol>
+  <symbol id="s-minus" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14"/></g></symbol>
+  <symbol id="s-arrow" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12h14M13 6l6 6-6 6"/></g></symbol>
+  <symbol id="s-check" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M5 12.5l4.5 4.5L19 7.5"/></g></symbol>
+  <symbol id="s-truck" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M2.5 6.5h11v10h-11zM13.5 10h4l3 3.2v3.3h-7"/><circle cx="7" cy="17.5" r="2"/><circle cx="17" cy="17.5" r="2"/></g></symbol>
+  <symbol id="s-gift" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 11h16v9H4zM3 7.5h18V11H3zM12 7.5V20"/><path d="M12 7.5C10.5 4 7 4.5 8 6.7c.5 1 2.5.8 4 .8zM12 7.5c1.5-3.5 5-3 4-.8-.5 1-2.5.8-4 .8z"/></g></symbol>
+  <symbol id="s-store" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M4 9.5l1.5-5h13l1.5 5M4 9.5v10h16v-10M4 9.5c0 1.7 1.3 2.5 2.7 2.5s2.6-.8 2.6-2.5c0 1.7 1.3 2.5 2.7 2.5s2.7-.8 2.7-2.5c0 1.7 1.3 2.5 2.6 2.5S20 11.2 20 9.5M10 19.5v-4h4v4"/></g></symbol>
+  <symbol id="s-chev-l" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M14.5 5.5L8 12l6.5 6.5"/></g></symbol>
+  <symbol id="s-chev-r" viewBox="0 0 24 24"><g fill="none" stroke="currentColor" stroke-width="1.7" stroke-linecap="round" stroke-linejoin="round"><path d="M9.5 5.5L16 12l-6.5 6.5"/></g></symbol>
 </svg>
 
+<div id="curtain" aria-hidden="true"><i class="cu-p"></i><i class="cu-p"></i><img class="cu-logo" src="img/logo.webp" alt="" width="790" height="342"><i class="cu-line"></i></div>
+
 <header class="hdr" id="hdr">
-  <a class="logo" href="#top" aria-label="Darta Barber Studio, torna su"><img src="img/logo.png" alt="Darta Barber Studio" width="790" height="342"></a>
-  <nav aria-label="Principale"><a href="#lavori">Lavori</a><a href="#listino">Listino</a><a href="#storia">Storia</a><a href="#orari">Orari</a></nav>
-  <button class="btn btn-p" data-book>Prenota</button>
+  <a class="logo" href="#top" aria-label="Darta Barber Studio, torna su"><img src="img/logo.webp" alt="Darta Barber Studio" width="790" height="342"></a>
+  <nav aria-label="Principale"><a href="#lavori">Lavori</a><a href="#shop">Shop</a><a href="#listino">Listino</a><a href="#storia">Storia</a><a href="#orari">Orari</a></nav>
+  <div class="hdr-r">
+    <span class="chip" id="hdrOpen"><i></i><span>Orari</span></span>
+    <a class="hdr-cart" id="hdrCart" href="#carrello" data-route data-cart-target data-cart-label aria-label="Carrello vuoto"><svg class="i" aria-hidden="true"><use href="#s-bag"/></svg><span class="cart-count" hidden>0</span></a>
+    <button type="button" class="btn btn-p mag" data-book>Prenota</button>
+  </div>
 </header>
 
 <main id="top">
   <div id="journey">
     <div id="stage">
       <img class="hero-img" src="img/sign.webp" alt="L'insegna Darta Barber Studio sulla parete del salone" width="463" height="566" fetchpriority="high">
-      <canvas id="gl" aria-hidden="true"></canvas>
+      <canvas id="gl" role="img" aria-label="Scena 3D: l'insegna del salone e quattro tagli recenti. Scorri per attraversarla."></canvas>
 
       <div class="hero-copy" id="heroCopy">
+        <p class="kicker rv">Barber studio <b></b> Pescara <b></b> Shop online</p>
         <h1 class="d h1"><span class="ln"><span class="rv">Tagli da</span></span><span class="ln"><span class="rv" style="--i:1"><em>campioni.</em></span></span></h1>
-        <p class="lead rv" style="--i:2">Il barber studio di Thomas D'Attanasio. Fade, barba e stile in Via Gobetti 184, Pescara.</p>
+        <p class="lead rv" style="--i:2">Il barber studio di Thomas D'Attanasio. Fade, barba e stile in Via Gobetti 184, Pescara. Porta a casa gli stessi prodotti.</p>
         <div class="cta-row rv" style="--i:3">
-          <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
-          <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>Chiama</a>
+          <button type="button" class="btn btn-p mag" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+          <a class="btn btn-g mag" href="#shop"><svg class="i"><use href="#s-bag"/></svg>Vai allo shop</a>
         </div>
       </div>
 
@@ -335,18 +84,61 @@ dialog[open]{animation:up .45s var(--ease)}
 
       <div class="end-copy" id="endCopy">
         <h2 class="d h2">La tua poltrona<br>ti aspetta.</h2>
-        <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+        <div class="cta-row">
+          <button type="button" class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+          <a class="btn btn-g" href="#shop"><svg class="i"><use href="#s-bag"/></svg>Shop</a>
+        </div>
       </div>
+    </div>
+  </div>
+
+  <div class="tick" id="tick" aria-hidden="true">
+    <div class="tick-track">
+      <div class="tick-group"><span>Skin fade</span><span>Barba a lama</span><span>Taglio anglosassone</span><span>Pescara</span><span>Shop online</span><span>Via Gobetti 184</span></div>
+      <div class="tick-group"><span>Skin fade</span><span>Barba a lama</span><span>Taglio anglosassone</span><span>Pescara</span><span>Shop online</span><span>Via Gobetti 184</span></div>
     </div>
   </div>
 
   <div class="wrap">
     <div class="proof">
-      <div class="rv"><b class="num">5,0<small>&#9733;</small></b><p>Media su 44 recensioni Google, dal primo giorno di apertura.</p></div>
-      <div class="rv" style="--i:1"><b>4 club</b><p>Barber di fiducia per i calciatori di Pescara, Salernitana, Pineto e Chieti.</p></div>
+      <div class="rv"><b class="num"><span data-count="5" data-dec="1">5,0</span><small>&#9733;</small></b><p>Media su 44 recensioni Google, dal primo giorno di apertura.</p></div>
+      <div class="rv" style="--i:1"><b><span data-count="4">4</span> club</b><p>Barber di fiducia per i calciatori di Pescara, Salernitana, Pineto e Chieti.</p></div>
       <div class="rv" style="--i:2"><b>Milano</b><p>Nel backstage delle sfilate della Milano Fashion Week.</p></div>
     </div>
   </div>
+
+  <section class="manifesto" aria-label="Manifesto">
+    <div class="wrap">
+      <p class="eyebrow rv">Dalla poltrona a casa tua</p>
+      <p class="scrub">Il fade esce dal salone. I prodotti di Thomas ti aiutano a tenerlo fresco fino alla prossima volta.</p>
+    </div>
+  </section>
+
+  <section class="sec shop" id="shop" aria-labelledby="shopTitle">
+    <div class="wrap">
+      <div class="shop-head">
+        <div>
+          <p class="eyebrow rv">/ Shop online</p>
+          <h2 class="d h2" id="shopTitle" style="margin-top:1rem"><span class="ln"><span class="rv">Il banco</span></span><span class="ln"><span class="rv" style="--i:1">di <em>Thomas.</em></span></span></h2>
+        </div>
+        <div class="shop-side">
+          <p class="lead rv">Quello che usa sulla poltrona, da portare a casa. Ritiro gratis in salone oppure spedizione in tutta Italia.</p>
+          <ul class="perks rv">
+            <li><svg class="i" aria-hidden="true"><use href="#s-store"/></svg>Ritiro gratis in salone</li>
+            <li><svg class="i" aria-hidden="true"><use href="#s-truck"/></svg>Spedizione gratis da 40&euro;</li>
+            <li><svg class="i" aria-hidden="true"><use href="#s-gift"/></svg>Gift card in un minuto</li>
+          </ul>
+        </div>
+      </div>
+      <div class="shop-bar">
+        <div class="filters" id="filters" role="group" aria-label="Filtra per categoria"></div>
+        <p class="count num" id="shopCount" aria-live="polite"></p>
+      </div>
+      <div class="shelf" id="shelf"></div>
+      <noscript><p class="note">Per vedere lo shop serve JavaScript. Puoi sempre prenotare dall'app o chiamare il salone.</p></noscript>
+      <p class="note shop-note">Prodotti, prezzi e descrizioni sono d'esempio per la demo e da confermare con il salone. Nessun pagamento reale.</p>
+    </div>
+  </section>
 
   <section class="sec" id="listino">
     <div class="wrap menu">
@@ -374,7 +166,7 @@ dialog[open]{animation:up .45s var(--ease)}
           <div class="row"><span class="n">Taglio e barba</span><span class="t">60 min</span><span class="p num">35&euro;</span></div>
           <div class="row"><span class="n">Platino e taglio</span><span class="t">Su consulenza, 120 min</span><span class="p num">da 60&euro;</span></div>
         </div>
-        <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+        <button type="button" class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
       </div>
     </div>
   </section>
@@ -408,9 +200,9 @@ dialog[open]{animation:up .45s var(--ease)}
   <section class="sec" id="team">
     <div class="wrap"><h2 class="d h2"><span class="ln"><span class="rv">Il team</span></span></h2></div>
     <div class="team-rail">
-      <article class="mate lead-mate rv"><span class="ini" aria-hidden="true">T</span><p class="role">Fondatore</p><h3 class="h3">Thomas D'Attanasio</h3><p>Fade, barba e taglio anglosassone. Il barber dei calciatori.</p><button class="btn btn-p" data-book data-who="Thomas">Prenota con Thomas</button></article>
-      <article class="mate rv" style="--i:1"><span class="ini" aria-hidden="true">M</span><p class="role">Barber</p><h3 class="h3">Mattia</h3><p>Nel team di Via Gobetti. Sceglilo direttamente dall'app.</p><button class="btn btn-g" data-book data-who="Mattia">Prenota con Mattia</button></article>
-      <article class="mate rv" style="--i:2"><span class="ini" aria-hidden="true">R</span><p class="role">Barber</p><h3 class="h3">Rrapi</h3><p>Nel team di Via Gobetti. Sceglilo direttamente dall'app.</p><button class="btn btn-g" data-book data-who="Rrapi">Prenota con Rrapi</button></article>
+      <article class="mate lead-mate rv"><span class="ini" aria-hidden="true">T</span><p class="role">Fondatore</p><h3 class="h3">Thomas D'Attanasio</h3><p>Fade, barba e taglio anglosassone. Il barber dei calciatori.</p><button type="button" class="btn btn-p" data-book data-who="Thomas">Prenota con Thomas</button></article>
+      <article class="mate rv" style="--i:1"><span class="ini" aria-hidden="true">M</span><p class="role">Barber</p><h3 class="h3">Mattia</h3><p>Nel team di Via Gobetti. Sceglilo direttamente dall'app.</p><button type="button" class="btn btn-g" data-book data-who="Mattia">Prenota con Mattia</button></article>
+      <article class="mate rv" style="--i:2"><span class="ini" aria-hidden="true">R</span><p class="role">Barber</p><h3 class="h3">Rrapi</h3><p>Nel team di Via Gobetti. Sceglilo direttamente dall'app.</p><button type="button" class="btn btn-g" data-book data-who="Rrapi">Prenota con Rrapi</button></article>
     </div>
   </section>
 
@@ -423,7 +215,7 @@ dialog[open]{animation:up .45s var(--ease)}
         <div class="lc-stage rv">
           <div class="lc" id="lc" data-f="onyx">
             <div class="lc-sheen" aria-hidden="true"></div>
-            <div class="lc-top"><img src="img/logo.png" alt="Darta" width="790" height="342" loading="lazy"><span class="lc-tier" id="lcTier">Member</span></div>
+            <div class="lc-top"><img src="img/logo.webp" alt="Darta" width="790" height="342" loading="lazy"><span class="lc-tier" id="lcTier">Member</span></div>
             <div class="lc-mid"><span class="lc-k">Timbri</span><b class="lc-count num" id="lcCount">0<small>/10</small></b></div>
             <div class="stamps" id="stamps"></div>
             <div class="lc-bot">
@@ -435,13 +227,14 @@ dialog[open]{animation:up .45s var(--ease)}
         </div>
         <p class="lc-msg" id="stampTxt" aria-live="polite">Il decimo taglio è omaggio.</p>
         <div class="lc-actions">
-          <button class="btn btn-p" id="stampBtn"><svg class="i"><use href="#i-scissors"/></svg>Timbra</button>
-          <button class="btn btn-g" id="walletBtn">Aggiungi al Wallet</button>
+          <button type="button" class="btn btn-p" id="stampBtn"><svg class="i"><use href="#i-scissors"/></svg>Timbra</button>
+          <button type="button" class="btn btn-g" id="walletBtn">Aggiungi al Wallet</button>
+          <a class="btn btn-g" href="#prodotto/gift-card" data-route><svg class="i"><use href="#s-gift"/></svg>Regala un taglio</a>
         </div>
       </div>
-      <form class="lc-edit" id="lcEdit" aria-label="Personalizza la tessera">
+      <div class="lc-edit" id="lcEdit" role="group" aria-label="Personalizza la tessera">
         <h3 class="h3">Personalizzala</h3>
-        <label class="fld"><span>Nome sulla tessera</span><input id="inName" maxlength="16" autocomplete="off" placeholder="Es. Lorenzo"></label>
+        <label class="fld"><span>Nome sulla tessera</span><input type="text" id="inName" maxlength="16" autocomplete="off" placeholder="Es. Lorenzo"></label>
         <fieldset class="fld"><legend>Finitura</legend>
           <div class="chips" id="inFinish">
             <label><input type="radio" name="f" value="onyx" checked><span><i class="sw sw-onyx"></i>Onyx</span></label>
@@ -465,13 +258,13 @@ dialog[open]{animation:up .45s var(--ease)}
             <label><input type="radio" name="b" value="Rrapi"><span>Rrapi</span></label>
           </div>
         </fieldset>
-      </form>
+      </div>
     </div>
     <div class="wrap">
       <ul class="ideas ideas-row">
         <li class="rv"><h3 class="h3">Promemoria WhatsApp</h3><p>Il giorno prima arriva un messaggio con orario e barber. Meno buchi in agenda.</p></li>
         <li class="rv"><h3 class="h3">Porta un amico</h3><p>Chi presenta un nuovo cliente riceve uno sconto, e anche l'amico.</p><span class="ex">Esempio: 5&euro; a testa</span></li>
-        <li class="rv"><h3 class="h3">Abbonamento mensile</h3><p>Due tagli al mese a prezzo fisso, per chi vuole il fade sempre fresco.</p><span class="ex">Esempio: 2 tagli, 36&euro; al mese</span></li>
+        <li class="rv"><h3 class="h3">Abbonamento mensile</h3><p>Due tagli al mese a prezzo fisso, per chi vuole il fade sempre fresco.</p><span class="ex">Esempio: 2 tagli, 36&euro; al mese</span> <a class="ex lnk" href="#prodotto/abbonamento-fade" data-route>Attivalo nello shop</a></li>
         <li class="rv"><h3 class="h3">Statistiche prenotazioni</h3><p>Giorni pieni, servizi più richiesti, clienti da richiamare. Tutto in un pannello.</p></li>
       </ul>
     </div>
@@ -485,7 +278,7 @@ dialog[open]{animation:up .45s var(--ease)}
         <p class="facts rv">65129 Pescara. Ingresso accessibile, pagamento con carta e contactless. Prenotazione consigliata.</p>
         <div class="cta-row rv">
           <a class="btn btn-p" href="https://www.google.com/maps/dir/?api=1&amp;destination=Via+Piero+Gobetti+184+65129+Pescara" target="_blank" rel="noopener"><svg class="i"><use href="#i-pin"/></svg>Indicazioni</a>
-          <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>393 903 1656</a>
+          <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>393&nbsp;903&nbsp;1656</a>
         </div>
         <div class="social rv">
           <a href="https://www.instagram.com/darta_barberstudio/" target="_blank" rel="noopener" aria-label="Instagram @darta_barberstudio"><svg><use href="#i-ig"/></svg></a>
@@ -507,236 +300,149 @@ dialog[open]{animation:up .45s var(--ease)}
 
 <footer>
   <div class="wrap">
-    <img src="img/logo.png" alt="Darta Barber Studio" width="790" height="342" loading="lazy">
+    <img src="img/logo.webp" alt="Darta Barber Studio" width="790" height="342" loading="lazy">
     <p>Darta Barber Studio, Via Piero Gobetti 184, Pescara.</p>
-    <p>Demo realizzata da <a href="https://puntoduestudio.it" target="_blank" rel="noopener">Punto Due Studio</a></p>
+    <p class="credit">Demo realizzata da <a href="https://puntoduestudio.it" target="_blank" rel="noopener"><svg class="pds" viewBox="0 0 40 24" aria-hidden="true"><defs><clipPath id="pdsA"><circle cx="13" cy="12" r="10"/></clipPath></defs><circle cx="13" cy="12" r="10" fill="#fff"/><circle cx="27" cy="12" r="10" fill="#ffd84a"/><circle cx="27" cy="12" r="10" fill="#0034d6" clip-path="url(#pdsA)"/></svg>Punto Due Studio</a></p>
   </div>
 </footer>
 
 <div class="toast" id="toast" role="status"></div>
-<div class="dock" id="dock">
-  <button class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+<nav class="dock" id="dock" aria-label="Azioni rapide">
+  <button type="button" class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+  <a class="ic dock-cart" href="#carrello" data-route data-cart-target data-cart-label aria-label="Carrello vuoto"><svg class="i" aria-hidden="true"><use href="#s-bag"/></svg><span class="cart-count" hidden>0</span></a>
   <a class="ic" href="tel:+393939031656" aria-label="Chiama il salone"><svg><use href="#i-phone"/></svg></a>
-  <a class="ic" href="https://www.google.com/maps/dir/?api=1&amp;destination=Via+Piero+Gobetti+184+65129+Pescara" target="_blank" rel="noopener" aria-label="Indicazioni stradali"><svg><use href="#i-pin"/></svg></a>
-</div>
+</nav>
 
 <dialog id="sheet" class="sheet" aria-labelledby="shTitle">
-  <div class="sh-top"><h2 class="h3" id="shTitle">Prenota</h2><button class="x" id="shClose" aria-label="Chiudi"><svg class="i"><use href="#i-x"/></svg></button></div>
+  <div class="sh-top"><h2 class="h3" id="shTitle">Prenota</h2><button type="button" class="x" id="shClose" aria-label="Chiudi"><svg class="i"><use href="#i-x"/></svg></button></div>
   <p id="shTxt">Scegli servizio, barber e orario dall'app Darta. Il salone conferma in pochi minuti.</p>
   <div class="opts">
     <a class="btn btn-p" data-os="ios" href="https://apps.apple.com/it/app/darta-barber-studio-app/id6755042985" target="_blank" rel="noopener"><svg class="i"><use href="#i-apple"/></svg>App Store<span>iPhone</span></a>
     <a class="btn btn-g" data-os="android" href="https://play.google.com/store/apps/details?id=dartabarberstudioapp.digitalevolutionitalia.it" target="_blank" rel="noopener"><svg class="i"><use href="#i-play"/></svg>Google Play<span>Android</span></a>
     <a class="btn btn-g" href="https://application.zetabarber.it/barber/dartabs" target="_blank" rel="noopener"><svg class="i"><use href="#i-scissors"/></svg>Prenota online<span>Web</span></a>
-    <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>Chiama<span>393 903 1656</span></a>
+    <a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>Chiama<span>393&nbsp;903&nbsp;1656</span></a>
   </div>
   <p class="demo-note">Questa è una demo: i link aprono i canali di prenotazione reali del salone.</p>
 </dialog>
 
-<script>
-(()=>{
-const $=s=>document.querySelector(s), $$=s=>[...document.querySelectorAll(s)];
-const root=document.documentElement, hdr=$('#hdr'), dock=$('#dock'), journey=$('#journey');
+<dialog id="pdp" class="pdp" aria-labelledby="pdpTitle">
+  <div class="pdp-bar">
+    <a class="hdr-cart" id="pdpCart" href="#carrello" data-route data-cart-target data-cart-label aria-label="Carrello vuoto"><svg class="i" aria-hidden="true"><use href="#s-bag"/></svg><span class="cart-count" hidden>0</span></a>
+    <button type="button" class="x" id="pdpClose" aria-label="Chiudi scheda prodotto"><svg class="i"><use href="#i-x"/></svg></button>
+  </div>
+  <div class="pdp-grid">
+    <div class="pdp-stage" id="pdpStage">
+      <span class="pdp-no" id="pdpNo"></span>
+      <img class="pdp-fallback" id="pdpFallback" alt="" width="560" height="560" hidden src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+      <div class="pdp-host" id="pdpHost"></div>
+      <p class="pdp-hint" aria-hidden="true">Trascina per ruotare</p>
+      <div class="pdp-rot">
+        <button type="button" id="pdpL" aria-label="Ruota a sinistra"><svg class="i" aria-hidden="true"><use href="#s-chev-l"/></svg></button>
+        <button type="button" id="pdpR" aria-label="Ruota a destra"><svg class="i" aria-hidden="true"><use href="#s-chev-r"/></svg></button>
+      </div>
+    </div>
+    <div class="pdp-info" id="pdpInfo">
+      <span class="pcard-badge pdp-badge" id="pdpBadge" hidden></span>
+      <h2 class="d pdp-h" id="pdpTitle" tabindex="-1" autofocus>Prodotto</h2>
+      <p class="pdp-tag" id="pdpTag"></p>
+      <p class="pdp-price num" id="pdpPrice"></p>
+      <fieldset class="fld" id="pdpVars" hidden><legend>Opzioni</legend></fieldset>
+      <p class="pdp-desc" id="pdpDesc"></p>
+      <dl class="specs" id="pdpSpecs"></dl>
+      <div class="buy">
+        <div class="qty lg" role="group" aria-label="Quantit&agrave;">
+          <button type="button" id="pdpMinus" aria-label="Meno"><svg class="i" aria-hidden="true"><use href="#s-minus"/></svg></button>
+          <output class="num" id="pdpQ" aria-live="polite">1</output>
+          <button type="button" id="pdpPlus" aria-label="Pi&ugrave;"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button>
+        </div>
+        <button class="btn btn-p add" id="pdpAdd" type="button"><svg class="i" aria-hidden="true"><use href="#s-bag"/></svg><span id="pdpAddTxt" aria-live="polite">Aggiungi al carrello</span></button>
+      </div>
+      <details class="acc" open><summary>Come si usa</summary><ol id="pdpUse"></ol></details>
+      <details class="acc"><summary>Consegna e ritiro</summary><p>Ritiro gratuito in salone, Via Gobetti 184, dal marted&igrave; al sabato dalle 10 alle 19. Spedizione in tutta Italia a 4,90&euro;, gratis sopra i 40&euro;. Gift card e abbonamento arrivano via email.</p></details>
+      <div id="pdpMoreBox"><h3 class="h3">Abbinalo con</h3><div class="more" id="pdpMore"></div></div>
+    </div>
+  </div>
+</dialog>
 
-/* reveal on enter */
-const io=new IntersectionObserver(es=>es.forEach(e=>{if(e.isIntersecting){e.target.classList.add('in');io.unobserve(e.target)}}),{rootMargin:'0px 0px -8% 0px'});
-$$('.rv').forEach(el=>io.observe(el));
+<dialog id="cart" class="drawer" aria-labelledby="cartTitle">
+  <div class="drawer-in">
+    <div class="drawer-h"><h2 class="h3" id="cartTitle">Carrello <span id="cartN" class="num"></span></h2><button type="button" class="x" id="cartClose" aria-label="Chiudi carrello"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <div class="cart-empty" id="cartEmpty">
+      <svg class="i" aria-hidden="true"><use href="#s-bag"/></svg>
+      <p class="h3">Il carrello &egrave; vuoto</p>
+      <p>Qui finiscono i prodotti che scegli dal banco.</p>
+      <button class="btn btn-p" id="cartShop" type="button">Vai al banco</button>
+    </div>
+    <div class="cart-body" id="cartBody">
+      <div class="ship" id="shipBar"><p id="shipTxt"></p><div class="bar"><i id="shipFill"></i></div></div>
+      <ul class="lines" id="lines"></ul>
+      <div class="drawer-f">
+        <fieldset class="mode" id="modeBox"><legend>Come lo ricevi</legend>
+          <label><input type="radio" name="mode" value="pickup" checked><span><svg class="i" aria-hidden="true"><use href="#s-store"/></svg>Ritiro in salone<small>Gratis</small></span></label>
+          <label><input type="radio" name="mode" value="ship"><span><svg class="i" aria-hidden="true"><use href="#s-truck"/></svg>Spedizione<small>4,90&euro;, gratis da 40&euro;</small></span></label>
+        </fieldset>
+        <form class="promo" id="promoForm" novalidate>
+          <label for="promoIn">Codice sconto</label>
+          <div><input type="text" id="promoIn" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="Prova BENVENUTO10"><button class="btn btn-g" type="submit">Applica</button></div>
+          <p class="promo-msg" id="promoMsg" role="status"></p>
+        </form>
+        <dl class="sum">
+          <div><dt>Subtotale</dt><dd class="num" id="sumSub"></dd></div>
+          <div id="rowDisc" hidden><dt>Sconto</dt><dd class="num" id="sumDisc"></dd></div>
+          <div><dt>Consegna</dt><dd class="num" id="sumShip"></dd></div>
+          <div class="tot"><dt>Totale</dt><dd class="num" id="sumTot"></dd></div>
+        </dl>
+        <button class="btn btn-p" id="goCheckout" type="button">Vai al checkout<svg class="i" aria-hidden="true"><use href="#s-arrow"/></svg></button>
+        <p class="demo-note">Demo: nessun pagamento reale. Il carrello resta salvato su questo dispositivo.</p>
+      </div>
+    </div>
+  </div>
+</dialog>
 
-/* club names fill as they cross the middle of the screen */
-const clubIO=new IntersectionObserver(es=>es.forEach(e=>e.target.classList.toggle('lit',e.isIntersecting)),{rootMargin:'-40% 0px -40% 0px'});
-$$('#clubs li').forEach(li=>clubIO.observe(li));
+<dialog id="checkout" class="sheet co" aria-labelledby="coTitle">
+  <div class="co-in">
+    <div class="sh-top"><h2 class="h3" id="coTitle">Checkout</h2><button type="button" class="x" id="coClose" aria-label="Chiudi checkout"><svg class="i"><use href="#i-x"/></svg></button></div>
+    <form id="coForm" novalidate>
+      <p class="co-mode"><span id="coModeTxt"></span><button type="button" class="link" id="coModeEdit">Modifica</button></p>
+      <label class="fld"><span>Nome e cognome</span><input type="text" id="coName" maxlength="80" autocomplete="name" required><span class="err" id="err-coName" hidden></span></label>
+      <label class="fld"><span>Email</span><input id="coEmail" maxlength="254" type="email" inputmode="email" autocomplete="email" required><span class="err" id="err-coEmail" hidden></span></label>
+      <label class="fld"><span>Telefono <small>(facoltativo)</small></span><input id="coPhone" maxlength="30" type="tel" inputmode="tel" autocomplete="tel"><span class="err" id="err-coPhone" hidden></span></label>
+      <div class="co-ship" id="coShip" hidden>
+        <label class="fld"><span>Via e numero</span><input type="text" id="coAddr" maxlength="120" autocomplete="address-line1"><span class="err" id="err-coAddr" hidden></span></label>
+        <div class="two">
+          <label class="fld"><span>CAP</span><input type="text" id="coCap" inputmode="numeric" autocomplete="postal-code" maxlength="5"><span class="err" id="err-coCap" hidden></span></label>
+          <label class="fld"><span>Citt&agrave;</span><input type="text" id="coCity" maxlength="60" autocomplete="address-level2"><span class="err" id="err-coCity" hidden></span></label>
+        </div>
+      </div>
+      <ul class="co-sum" id="coSum"></ul>
+      <dl class="co-rows" id="coRows"></dl>
+      <div class="co-tot"><span>Totale</span><b class="num" id="coTot"></b></div>
+      <p class="demo-note">Pagamento in demo: nessun addebito e nessun dato lasciato in questa pagina. Nella versione live: carta, Apple Pay, Satispay o alla consegna.</p>
+      <button class="btn btn-p" type="submit" id="coSubmit"><svg class="i" aria-hidden="true"><use href="#s-check"/></svg><span id="coSubmitTxt">Conferma ordine</span></button>
+    </form>
+    <div id="coDone" hidden>
+      <div class="done-in">
+        <div class="done-art" aria-hidden="true"><div class="burst" id="doneBurst"></div><svg id="doneCheck" viewBox="0 0 96 96"><circle cx="48" cy="48" r="44" pathLength="1"/><path d="M28 50l14 14 27-30" pathLength="1"/></svg></div>
+        <h2 class="d h2sm" id="doneTitle" tabindex="-1">Ordine <em>ricevuto.</em></h2>
+        <p class="mono num" id="doneNo"></p>
+        <p id="doneTxt"></p>
+        <ul class="done-list" id="doneList"></ul>
+        <p class="demo-note">Ordine di prova: nulla &egrave; stato addebitato n&eacute; inviato. &Egrave; la schermata che vedrebbe il tuo cliente.</p>
+        <div class="cta-row"><a class="btn btn-p" id="doneWa" href="https://wa.me/393939031656" target="_blank" rel="noopener noreferrer">Scrivi al salone su WhatsApp</a><button class="btn btn-g" id="doneClose" type="button">Torna al sito</button></div>
+      </div>
+    </div>
+  </div>
+</dialog>
 
-/* booking sheet */
-const sheet=$('#sheet');
-if(/Android/.test(navigator.userAgent)){const a=$('[data-os=android]'),i=$('[data-os=ios]');a.className='btn btn-p';i.className='btn btn-g';i.before(a)}
-const defTxt=$('#shTxt').textContent;
-$$('[data-book]').forEach(b=>b.addEventListener('click',()=>{
-  const who=b.dataset.who;
-  const t=$('#shTxt');t.textContent=who?"Nell'app scegli il servizio, poi ":defTxt;
-  if(who){const b=document.createElement('b');b.textContent=who;t.append(b," come barber e l'orario che preferisci.")}
-  sheet.showModal();
-}));
-$('#shClose').onclick=()=>sheet.close();
-sheet.addEventListener('click',e=>{if(e.target===sheet)sheet.close()});
-
-/* live opening status, Europe/Rome */
-(()=>{
-  const p=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()).map(x=>[x.type,x.value]));
-  const d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday), m=(+p.hour%24)*60+(+p.minute);
-  const openDay=d>=2&&d<=6, open=openDay&&m>=600&&m<1140, st=$('#status');
-  st.classList.toggle('open',open);
-  st.lastElementChild.textContent=open?'Aperto ora, chiude alle 19:00':(openDay&&m<600)?'Chiuso, apre oggi alle 10:00':`Chiuso, riapre ${d===6||d===0?'martedì':'domani'} alle 10:00`;
-  const li=$(`#hours li[data-d="${d}"]`); li&&li.classList.add('today');
-})();
-
-/* loyalty card: customise, stamp, tilt */
-(()=>{
-  const lc=$('#lc'), box=$('#stamps'), txt=$('#stampTxt'), K='darta-card';
-  let s={name:'',f:'onyx',ic:'scissors',b:'Thomas',n:0};
-  const OK={f:['onyx','gobetti','chrome','holo'],ic:['scissors','bolt','crown','fire'],b:['Thomas','Mattia','Rrapi']};
-  try{const v=JSON.parse(localStorage.getItem(K))||{};
-    if(typeof v.name==='string')s.name=v.name.slice(0,16);
-    for(const k in OK)if(OK[k].includes(v[k]))s[k]=v[k];
-    if(Number.isInteger(v.n)&&v.n>=0&&v.n<=10)s.n=v.n;}catch(e){}
-  const save=()=>{try{localStorage.setItem(K,JSON.stringify(s))}catch(e){}};
-  for(let i=1;i<=10;i++){const d=document.createElement('span');d.className='stamp'+(i===10?' gift':'');d.innerHTML=`<b>${i===10?'FREE':i}</b><svg viewBox="0 0 256 256" aria-hidden="true"><use href="#i-scissors"/></svg>`;box.appendChild(d)}
-  const st=[...box.children];
-  function render(){
-    lc.dataset.f=s.f;
-    $('#lcName').textContent=s.name.trim()||'Il tuo nome';
-    $('#lcBarber').textContent=s.b;
-    $('#lcCount').firstChild.textContent=s.n;
-    $('#lcTier').textContent=s.n>=10?'Gold':s.n>=5?'Regular':'Member';
-    st.forEach((d,i)=>{d.classList.toggle('on',i<s.n);d.querySelector('use').setAttribute('href','#i-'+s.ic)});
-    txt.innerHTML=s.n>=10?'<b>Taglio omaggio sbloccato.</b> Tocca Timbra per ricominciare.':s.n===0?'Il decimo taglio è omaggio.':`Ancora ${10-s.n} ${10-s.n===1?'taglio':'tagli'} al taglio omaggio.`;
-  }
-  $('#lcEdit').addEventListener('submit',e=>e.preventDefault());
-  // form -> state
-  const nm=$('#inName');nm.value=s.name;
-  nm.addEventListener('input',()=>{s.name=nm.value;render();save()});
-  [['f','#inFinish'],['ic','#inIcon'],['b','#inBarber']].forEach(([k,sel])=>{
-    const box=$(sel),r=box.querySelector(`input[value="${s[k]}"]`);r&&(r.checked=true);
-    box.addEventListener('change',e=>{if(OK[k].includes(e.target.value)){s[k]=e.target.value;render();save()}});
-  });
-  $('#stampBtn').onclick=()=>{
-    s.n=s.n>=10?0:s.n+1;render();save();
-    if(s.n===10){lc.classList.remove('full');void lc.offsetWidth;lc.classList.add('full')}
-    navigator.vibrate&&navigator.vibrate(s.n===10?[30,40,60]:18);
-  };
-  const toast=$('#toast');
-  $('#walletBtn').onclick=()=>{toast.textContent='Demo: qui la tessera si aggiunge ad Apple o Google Wallet.';toast.classList.add('show');clearTimeout(toast.t);toast.t=setTimeout(()=>toast.classList.remove('show'),2600)};
-  // tilt: pointer on desktop, drag on touch (vertical scroll stays native)
-  if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
-    const set=(x,y)=>{lc.style.setProperty('--ry',(x-.5)*22+'deg');lc.style.setProperty('--rx',(.5-y)*18+'deg');lc.style.setProperty('--mx',x*100+'%');lc.style.setProperty('--my',y*100+'%')};
-    const at=e=>{const r=lc.getBoundingClientRect();set(cl01((e.clientX-r.left)/r.width),cl01((e.clientY-r.top)/r.height))};
-    const cl01=v=>Math.max(0,Math.min(1,v));
-    lc.addEventListener('pointermove',e=>{lc.classList.add('drag');at(e)});
-    lc.addEventListener('pointerleave',()=>{lc.classList.remove('drag');set(.5,.3)});
-    lc.addEventListener('pointerup',()=>{if(e_touch){lc.classList.remove('drag');set(.5,.3)}});
-    let e_touch=false;lc.addEventListener('pointerdown',e=>{e_touch=e.pointerType!=='mouse';at(e)});
-    // idle shimmer on phones so the card feels alive without touching it
-    new IntersectionObserver(([en])=>{lc.classList.toggle('idle',en.isIntersecting)},{threshold:.6}).observe(lc);
-  }
-  render();
-})();
-
-/* header + dock without GL */
-function plainChrome(){
-  new IntersectionObserver(([e])=>{dock.classList.toggle('show',!e.isIntersecting);hdr.classList.toggle('solid',!e.isIntersecting)}).observe($('.hero-copy .cta-row'));
-}
-
-/* ===== WebGL 3D scroll journey (raw WebGL1, no library) ===== */
-const canvas=$('#gl');
-const gl=root.classList.contains('gl')&&canvas.getContext('webgl',{antialias:false,alpha:false,powerPreference:'high-performance'});
-if(!gl){root.classList.remove('gl');plainChrome();return}
-
-const VS=`attribute vec2 aP;uniform mat4 uM;uniform float uBend;varying vec2 vUv;
-void main(){vUv=aP+.5;vec3 p=vec3(aP,0.);p.z+=sin(vUv.x*3.14159)*uBend;gl_Position=uM*vec4(p,1.);}`;
-const FS=`precision mediump float;uniform sampler2D uT;uniform vec2 uC,uS;uniform float uA,uSat,uW,uTm,uR,uDk;varying vec2 vUv;
-void main(){vec2 uv=(vUv-.5)*uC+.5;uv.x+=sin(uv.y*11.+uTm*2.2)*uW*.012;float s=uW*.007;
-vec3 c=vec3(texture2D(uT,uv+vec2(s,0.)).r,texture2D(uT,uv).g,texture2D(uT,uv-vec2(s,0.)).b);
-float g=dot(c,vec3(.299,.587,.114));c=mix(vec3(g),c,uSat)*uDk;
-vec2 q=abs(vUv-.5)*uS;vec2 h=uS*.5-uR;vec2 e=q-h;float d=length(max(e,0.))+min(max(e.x,e.y),0.)-uR;float m=uR>0.?1.-smoothstep(-.006,.006,d):1.;
-float v=smoothstep(.9,.3,length(vUv-.5));gl_FragColor=vec4(c*mix(.72,1.,v),m*uA);}`;
-function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);return s}
-const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
-if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){root.classList.remove('gl');plainChrome();return}
-gl.useProgram(pr);
-const U={};['uM','uBend','uT','uC','uS','uA','uSat','uW','uTm','uR','uDk'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
-// subdivided quad so planes can bend with scroll speed
-const N=16,pos=[],idx=[];
-for(let y=0;y<=N;y++)for(let x=0;x<=N;x++)pos.push(x/N-.5,y/N-.5);
-for(let y=0;y<N;y++)for(let x=0;x<N;x++){const a=y*(N+1)+x,b=a+1,c=a+N+1,d=c+1;idx.push(a,c,b,b,c,d)}
-gl.bindBuffer(gl.ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ARRAY_BUFFER,new Float32Array(pos),gl.STATIC_DRAW);
-gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ELEMENT_ARRAY_BUFFER,new Uint16Array(idx),gl.STATIC_DRAW);
-const aP=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,2,gl.FLOAT,false,0,0);
-gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(11/255,11/255,10/255,1);gl.uniform1i(U.uT,0);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
-
-function tex(src){return new Promise((res,rej)=>{const im=new Image();im.onload=()=>{try{const t=gl.createTexture();gl.bindTexture(gl.TEXTURE_2D,t);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_S,gl.CLAMP_TO_EDGE);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_WRAP_T,gl.CLAMP_TO_EDGE);
-  gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MIN_FILTER,gl.LINEAR);gl.texParameteri(gl.TEXTURE_2D,gl.TEXTURE_MAG_FILTER,gl.LINEAR);
-  gl.texImage2D(gl.TEXTURE_2D,0,gl.RGB,gl.RGB,gl.UNSIGNED_BYTE,im);res({t,a:im.naturalWidth/im.naturalHeight})}catch(e){rej(e)}};im.onerror=rej;im.src=src})}
-
-// column-major mat4
-function mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s}return o}
-function persp(f,a,n,fa){const t=1/Math.tan(f/2),nf=1/(n-fa);return new Float32Array([t/a,0,0,0,0,t,0,0,0,0,(fa+n)*nf,-1,0,0,2*fa*n*nf,0])}
-function model(x,y,z,ry,sx,sy){const c=Math.cos(ry),s=Math.sin(ry);return new Float32Array([c*sx,0,-s*sx,0,0,sy,0,0,s,0,c,0,x,y,z,1])}
-const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
-
-// scene: hero sign plane at z=0, four cuts behind it; camera dives through the sign
-const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),D=2.4,Z0=3.2;
-const frameZ=[-2.5,-7,-11.5,-16];
-const stops=[Z0,...frameZ.map(z=>z+D),frameZ[3]+D-3];
-let dirty=true,P,hero=null,frames=[],cur=Z0,vel=0,raf=0,visible=true,lastCap=-2,endOn=false;
-const caps=$$('.cut'),endCopy=$('#endCopy'),heroCopy=$('#heroCopy');
-
-function layout(){
-  const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
-  const A=W/H,dpr=Math.min(devicePixelRatio||1,W<768?1.5:1.75); // ponytail: dpr cap keeps phones at 60fps
-  canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);gl.viewport(0,0,canvas.width,canvas.height);
-  P=persp(FOV,A,.05,60);
-  const vh=2*D*TAN,vw=vh*A,mob=A<.9;
-  frames.forEach((f,i)=>{
-    const h=mob?Math.min(vw*.84/f.a,vh*.6):vh*.66;
-    Object.assign(f,{h,w:h*f.a,x:(mob?.05:.21)*vw*(i%2?1:-1),y:mob?vh*.1:0,z:frameZ[i]});
-  });
-  if(hero){hero.h=2*Z0*TAN*1.08;hero.w=hero.h*A}
-  dirty=true;draw();
-}
-function plane(o,alpha,sat,bend,wave,rad,dark,ry){
-  const V=new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,0,0,-cur,1]);
-  gl.uniformMatrix4fv(U.uM,false,mul(P,mul(V,model(o.x,o.y,o.z,ry,o.w,o.h))));
-  const pa=o.w/o.h;gl.uniform2f(U.uC,pa>o.a?1:pa/o.a,pa>o.a?o.a/pa:1);
-  gl.uniform2f(U.uS,o.w,o.h);gl.uniform1f(U.uA,alpha);gl.uniform1f(U.uSat,sat);
-  gl.uniform1f(U.uBend,bend);gl.uniform1f(U.uW,wave);gl.uniform1f(U.uR,rad);gl.uniform1f(U.uDk,dark);
-  gl.bindTexture(gl.TEXTURE_2D,o.t);gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
-}
-function draw(){
-  if(!hero||!P)return;
-  gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform1f(U.uTm,performance.now()/1000);
-  for(let i=frames.length-1;i>=0;i--){ // far to near
-    const f=frames[i],dz=cur-f.z;
-    if(dz<.15)continue; // behind camera
-    const focus=1-cl(Math.abs(dz-D)/3.6,0,1), fog=cl(1-(dz-D-2)/12,0,1);
-    plane(f,cl((dz-.15)/.9,0,1)*fog,.12+.88*Math.pow(focus,.8),cl(vel*1.4,-.3,.3),cl(Math.abs(vel)*4,0,.8),.035,1,(f.x>0?-1:1)*.42*(1-focus));
-  }
-  if(cur>.12){
-    const dive=cl((Z0-cur)/Z0,0,1);
-    plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.5,0,cl(Math.abs(vel)*5,0,.7)+dive*1.4,0,.66,0);
-  }
-}
-function camFor(p){ // smootherstep between stops = the camera lingers on each cut
-  const n=stops.length-1,s=p*n,i=Math.min(Math.floor(s),n-1),t=s-i,e=t*t*t*(t*(t*6-15)+10);
-  return stops[i]+(stops[i+1]-stops[i])*e;
-}
-function ui(r){
-  const ho=cl((cur-2.3)/.8,0,1);
-  heroCopy.style.opacity=ho;heroCopy.style.transform=`translateY(${(1-ho)*-40}px)`;heroCopy.style.visibility=ho<.01?'hidden':'visible';
-  let k=-1;frames.forEach((f,i)=>{if(Math.abs(cur-(f.z+D))<.95)k=i});
-  if(k!==lastCap){caps.forEach((c,i)=>c.classList.toggle('on',i===k));lastCap=k}
-  const e=cur<frameZ[3]+D-1.3;if(e!==endOn){endCopy.classList.toggle('on',e);endOn=e}
-  dock.classList.toggle('show',-r.top>innerHeight*.55);
-  hdr.classList.toggle('solid',r.bottom<innerHeight*.2);
-}
-function tick(){
-  raf=0;if(!visible)return;
-  const r=journey.getBoundingClientRect(),p=cl(-r.top/(r.height-innerHeight),0,1),target=camFor(p);
-  vel=target-cur;const moving=vel!==0;cur+=vel*.14;if(Math.abs(vel)<.0004){cur=target;vel=0}
-  if(moving||dirty){draw();ui(r);dirty=false}
-  raf=requestAnimationFrame(tick);
-}
-const jio=new IntersectionObserver(([e])=>{
-  visible=e.isIntersecting;
-  if(visible){if(!raf)raf=requestAnimationFrame(tick)}else{dock.classList.add('show');hdr.classList.add('solid')}
-});jio.observe(journey);
-new ResizeObserver(layout).observe(canvas);
-// GPU reset on phones: drop to the static layout instead of a blank stage
-canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');caps.forEach(c=>c.classList.remove('on'));root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
-
-Promise.all(['sign','fade','curly','platinum','sidepart'].map(n=>tex(`img/${n}.webp`))).then(([h,...fs])=>{
-  hero={t:h.t,a:h.a,x:0,y:0,z:0};frames=fs.map(f=>({t:f.t,a:f.a}));layout();
-  root.classList.add('gl-ready');if(!raf)raf=requestAnimationFrame(tick);
-}).catch(()=>{root.classList.remove('gl');plainChrome()});
-})();
-</script>
+<script defer src="js/vendor/anime.umd.min.js"></script>
+<script defer src="js/core.js"></script>
+<script defer src="js/store.js"></script>
+<script defer src="js/product-gl.js"></script>
+<script defer src="js/shop.js"></script>
+<script defer src="js/cart.js"></script>
+<script defer src="js/motion.js"></script>
+<script defer src="js/club.js"></script>
+<script defer src="js/journey.js"></script>
+<script defer src="js/main.js"></script>
 </body>
 </html>
