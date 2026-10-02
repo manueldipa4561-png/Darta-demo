@@ -26,7 +26,7 @@ vec3 c=vec3(texture2D(uT,uv+vec2(s,0.)).r,texture2D(uT,uv).g,texture2D(uT,uv-vec
 vec2 o=uPx*uC;vec3 bl=(texture2D(uT,uv+vec2(o.x,0.)).rgb+texture2D(uT,uv-vec2(o.x,0.)).rgb+texture2D(uT,uv+vec2(0.,o.y)).rgb+texture2D(uT,uv-vec2(0.,o.y)).rgb)*.25;
 c=clamp(c+(c-bl)*uSh,0.,1.); // unsharp mask, one screen pixel wide
 float g=dot(c,vec3(.299,.587,.114));c=mix(vec3(g),c,uSat)*uDk;
-c*=vec3(.96,1.,1.015);c+=(fract(sin(dot(gl_FragCoord.xy+uTm*61.,vec2(12.9898,78.233)))*43758.5453)-.5)*.045;
+c*=vec3(.96,1.,1.015);c+=(fract(sin(dot(gl_FragCoord.xy+uTm*61.,vec2(12.9898,78.233)))*43758.5453)-.5)*.02;
 vec2 q=abs(vUv-.5)*uS;vec2 h=uS*.5-uR;vec2 e=q-h;float d=length(max(e,0.))+min(max(e.x,e.y),0.)-uR;float m=uR>0.?1.-smoothstep(-.006,.006,d):1.;
 float v=smoothstep(.9,.3,length(vUv-.5));gl_FragColor=vec4(c*mix(.72,1.,v),m*uA);}`;
 function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileShader(s);return s}
