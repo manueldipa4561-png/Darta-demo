@@ -59,8 +59,11 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 /* ===== journey: hero ===== */
 #journey{position:relative}
 #stage{position:relative;min-height:100svh;overflow:hidden;background:var(--bg)}
-#stage canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .8s}
-.gl-ready #stage canvas{opacity:1}
+#stage canvas{position:absolute;inset:0;width:100%;height:100%}
+#gl,#glShop{opacity:0}
+.gl-ready #gl{opacity:1;animation:glIn .8s}   /* the script's inline opacity takes over during the dissolve */
+@keyframes glIn{from{opacity:0}}
+#glShop{pointer-events:none}
 .hero-img{position:absolute;inset:0;width:100%;height:100svh;object-fit:cover;filter:brightness(.62)}
 .gl-ready .hero-img{opacity:0;transition:opacity .8s}
 #stage::before,#stage::after{content:"";position:absolute;left:0;right:0;pointer-events:none;z-index:2}
@@ -71,14 +74,12 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 .hero-copy .lead{margin-bottom:1.6rem;color:#d3cdc2}
 .cta-row{display:flex;flex-wrap:wrap;gap:.75rem}
 
-/* hero: the camera dives into the sign, then a white-out hands over to the Wax Powder film */
-.flash{position:absolute;inset:0;z-index:4;background:#f4f5f6;opacity:0;pointer-events:none}
-html:not(.gl) .flash{display:none}
-html:not(.gl) #stage{overflow:visible}
+/* hero: the camera dives into the sign, which dissolves into the shop scene underneath (same pinned stage) */
+html:not(.gl) html:not(.gl) #stage{overflow:visible}
 html:not(.gl) .hero-copy{position:relative}
 html:not(.gl) #stage::after{height:100svh;top:0;bottom:auto;background:linear-gradient(transparent 42%,rgba(11,11,10,.94))}
-.gl #journey{height:300svh}
-@media(max-width:700px){.gl #journey{height:250svh}}
+.gl #journey{height:960svh}
+@media(max-width:700px){.gl #journey{height:780svh}}
 .gl #stage{position:sticky;top:0;height:100svh}
 
 /* ===== sections ===== */

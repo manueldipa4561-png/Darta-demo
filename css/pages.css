@@ -1,0 +1,59 @@
+/* Darta inner pages: shop, product pages, services. Loaded after styles.css and shop.css. */
+
+/* ===== shared frame of the inner pages ===== */
+.page-inner main{padding-top:calc(env(safe-area-inset-top) + 92px);min-height:70svh}
+.page-inner .hdr{background:rgba(11,11,10,.82);-webkit-backdrop-filter:blur(14px);backdrop-filter:blur(14px);border-color:var(--line)}
+.page-inner .dock{transform:none}
+.page-product .dock{display:none}
+@media(min-width:900px){.page-inner .dock{display:none}}
+.crumbs{display:flex;flex-wrap:wrap;align-items:center;gap:.55rem;margin-bottom:clamp(1.4rem,4vw,2.4rem);font:500 .75rem/1.2 var(--mono);letter-spacing:.1em;text-transform:uppercase;color:var(--dim)}
+.crumbs a{color:var(--muted);text-decoration:none;min-height:24px;display:inline-flex;align-items:center}
+.crumbs a:hover{color:var(--text)}
+.crumbs [aria-current]{color:var(--text)}
+.foot-nav{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem}
+.foot-nav a{color:var(--muted);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
+.foot-nav a:hover{color:var(--text)}
+
+/* ===== shop page ===== */
+.shop-top{padding-top:clamp(1.2rem,4vw,2.4rem)}
+.pcard-name a{color:inherit;text-decoration:none}
+.pcard-name a:hover{color:var(--accent)}
+a.pcard-add{text-decoration:none}
+
+/* ===== product page ===== */
+.pp-grid{display:grid;grid-template-columns:minmax(0,1fr);gap:clamp(20px,4vw,52px);align-items:start}
+.pp-stage{aspect-ratio:1/1;max-height:72svh;border-radius:var(--r);border:1px solid var(--line)}
+.pp-info{min-width:0}
+.pp .pdp-h{font-size:clamp(3rem,9vw,5.4rem)}
+.pp .buy{position:sticky;bottom:0;margin:1.4rem 0 0;padding:14px 0 calc(env(safe-area-inset-bottom) + 14px)}
+.pp-more,.pp-contains{margin-top:clamp(2rem,5vw,3rem);padding-top:1.5rem;border-top:1px solid var(--line)}
+.pp-more .more,.pp-contains .more{max-width:680px}
+.pp-more .mini img,.pp-contains .mini img{width:96px;height:96px}
+.pp-more .mini,.pp-contains .mini{text-decoration:none}
+@media(min-width:900px){
+  .pp-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr)}
+  .pp-stage{position:sticky;top:96px;aspect-ratio:auto;height:min(calc(100svh - 124px),780px);max-height:none}
+}
+.page-product footer{padding-bottom:3rem}
+
+/* ===== services ===== */
+a.row{text-decoration:none;color:inherit;transition:background .25s}
+a.row .n{transition:color .25s}
+a.row:hover .n,a.row:focus-visible .n{color:var(--accent)}
+.svc-hero{display:grid;gap:1.1rem;max-width:760px}
+.svc-h{font-size:clamp(3.2rem,11vw,6.4rem)}
+.svc-tag{color:var(--accent);font:500 .8125rem/1.3 var(--mono);letter-spacing:.1em;text-transform:uppercase}
+.svc-meta{list-style:none;display:flex;flex-wrap:wrap;gap:1rem 2.4rem;padding:1.1rem 0;border-block:1px solid var(--line)}
+.svc-meta span{display:block;color:var(--dim);font:500 .6875rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;margin-bottom:.5rem}
+.svc-meta b{font:800 clamp(1.8rem,6vw,2.4rem)/1 var(--fd);text-transform:uppercase}
+.svc-steps{margin-top:clamp(2.2rem,6vw,3.4rem)}
+.svc-steps ol{list-style:none;counter-reset:s;display:grid;gap:1px;margin-top:1rem;max-width:760px}
+.svc-steps li{counter-increment:s;display:grid;grid-template-columns:3.2rem 1fr;align-items:baseline;gap:.4rem;padding:1.05rem 0;border-bottom:1px solid var(--line);color:var(--muted);font-size:1.0625rem}
+.svc-steps li::before{content:"0" counter(s);color:var(--accent);font:800 1.6rem/1 var(--fd)}
+.svc-more{margin-top:clamp(2.2rem,6vw,3.4rem);max-width:760px}
+.svc-more .menu-list{margin-top:.6rem}
+/* ===== dev tool page ===== */
+.tool-out{list-style:none;display:grid;gap:8px;margin-top:1rem}
+.tool-out li{display:flex;align-items:center;gap:12px;color:var(--muted)}
+.tool-out img{background:#0f1817;border-radius:10px}
+body.tool{padding:calc(env(safe-area-inset-top) + 40px) 0 60px}

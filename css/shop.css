@@ -118,16 +118,8 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 .shop-note{margin-top:1.5rem;font-size:.875rem;color:var(--dim)}
 .note{color:var(--dim);font-size:.875rem}
 
-/* ===== product sheet (dialog) ===== */
-dialog.pdp{width:100%;max-width:none;height:100dvh;max-height:none;margin:0;padding:0;border:0;border-radius:0;background:var(--bg);overflow:auto;overscroll-behavior:contain}
-dialog.pdp[open]{animation:pdpIn .55s var(--ease)}
-dialog.pdp.out{animation:pdpOut .17s ease-in forwards}
-@keyframes pdpIn{from{opacity:0;transform:translateY(40px) scale(.985)}}
-@keyframes pdpOut{to{opacity:0;transform:translateY(24px)}}
-dialog.pdp::backdrop{background:rgba(0,0,0,.72)}
-.pdp-bar{position:sticky;top:0;z-index:6;height:0;display:flex;justify-content:flex-end;gap:10px;padding:12px 14px;overflow:visible}
-.pdp-bar .x{background:rgba(11,11,10,.62);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
-.pdp-grid{display:grid;grid-template-columns:minmax(0,1fr)}
+/* ===== product page pieces (stage, viewer, specs, buy bar) ===== */
+@keyframes pdpOut{to{opacity:0;transform:translateY(24px)}}   /* also used by the checkout dialog */
 .pdp-stage{position:relative;width:100%;aspect-ratio:1/1;max-height:62svh;background:radial-gradient(70% 60% at 50% 40%,#1f3e3b 0%,#0f1817 58%,#090a09 100%);overflow:hidden}
 .pdp-stage::before{content:"";position:absolute;inset:0;background:linear-gradient(rgba(239,233,223,.04) 1px,transparent 1px) 0 0/100% 56px,linear-gradient(90deg,rgba(239,233,223,.04) 1px,transparent 1px) 0 0/56px 100%;mask-image:radial-gradient(circle at 50% 45%,#000 20%,transparent 75%);-webkit-mask-image:radial-gradient(circle at 50% 45%,#000 20%,transparent 75%)}
 .pdp-stage::after{content:"";position:absolute;inset:16px;border:1px solid rgba(239,233,223,.09);border-radius:14px;pointer-events:none}
@@ -151,13 +143,12 @@ dialog.pdp::backdrop{background:rgba(0,0,0,.72)}
 .pdp-try svg{width:1.05em;height:1.05em}
 .pdp-try.playing{border-color:var(--accent);background:rgba(108,192,184,.14);pointer-events:none}
 .pdp-try[hidden],.pdp-stage:not(.live) .pdp-try{display:none}
-.pdp-info{padding:clamp(20px,4vw,40px);display:block;position:relative}
 .pdp-badge{position:static;display:inline-block;margin-bottom:.9rem}
 .pdp-h{font-size:clamp(3rem,10vw,4.8rem);line-height:.9}
 .pdp-tag{margin-top:.7rem;color:var(--dim);font:500 .8125rem/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase}
 .pdp-price{margin:1.1rem 0 1.2rem;font:800 2.4rem/1 var(--fd)}
 .pdp-desc{color:var(--muted);max-width:48ch}
-#pdpVars{margin:0 0 1.4rem}
+#ppVars{margin:0 0 1.4rem}
 .specs{display:grid;margin:1.5rem 0 .5rem}
 .spec{display:flex;justify-content:space-between;align-items:center;gap:1rem;padding:.75rem 0;border-bottom:1px solid var(--line)}
 .spec dt{font:500 .75rem/1 var(--mono);letter-spacing:.12em;text-transform:uppercase;color:var(--muted)}
@@ -184,21 +175,12 @@ dialog.pdp::backdrop{background:rgba(0,0,0,.72)}
 .acc[open] summary::after{content:"\2212"}
 .acc ol{padding:0 0 1rem 1.25rem;display:grid;gap:.45rem;color:var(--muted)}
 .acc p{padding-bottom:1rem;color:var(--muted)}
-#pdpMoreBox{margin-top:1.5rem;border-top:1px solid var(--line);padding-top:1.4rem}
 .more{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:1rem}
 .mini{display:grid;justify-items:center;gap:.4rem;padding:10px 8px;border:1px solid var(--line);border-radius:12px;text-align:center;background:var(--surface);transition:border-color .2s}
 .mini:hover{border-color:var(--accent)}
 .mini img{width:72px;height:72px;object-fit:contain}
 .mini b{display:block;font:600 .8125rem/1.2 var(--fb)}
 .mini small{display:block;color:var(--dim);font:500 .6875rem var(--mono)}
-@media(min-width:900px){
-  dialog.pdp{width:min(1180px,calc(100vw - 48px));height:min(840px,calc(100dvh - 48px));margin:auto;border-radius:24px;border:1px solid var(--line);overflow:hidden}
-  .pdp-grid{grid-template-columns:minmax(0,1.05fr) minmax(0,1fr);height:100%}
-  .pdp-stage{aspect-ratio:auto;max-height:none;height:100%}
-  .pdp-info{overflow:auto;height:100%;overscroll-behavior:contain}
-  .pdp-bar{position:absolute;left:auto;right:0;top:0}
-}
-
 /* ===== cart drawer ===== */
 dialog.drawer{margin:0 0 0 auto;width:min(470px,100vw);max-width:none;height:100dvh;max-height:none;padding:0;border:0;border-left:1px solid var(--line);border-radius:0;background:var(--surface);overflow:hidden}
 @media(min-width:560px){dialog.drawer{border-radius:22px 0 0 22px}}
