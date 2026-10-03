@@ -13,7 +13,7 @@ Audit date: 2026-10-02. Scope: the static site in this repository (frontend, Net
 | Supply chain | `anime.js` 4.5.0 vendored | Tarball integrity matches the npm registry; bundle SHA-256 identical to the published file; no network, `eval` or `Function` calls inside. ECC IOC scanner: no findings (no package manifests in the repo) |
 | CSP | Enforced locally with the real `netlify.toml` headers across shelf, product sheet, cart, checkout, filters, 3D | 0 violations. `style-src 'self'` (no `'unsafe-inline'` for style elements), `script-src 'self'` plus one hash |
 | Headers | CSP, COOP `same-origin`, CORP `same-origin`, `X-Frame-Options: DENY`, `frame-ancestors 'none'`, nosniff, strict Referrer-Policy, HSTS, wide Permissions-Policy | Set in `netlify.toml` |
-| Exposure | `publish = "."` serves the whole repo | `/docs`, `/tools`, `/.git`, `README.md`, `netlify.toml`, `.gitignore` answer 404 |
+| Exposure | `publish = "."` serves the whole repo | `/docs`, `/tools` (dev server, generator and the image-save endpoint live there), `/.git`, `README.md`, `netlify.toml`, `.gitignore` answer 404 |
 | HTML | `html-validate` (recommended + WCAG rules) | 0 errors |
 | Accessibility | axe-core (WCAG 2.0/2.1/2.2 A and AA, best practices) on the page and on product sheet, gift card variants, cart, checkout with errors, order confirmation | 0 violations in every modal state. Main page: contrast of the dimmed manifesto words and a missing landmark were found and fixed |
 | Functional regression | Scripted checks: history and Back, scroll-lock, double-close, drag-release on the backdrop, promo states, shipping thresholds, stepper at 9, order then Back | All pass after the fixes listed below |

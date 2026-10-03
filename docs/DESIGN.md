@@ -26,9 +26,13 @@ Anything heavy scales down on phone-class devices (`D.lite()`: touch screen or a
 
 - Images: `srcset` serves 900 to 1000 px WebP files (about a third of the bytes) and only larger ones to big screens.
 - Hero 3D: texture capped at 1024 px, canvas at 1.5x pixel ratio, and if the 3D hero is not up within 7 seconds the plain photo takes over instead of leaving a dark screen.
-- Wax Powder film: its own WebGL context is created only when the section is within one and a half screens, the canvas renders at 1.5x, the powder cloud uses 45 percent of the grains, and when you stop scrolling it redraws only a few frames per second (just the gentle float).
+- Shop intro: its own WebGL context is created only when the visitor starts scrolling (or after a few idle seconds), the canvas renders at 1.5x, and when you stop scrolling it redraws only a few frames per second (just the gentle float). The powder cloud on the Wax Powder page uses 45 percent of the grains.
 - Layout: shorter scroll tracks on phones; the bottle is fitted into the free space above the price block (measured, so a 320 x 568 screen does not overlap); landscape phones switch to words left, price right.
 - Cache: scripts and styles revalidate on every load, so a new page can never meet an old script.
+
+## Pages
+
+Products and services are real pages (`/prodotti/<name>`, `/servizi/<name>`) so they can be linked, shared and bookmarked, and so the shop and the price list are not crammed into the home page. They are generated into static HTML (tools/build-pages.py) from the data files: text, price, schema.org data and a picture are in the markup before any script runs, and the script only adds the live 3D viewer, options and the cart. Catalog pictures are rendered once from the real 3D models (tools/render-images.html), so the shop page needs no WebGL and loads about 25 KB per product.
 
 ## Team cards
 
@@ -47,20 +51,21 @@ Pinterest was not usable (login and CAPTCHA wall), and the studio's Instagram on
 
 ## 3D
 
-- Raw WebGL1, no library (keeps the CSP, bundle and GPU context count minimal). One context serves shelf snapshots and the live viewer.
+- Raw WebGL1, no library (keeps the CSP, bundle and GPU context count minimal). A page type uses at most two contexts.
 - Models are surfaces of revolution (jar, dropper bottle, spray) plus a rounded slab (cards). Hard creases come from repeated profile points.
 - Lighting is procedural: key softbox, strip light, teal rim from `--accent`, ACES tone map. Amber glass is a shaded translucent shell with a liquid line.
 - Labels are drawn to a canvas from the catalog (`label` fields) in the site fonts, wrapped as decals on front-facing surfaces only.
+- The home shop intro draws five products in one frame (`scene()`), with a spotlight that dims the others, a light pool under each and a lift as it comes into focus. Product pages use the same renderer for the single-product viewer.
 - The Wax Powder bottle follows the product film: slim gloss-black body, ribbed neck, silver screw cap, the Darta script printed on the glass. Its animation is a pure function of a 0..1 progress value (`powderPose`), and the powder is a stateless particle field (position = f(age)), so scrolling can scrub both forwards and backwards. The shop's viewer plays the same timeline on a button.
-- `createGL()` builds independent renderers: one for shelf snapshots and the viewer, one for the home film. Three WebGL contexts in total (hero, shop, film), well under mobile limits.
-- Shelf images are rendered once in idle time (about 20 ms each) and stored as WebP data URLs, so the grid never holds more than one GL context.
+- `createGL()` builds independent renderers. The home page uses two WebGL contexts (hero sign and shop intro); a product page uses one (its viewer); the shop and service pages use none.
+- Catalog pictures are rendered offline from these models by tools/render-images.html and committed as WebP (img/p/), so catalog pages never need WebGL.
 
 ## Motion spec
 
 | Piece | Trigger | Timing |
 |---|---|---|
-| Hero dive | scroll | camera dolly with chromatic split, then a white-out (scroll 70 to 96 percent) that hands over to the film |
-| Wax Powder film | scroll, pinned 640 svh | cap unscrews 6 to 30 percent, tilt 34 to 52, pour 50 to 80, bottle returns 80 to 92, cap screws back 82 to 97; words SVITA / SCUOTI / DAI VOLUME assemble letter by letter; price counts 4 to 20 |
+| Hero dive | scroll | camera dolly with chromatic split; from 55 percent of the dive the sign canvas fades while the shop scene fades in underneath (one continuous move, no flash) |
+| Shop intro | scroll, one pinned stage with the hero (960 svh, 780 on phones) | arrival (products rise, camera dollies in), then a spotlight tour: each product lifts and turns as the camera glides to it and its name, price and one-liner assemble letter by letter; closing view pulls back to the whole counter with a link to the shop |
 | Lavori deck | scroll, pinned 520 svh | smootherstep between photos so each one lingers; card slides out with rotation while the next arrives; giant word behind each photo |
 | Curtain | first visit per session | about 2.1 s, skipped for reduced motion, deep links and hidden tabs |
 | Hero text | load | CSS reveal, delayed under the curtain |
