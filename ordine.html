@@ -3,25 +3,22 @@
 <head>
 <meta charset="utf-8">
 <meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
-<title>Shop | Darta Barber Studio, Pescara</title>
-<meta name="description" content="Lo shop di Darta Barber Studio: wax powder, argilla, pomata, olio barba, sea salt spray, kit e gift card. Ritiro gratis in salone o spedizione in Italia.">
+<title>Il tuo ordine | Darta Barber Studio</title>
+<meta name="description" content="Conferma del tuo ordine su Darta Barber Studio.">
 <meta name="robots" content="noindex">
 <meta name="darta-demo" content="1">
 <meta name="theme-color" content="#0b0b0a">
-<meta property="og:title" content="Shop | Darta Barber Studio, Pescara">
-<meta property="og:description" content="Lo shop di Darta Barber Studio: wax powder, argilla, pomata, olio barba, sea salt spray, kit e gift card. Ritiro gratis in salone o spedizione in Italia.">
-<meta property="og:image" content="/img/p/wax-powder-a.webp">
+<meta property="og:title" content="Il tuo ordine | Darta Barber Studio">
+<meta property="og:description" content="Conferma del tuo ordine su Darta Barber Studio.">
 <link rel="icon" href="/img/logo.png">
 <link rel="preload" as="font" type="font/woff2" href="/fonts/BarlowCondensed-800.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="/fonts/Barlow-400.woff2" crossorigin>
-<link rel="preload" as="fetch" href="/data/catalog.json" crossorigin="anonymous">
 <script>/* set layout flags before first paint: GL corridor, first-visit curtain */(function(d){var r=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!r){d.classList.add('gl');try{if(location.pathname.length<2&&!sessionStorage.getItem('darta-seen')&&!location.hash){d.classList.add('intro');sessionStorage.setItem('darta-seen','1')}}catch(e){}}})(document.documentElement)</script>
 <link rel="stylesheet" href="/css/styles.css">
 <link rel="stylesheet" href="/css/shop.css">
 <link rel="stylesheet" href="/css/pages.css">
-<script type="application/ld+json">{"@context": "https://schema.org", "@type": "ItemList", "itemListElement": [{"@type": "ListItem", "position": 1, "url": "/prodotti/wax-powder", "name": "Wax Powder"}, {"@type": "ListItem", "position": 2, "url": "/prodotti/matte-clay", "name": "Matte Clay"}, {"@type": "ListItem", "position": 3, "url": "/prodotti/pomata-shine", "name": "Pomata Shine"}, {"@type": "ListItem", "position": 4, "url": "/prodotti/olio-barba", "name": "Olio Barba"}, {"@type": "ListItem", "position": 5, "url": "/prodotti/sea-salt-spray", "name": "Sea Salt Spray"}, {"@type": "ListItem", "position": 6, "url": "/prodotti/kit-fade", "name": "Kit Fade"}, {"@type": "ListItem", "position": 7, "url": "/prodotti/gift-card", "name": "Gift Card"}, {"@type": "ListItem", "position": 8, "url": "/prodotti/abbonamento-fade", "name": "Abbonamento Fade"}]}</script>
 </head>
-<body class="page-inner page-shop">
+<body class="page-inner page-order">
 
 <svg width="0" height="0" style="position:absolute" aria-hidden="true">
   <!-- Phosphor Icons (regular), MIT -->
@@ -60,130 +57,21 @@
 </header>
 
 <main id="top">
-  <section class="sec shop shop-top" aria-labelledby="shopTitle">
+  <section class="sec ord" aria-labelledby="ordTitle">
     <div class="wrap">
-      <nav class="crumbs" aria-label="Percorso"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Shop</span></nav>
-      <div class="shop-head">
-        <div>
-          <p class="eyebrow rv">/ Shop online</p>
-          <h1 class="d h2" id="shopTitle" style="margin-top:1rem"><span class="ln"><span class="rv">Il banco</span></span><span class="ln"><span class="rv" style="--i:1">di <em>Thomas.</em></span></span></h1>
+      <nav class="crumbs" aria-label="Percorso"><a href="/">Home</a><span aria-hidden="true">/</span><span aria-current="page">Ordine</span></nav>
+      <div class="done-in" id="ordBox" aria-live="polite">
+        <p class="eyebrow">/ Il tuo ordine</p>
+        <h1 class="d h2sm" id="ordTitle">Controllo il pagamento&hellip;</h1>
+        <p class="mono num" id="ordNo" hidden></p>
+        <p id="ordTxt"></p>
+        <ul class="done-list" id="ordList"></ul>
+        <div class="cta-row">
+          <a class="btn btn-p" id="ordRetry" href="/shop#carrello" hidden>Torna al carrello</a>
+          <a class="btn btn-p" href="/shop">Torna allo shop</a>
+          <a class="btn btn-g" id="ordWa" href="https://wa.me/393939031656" target="_blank" rel="noopener noreferrer">Scrivi al salone su WhatsApp</a>
         </div>
-        <div class="shop-side">
-          <p class="lead rv">Quello che usa sulla poltrona, da portare a casa. Ritiro gratis in salone oppure spedizione in tutta Italia.</p>
-          <ul class="perks"><li><svg class="i" aria-hidden="true"><use href="#s-store"/></svg>Ritiro gratis in salone</li><li><svg class="i" aria-hidden="true"><use href="#s-truck"/></svg>Spedizione gratis da 40&euro;</li><li><svg class="i" aria-hidden="true"><use href="#s-gift"/></svg>Gift card in un minuto</li></ul>
-        </div>
       </div>
-      <div class="shop-bar">
-        <div class="filters" id="filters" role="group" aria-label="Filtra per categoria"><button class="fbtn" type="button" data-cat="tutti" aria-pressed="true">Tutti</button><button class="fbtn" type="button" data-cat="capelli" aria-pressed="false">Capelli</button><button class="fbtn" type="button" data-cat="barba" aria-pressed="false">Barba</button><button class="fbtn" type="button" data-cat="kit" aria-pressed="false">Kit</button><button class="fbtn" type="button" data-cat="regali" aria-pressed="false">Regali</button><button class="fbtn" type="button" data-cat="club" aria-pressed="false">Club</button></div>
-        <p class="count num" id="shopCount" aria-live="polite">8 prodotti</p>
-      </div>
-      <div class="shelf" id="shelf">
-<article class="pcard rv shot" data-id="wax" data-cat="capelli" style="--i:0">
-  <a class="pcard-media" href="/prodotti/wax-powder" aria-label="Wax Powder, 20€. Apri la pagina del prodotto">
-    <span class="pcard-no">/01</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/wax-powder-a.webp" alt="" width="640" height="640" loading="eager" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/wax-powder-b.webp" alt="" width="640" height="640" decoding="async">
-    
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/wax-powder">Wax Powder</a></h2><p class="pcard-tag">Polvere volumizzante · 20 g</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">20€</span><button class="pcard-add" type="button" data-add="wax" aria-label="Aggiungi Wax Powder al carrello"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button></div>
-  </div>
-</article>
-<article class="pcard rv shot" data-id="clay" data-cat="capelli" style="--i:1">
-  <a class="pcard-media" href="/prodotti/matte-clay" aria-label="Matte Clay, 16€. Apri la pagina del prodotto">
-    <span class="pcard-no">/02</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/matte-clay-a.webp" alt="" width="640" height="640" loading="eager" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/matte-clay-b.webp" alt="" width="640" height="640" decoding="async">
-    
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/matte-clay">Matte Clay</a></h2><p class="pcard-tag">Argilla opaca · 100 ml</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">16€</span><button class="pcard-add" type="button" data-add="clay" aria-label="Aggiungi Matte Clay al carrello"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button></div>
-  </div>
-</article>
-<article class="pcard rv shot" data-id="pomata" data-cat="capelli" style="--i:2">
-  <a class="pcard-media" href="/prodotti/pomata-shine" aria-label="Pomata Shine, 15€. Apri la pagina del prodotto">
-    <span class="pcard-no">/03</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/pomata-shine-a.webp" alt="" width="640" height="640" loading="lazy" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/pomata-shine-b.webp" alt="" width="640" height="640" decoding="async">
-    
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/pomata-shine">Pomata Shine</a></h2><p class="pcard-tag">Pomata lucida · 100 ml</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">15€</span><button class="pcard-add" type="button" data-add="pomata" aria-label="Aggiungi Pomata Shine al carrello"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button></div>
-  </div>
-</article>
-<article class="pcard rv shot" data-id="olio" data-cat="barba" style="--i:3">
-  <a class="pcard-media" href="/prodotti/olio-barba" aria-label="Olio Barba, 14€. Apri la pagina del prodotto">
-    <span class="pcard-no">/04</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/olio-barba-a.webp" alt="" width="640" height="640" loading="lazy" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/olio-barba-b.webp" alt="" width="640" height="640" decoding="async">
-    
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/olio-barba">Olio Barba</a></h2><p class="pcard-tag">Olio per barba · 30 ml</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">14€</span><button class="pcard-add" type="button" data-add="olio" aria-label="Aggiungi Olio Barba al carrello"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button></div>
-  </div>
-</article>
-<article class="pcard rv shot" data-id="sale" data-cat="capelli" style="--i:0">
-  <a class="pcard-media" href="/prodotti/sea-salt-spray" aria-label="Sea Salt Spray, 13€. Apri la pagina del prodotto">
-    <span class="pcard-no">/05</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/sea-salt-spray-a.webp" alt="" width="640" height="640" loading="lazy" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/sea-salt-spray-b.webp" alt="" width="640" height="640" decoding="async">
-    
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/sea-salt-spray">Sea Salt Spray</a></h2><p class="pcard-tag">Spray texturizzante · 150 ml</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">13€</span><button class="pcard-add" type="button" data-add="sale" aria-label="Aggiungi Sea Salt Spray al carrello"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button></div>
-  </div>
-</article>
-<article class="pcard rv shot feature" data-id="kit" data-cat="kit" style="--i:1">
-  <a class="pcard-media" href="/prodotti/kit-fade" aria-label="Kit Fade, 39€. Apri la pagina del prodotto">
-    <span class="pcard-no">/06</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/kit-fade-a.webp" alt="" width="640" height="640" loading="lazy" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/kit-fade-b.webp" alt="" width="640" height="640" decoding="async">
-    <span class="pcard-badge">Risparmi 4€</span>
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/kit-fade">Kit Fade</a></h2><p class="pcard-tag">Clay, Sea Salt, Olio · 3 prodotti</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">39€</span><button class="pcard-add" type="button" data-add="kit" aria-label="Aggiungi Kit Fade al carrello"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button></div>
-  </div>
-</article>
-<article class="pcard rv shot" data-id="gift" data-cat="regali" style="--i:2">
-  <a class="pcard-media" href="/prodotti/gift-card" aria-label="Gift Card, da 25€. Apri la pagina del prodotto">
-    <span class="pcard-no">/07</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/gift-card-a.webp" alt="" width="640" height="640" loading="lazy" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/gift-card-b.webp" alt="" width="640" height="640" decoding="async">
-    
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/gift-card">Gift Card</a></h2><p class="pcard-tag">Regala un taglio · Digitale</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">da 25€</span><a class="pcard-add" href="/prodotti/gift-card" aria-label="Scegli l'importo: Gift Card"><svg class="i" aria-hidden="true"><use href="#s-arrow"/></svg></a></div>
-  </div>
-</article>
-<article class="pcard rv shot" data-id="club" data-cat="club" style="--i:3">
-  <a class="pcard-media" href="/prodotti/abbonamento-fade" aria-label="Abbonamento Fade, 36€ /mese. Apri la pagina del prodotto">
-    <span class="pcard-no">/08</span>
-    <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="/img/p/abbonamento-fade-a.webp" alt="" width="640" height="640" loading="lazy" decoding="async">
-    <img class="pcard-img b" src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==" data-src="/img/p/abbonamento-fade-b.webp" alt="" width="640" height="640" decoding="async">
-    
-  </a>
-  <div class="pcard-body">
-    <div><h2 class="pcard-name"><a href="/prodotti/abbonamento-fade">Abbonamento Fade</a></h2><p class="pcard-tag">2 tagli al mese · Mensile</p></div>
-    <div class="pcard-buy"><span class="pcard-price num">36€ /mese</span><button class="pcard-add" type="button" data-add="club" aria-label="Aggiungi Abbonamento Fade al carrello"><svg class="i" aria-hidden="true"><use href="#s-plus"/></svg></button></div>
-  </div>
-</article>
-      </div>
-      <p class="note shop-note">Prodotti, prezzi e descrizioni sono d'esempio per la demo e da confermare con il salone. Nessun pagamento reale.</p>
     </div>
   </section>
 </main>
@@ -295,7 +183,7 @@
 <script defer src="/js/pay.js"></script>
 <script defer src="/js/cart.js"></script>
 <script defer src="/js/motion.js"></script>
-<script defer src="/js/shop.js"></script>
+<script defer src="/js/order.js"></script>
 <script defer src="/js/main.js"></script>
 </body>
 </html>
