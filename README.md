@@ -2,56 +2,70 @@
 
 Demo website concept for **Darta Barber Studio** (Via Gobetti 184, Pescara), designed and developed by [Punto Due Studio](https://puntoduestudio.it).
 
-The site is a booking landing page that now doubles as a small **e-commerce**: a shelf of products rendered live in 3D, a cart, a demo checkout, gift cards and a monthly membership. No framework, no build step, no backend: static files on Netlify.
+The site is a booking landing page that doubles as a small **e-commerce**: every product and every service has its own page, products are rendered in 3D, there is a cart, a demo checkout, gift cards and a monthly membership. No framework, no build step, no backend: static files on Netlify.
 
 ## What is in it
 
-| Area | What it does |
+| Page / area | What it does |
 |---|---|
-| Hero | Raw WebGL dive into the salon sign, then a white-out into the product film (plain photo without WebGL) |
-| Wax Powder film (`#film`) | Pinned scroll scene on a white studio set: scroll scrubs the real 3D bottle (SVITA: cap unscrews, SCUOTI: it tips and pours powder, DAI VOLUME: it rights itself), the price counts up to the real catalog price. Same model and timeline as the shop (still poster without WebGL or with reduced motion) |
-| Lavori (`#lavori`) | The four recent cuts as a scroll-driven deck with a giant word behind each photo; plain DOM, so the photos stay sharp (swipe rail with reduced motion) |
-| Shop (`#shop`) | Product shelf with 3D renders, category filters, free-shipping rules, deep links (`#prodotto/matte-clay`) |
-| Product sheet | Live WebGL viewer (drag, arrow keys or buttons to rotate), gift card amounts that re-render on the card, "Svita e scuoti" / "Apri" plays the product's own animation |
-| Cart (`#carrello`) | Drawer with quantity steppers, pickup or shipping, coupon `BENVENUTO10`, free-shipping progress bar |
-| Checkout (`#checkout`) | Validated form, order confirmation, optional WhatsApp hand-off. **Demo only: no payment, nothing is sent** |
-| Club | Customisable loyalty card with tilt and stamps |
-| Motion | anime.js: first-visit curtain, count-ups, scroll-scrubbed manifesto, magnetic buttons, fly-to-cart, order burst |
+| Home (`/`) | Raw WebGL dive into the salon sign that dissolves into the shop intro: a dark 3D lineup where a spotlight travels from product to product (scroll-driven), then a link into the shop. Then the Lavori deck, proof, services teaser, story, team (three equal cards), club, hours |
+| Shop (`/shop`) | The whole catalog: category filters, quick add, a picture per product rendered from the real 3D models (static HTML, no 3D needed) |
+| Product pages (`/prodotti/<name>`) | One page per product: live WebGL viewer (drag, arrows, "Svita e scuoti" / "Apri" plays the product's own animation), options (gift card amounts re-render on the card), quantity, add to cart, related products. Old `#prodotto/<name>` links redirect here |
+| Services (`/servizi`, `/servizi/<name>`) | The price list as a page, plus one page per service with duration, price, how it goes, products to pair, and a booking button |
+| Cart and checkout | Drawer (`#carrello`) and demo checkout (`#checkout`) work on every page and share the same saved cart. **Demo only: no payment, nothing is sent** |
+| Opening status | The header chip is green when the salon is open and red when closed (Europe/Rome, Tuesday to Saturday 10:00 to 19:00); it updates by itself |
+| Motion | anime.js: first-visit curtain, count-ups, scroll-scrubbed manifesto, magnetic buttons, fly-to-cart, order burst. Everything respects `prefers-reduced-motion` |
 
 ## Run it
 
 ```bash
-python3 -m http.server 4173      # then open http://localhost:4173
+python3 tools/serve.py      # then open http://127.0.0.1:4173
 ```
 
-Any static server works. There is nothing to install.
+The dev server sends the same headers as Netlify (so CSP mistakes show up while you work) and understands the clean URLs (`/shop`, `/prodotti/...`). Nothing to install.
 
-## Edit the shop
+## Edit the shop and the services
 
-Everything sold lives in [`data/catalog.json`](data/catalog.json): names, prices (in cents), categories, variants, coupons and shipping rules. Product looks (colours, label text) sit in each product's `look` and `label` fields and feed the 3D renderer directly. Add a product with kind `jar`, `dropper`, `spray`, `powder`, `kit` or `card` and it appears on the shelf with its own 3D model, no image needed.
+Everything sold lives in [`data/catalog.json`](data/catalog.json): names, prices (in cents), categories, variants, coupons and shipping rules. Product looks (colours, label text) sit in each product's `look` and `label` fields and feed the 3D renderer directly. Kinds: `jar`, `dropper`, `spray`, `powder`, `kit`, `card`. Services live in [`data/services.json`](data/services.json).
+
+After editing either file, regenerate the pages and commit the result:
+
+```bash
+python3 tools/build-pages.py       # shop.html, servizi.html, prodotti/*.html, servizi/*.html (+ the service teaser on the home page)
+```
+
+If a product's look or model changed, re-render its pictures: start the dev server, open `http://127.0.0.1:4173/tools/render-images.html`, and it writes `img/p/<name>-a.webp` / `-b.webp` using the real 3D renderer. The header, footer, cart and checkout of every page are copied from the `<!--shared:...-->` blocks of `index.html`.
 
 ## Structure
 
 ```
-index.html            markup, dialogs, one tiny inline pre-paint script
+index.html            home page; also the source of the shared header, footer, cart and checkout
+shop.html             /shop            generated by tools/build-pages.py
+servizi.html          /servizi         generated
+prodotti/<name>.html  /prodotti/<name> generated, one per product
+servizi/<name>.html   /servizi/<name>  generated, one per service
 css/styles.css        base system (tokens, type, hero, sections, loyalty card)
-css/shop.css          shop layer (shelf, product sheet, cart, checkout, motion pieces)
-css/scenes.css        scroll scenes (Wax Powder film, Lavori deck); static layout by default, pinned layout when the script switches it on
+css/shop.css          shop layer (cards, product stage, cart, checkout, header chip, motion pieces)
+css/scenes.css        home scenes: shop intro (inside the hero stage), Lavori deck, services teaser
+css/pages.css         inner pages: shop, product, services
 data/catalog.json     products, coupons, shipping
-js/core.js            helpers, reveal observer, history-aware router
+data/services.json    services (prices, durations, steps, products to pair)
+img/p/                product pictures rendered from the 3D models
+js/core.js            helpers, reveal observer, router (#carrello, #checkout), URL helpers
 js/store.js           catalog loading, cart state, totals
-js/product-gl.js      raw WebGL renderer (lathe models, studio lighting, label textures, viewer, scrubbable poses, powder particles); createGL() makes independent renderers
-js/shop.js            shelf, filters, product sheet
+js/product-gl.js      raw WebGL renderer (lathe models, studio lighting, label textures, viewer, scene of several products, poses, powder particles); createGL() makes independent renderers
+js/shop.js            shop page: filters, quick add, hover picture
+js/product.js         product page: 3D viewer, options, quantity, add to cart
 js/cart.js            drawer, checkout, fly-to-cart
 js/motion.js          anime.js choreography (progressive enhancement)
-js/journey.js         hero WebGL dive into the sign + white-out
-js/film.js            Wax Powder film: scroll progress -> 3D pose, captions, price count
-js/works.js           Lavori deck: scroll progress -> card positions (CSS variables)
+js/journey.js         hero WebGL dive into the sign (dissolves into the shop scene)
+js/shopintro.js       shop intro: 3D lineup, spotlight tour, captions, all driven by scroll
+js/works.js           Lavori deck
 js/club.js            loyalty card
-js/main.js            wiring
+js/main.js            wiring shared by every page (reveals, booking sheet, opening status, bootstrap)
 js/vendor/            anime.js 4.5.0 (MIT), vendored because the CSP only allows same-origin scripts
 docs/                 design and strategy notes
-tools/csp.py          regenerates the CSP script hash in netlify.toml
+tools/                serve.py (dev server), build-pages.py (page generator), render-images.* (product pictures), csp.py (CSP hash)
 ```
 
 ## Security and deploy notes
