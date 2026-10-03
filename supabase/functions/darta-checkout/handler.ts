@@ -2,7 +2,7 @@
 // GET  /darta-checkout: { live } so the shop knows whether to offer real payment or stay in demo mode.
 import { allowedOrigins, reply } from './cors.ts';
 import { parseCart, quote } from './pricing.ts';
-import type { Catalog } from './pricing.ts';
+import type { Catalog, Lang } from './pricing.ts';
 import { couponParams, sessionParams } from './stripe.ts';
 import { StripeError } from './stripe-api.ts';
 import type { Param } from './stripe-api.ts';
@@ -19,7 +19,7 @@ const ALL_VISITORS = { max: 200, windowS: 3600 };   // checkouts per hour for th
 
 export interface CheckoutDeps {
   env: (key: string) => string | undefined;
-  loadCatalog: () => Promise<Catalog>;
+  loadCatalog: (lang: Lang) => Promise<Catalog>;
   stripe: (key: string, method: 'GET' | 'POST', path: string, params?: { [k: string]: Param }) => Promise<any>;
   /** true = allowed. Counts a hit in `bucket` and refuses once more than `max` happened inside the window. */
   rateLimit: (bucket: string, windowS: number, max: number) => Promise<boolean>;
@@ -80,7 +80,7 @@ export async function handleCheckout(req: Request, deps: CheckoutDeps): Promise<
   if (!parsed.ok) return send(400, { error: parsed.error });
 
   let catalog: Catalog;
-  try { catalog = await deps.loadCatalog(); } catch (err) {
+  try { catalog = await deps.loadCatalog(parsed.value.lang); } catch (err) {
     console.error('catalog unavailable', String(err));
     return send(502, { error: 'catalog_unavailable' });
   }

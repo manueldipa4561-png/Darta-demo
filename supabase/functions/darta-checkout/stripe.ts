@@ -5,6 +5,26 @@ import type { Param } from './stripe-api.ts';
 const SESSION_LIFETIME_S = 3600;
 const SALON = 'Via Gobetti 184, Pescara';
 
+// what the customer reads on Stripe's page, per language
+const TEXT = {
+  it: {
+    pickup: `Ritiro gratuito in salone: ${SALON}, da martedì a sabato 10:00-19:00. Ti scriviamo quando è pronto.`,
+    ship: 'Il salone prepara il pacco e ti scrive con il tracking.',
+    shipFree: 'Spedizione gratuita',
+    shipStandard: 'Spedizione standard',
+    back: '/shop#carrello',
+    done: '/ordine',
+  },
+  en: {
+    pickup: `Free pickup at the studio: ${SALON}, Tuesday to Saturday, 10am to 7pm. We'll message you when it's ready.`,
+    ship: 'The studio will pack your order and send you the tracking number.',
+    shipFree: 'Free shipping',
+    shipStandard: 'Standard shipping',
+    back: '/en/shop#cart',
+    done: '/en/order',
+  },
+} as const;
+
 /** A one-off fixed-amount coupon with exactly the discount we computed (Checkout has no negative lines). */
 export function couponParams(q: Quote, now: number): { [key: string]: Param } | null {
   if (!q.discount) return null;
@@ -29,13 +49,14 @@ export interface SessionContext {
 
 export function sessionParams(q: Quote, ctx: SessionContext) {
   const ship = q.mode === 'ship';
+  const text = TEXT[q.lang];
   return {
     mode: 'payment',
-    locale: 'it',
+    locale: q.lang,
     submit_type: 'pay',
     client_reference_id: ctx.orderNo,
-    success_url: `${ctx.siteUrl}/ordine?s={CHECKOUT_SESSION_ID}`, // Stripe fills the placeholder in
-    cancel_url: `${ctx.siteUrl}/shop#carrello`,
+    success_url: `${ctx.siteUrl}${text.done}?s={CHECKOUT_SESSION_ID}`, // Stripe fills the placeholder in
+    cancel_url: `${ctx.siteUrl}${text.back}`,
     expires_at: ctx.now + SESSION_LIFETIME_S,
     billing_address_collection: 'auto',
     phone_number_collection: { enabled: true },
@@ -56,19 +77,17 @@ export function sessionParams(q: Quote, ctx: SessionContext) {
       ? [{
         shipping_rate_data: {
           type: 'fixed_amount',
-          display_name: q.shipping === 0 ? 'Spedizione gratuita' : 'Spedizione standard',
+          display_name: q.shipping === 0 ? text.shipFree : text.shipStandard,
           fixed_amount: { amount: q.shipping, currency: 'eur' },
         },
       }]
       : undefined,
     custom_text: {
       submit: {
-        message: ship
-          ? 'Il salone prepara il pacco e ti scrive con il tracking.'
-          : `Ritiro gratuito in salone: ${SALON}, da martedì a sabato 10:00-19:00. Ti scriviamo quando è pronto.`,
+        message: ship ? text.ship : text.pickup,
       },
     },
-    metadata: { order_no: ctx.orderNo, mode: q.mode, coupon: q.coupon || undefined },
+    metadata: { order_no: ctx.orderNo, mode: q.mode, lang: q.lang, coupon: q.coupon || undefined },
     payment_intent_data: { description: `Darta Shop ${ctx.orderNo}`, metadata: { order_no: ctx.orderNo } },
   };
 }

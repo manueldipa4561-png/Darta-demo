@@ -6,7 +6,8 @@
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase (used only for the rate limiter).
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { handleCheckout } from './handler.ts';
-import type { Catalog } from './pricing.ts';
+import { translateCatalog } from './pricing.ts';
+import type { Catalog, CatalogEn, Lang } from './pricing.ts';
 import { stripeFetch } from './stripe-api.ts';
 
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
@@ -14,19 +15,26 @@ const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SE
 });
 
 const CATALOG_TTL_MS = 60_000;
-let cached: { at: number; catalog: Catalog } | null = null;
+const cached = new Map<Lang, { at: number; catalog: Catalog }>();
 
-async function loadCatalog(): Promise<Catalog> {
-  if (cached && Date.now() - cached.at < CATALOG_TTL_MS) return cached.catalog;
+async function fetchJson(path: string): Promise<any> {
   const site = (Deno.env.get('SITE_URL') ?? '').replace(/\/+$/, '');
-  const res = await fetch(`${site}/data/catalog.json`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
-  if (!res.ok) throw new Error(`catalog ${res.status}`);
-  const data = await res.json();
+  const res = await fetch(`${site}${path}`, { cache: 'no-store', signal: AbortSignal.timeout(8000) });
+  if (!res.ok) throw new Error(`${path} ${res.status}`);
+  return res.json();
+}
+
+async function loadCatalog(lang: Lang): Promise<Catalog> {
+  const hit = cached.get(lang);
+  if (hit && Date.now() - hit.at < CATALOG_TTL_MS) return hit.catalog;
+  const data = await fetchJson('/data/catalog.json');
   const ok = Array.isArray(data?.products) && data.products.every((p: any) => Number.isInteger(p?.price) && typeof p?.id === 'string')
     && Number.isInteger(data?.shipping?.flat) && Number.isInteger(data?.shipping?.freeFrom) && data?.coupons && typeof data.coupons === 'object';
   if (!ok) throw new Error('catalog has an unexpected shape');
-  cached = { at: Date.now(), catalog: data as Catalog };
-  return cached.catalog;
+  // English customers see English product names on Stripe's page; the prices still come from the Italian file
+  const catalog = lang === 'en' ? translateCatalog(data as Catalog, (await fetchJson('/data/catalog.en.json')) as CatalogEn) : (data as Catalog);
+  cached.set(lang, { at: Date.now(), catalog });
+  return catalog;
 }
 
 /** Counts a hit in the database. If the limiter itself is down we let the sale through: selling matters more. */

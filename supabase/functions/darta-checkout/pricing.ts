@@ -14,11 +14,12 @@ export interface Catalog {
 }
 
 export type Mode = 'pickup' | 'ship';
+export type Lang = 'it' | 'en';
 export interface Line { id: string; v: string; q: number }
-export interface Cart { lines: Line[]; coupon: string; mode: Mode }
+export interface Cart { lines: Line[]; coupon: string; mode: Mode; lang: Lang }
 export interface QuoteItem { id: string; slug: string; name: string; unit: number; q: number }
 export interface Quote {
-  items: QuoteItem[]; mode: Mode; coupon: string; couponLabel: string;
+  items: QuoteItem[]; mode: Mode; lang: Lang; coupon: string; couponLabel: string;
   subtotal: number; discount: number; shipping: number; total: number;
 }
 export type Result<T> = { ok: true; value: T; error?: undefined } | { ok: false; error: string; value?: undefined };
@@ -35,9 +36,10 @@ const cents = (n: unknown): n is number => Number.isInteger(n) && (n as number) 
 
 export function parseCart(body: unknown): Result<Cart> {
   if (!body || typeof body !== 'object') return fail('bad_cart');
-  const { lines, coupon = '', mode = 'pickup' } = body as Record<string, unknown>;
+  const { lines, coupon = '', mode = 'pickup', lang = 'it' } = body as Record<string, unknown>;
   if (!Array.isArray(lines) || lines.length < 1 || lines.length > MAX_LINES) return fail('bad_cart');
   if (mode !== 'pickup' && mode !== 'ship') return fail('bad_cart');
+  if (lang !== 'it' && lang !== 'en') return fail('bad_cart');
   if (typeof coupon !== 'string' || !COUPON.test(coupon.trim().toUpperCase())) return fail('bad_cart');
 
   const merged: Line[] = [];
@@ -51,7 +53,7 @@ export function parseCart(body: unknown): Result<Cart> {
     if (same) same.q = Math.min(MAX_QTY, same.q + q);
     else merged.push({ id, v, q });
   }
-  return { ok: true, value: { lines: merged, coupon: coupon.trim().toUpperCase(), mode } };
+  return { ok: true, value: { lines: merged, coupon: coupon.trim().toUpperCase(), mode, lang } };
 }
 
 export function quote(catalog: Catalog, cart: Cart): Result<Quote> {
@@ -96,5 +98,26 @@ export function quote(catalog: Catalog, cart: Cart): Result<Quote> {
   const total = goods + shipping;
   if (!Number.isFinite(total) || total < MIN_CHARGE) return fail('below_minimum');
 
-  return { ok: true, value: { items, mode: cart.mode, coupon: cart.coupon, couponLabel, subtotal, discount, shipping, total } };
+  return { ok: true, value: { items, mode: cart.mode, lang: cart.lang, coupon: cart.coupon, couponLabel, subtotal, discount, shipping, total } };
+}
+
+/** The English copy of data/catalog.en.json laid over the catalog. Only names and labels are taken: prices always come from the Italian file. */
+export interface CatalogEn {
+  coupons?: Record<string, { label?: string }>;
+  products?: Record<string, { name?: string; variants?: { id: string; label: string }[] }>;
+}
+export function translateCatalog(cat: Catalog, en: CatalogEn): Catalog {
+  return {
+    ...cat,
+    coupons: Object.fromEntries(Object.entries(cat.coupons).map(([k, c]) => [k, { ...c, label: en.coupons?.[k]?.label ?? c.label }])),
+    products: cat.products.map((p) => {
+      const o = en.products?.[p.id];
+      if (!o) return p;
+      return {
+        ...p,
+        name: o.name ?? p.name,
+        variants: p.variants?.map((v) => ({ ...v, label: o.variants?.find((x) => x.id === v.id)?.label ?? v.label })),
+      };
+    }),
+  };
 }
