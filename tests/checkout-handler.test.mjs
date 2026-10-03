@@ -239,3 +239,14 @@ test('a catalog with a broken price is never sold', async () => {
   assert.equal(res.status, 500);
   assert.equal(d.calls.length, 0);
 });
+
+test('the catalog is loaded in the customer\'s language', async () => {
+  const asked = [];
+  const d = deps({ loadCatalog: async (lang) => { asked.push(lang); return catalog; } });
+  await handleCheckout(post(cart()), d);
+  await handleCheckout(post({ ...cart(), lang: 'en' }), d);
+  assert.deepEqual(asked, ['it', 'en']);
+  assert.equal(d.calls.at(-1).params.locale, 'en');
+  const bad = await handleCheckout(post({ ...cart(), lang: 'xx' }), d);
+  assert.equal(bad.status, 400);
+});

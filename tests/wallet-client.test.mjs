@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('../js/wallet.js', import.meta.url), 'utf8');
 function load(fetchImpl) {
-  globalThis.window = { DARTA: {} };
+  globalThis.window = { DARTA: { lang: 'it', t: (s) => s } };
   Object.defineProperty(globalThis, 'navigator', { value: { userAgent: 'x', maxTouchPoints: 0 }, configurable: true, writable: true });   // Node has a read-only navigator
   globalThis.fetch = fetchImpl;
   new Function(source)();
@@ -57,7 +57,7 @@ test('create sends the card and returns the links; errors carry their code', asy
   const card = { name: 'Lorenzo', finish: 'onyx', icon: 'fire', barber: 'Thomas', stamps: 3 };
   assert.deepEqual(await w.create(card), { id: 'x', apple: 'a', google: 'g' });
   assert.equal(sent.init.method, 'POST');
-  assert.deepEqual(JSON.parse(sent.init.body), card);
+  assert.deepEqual(JSON.parse(sent.init.body), { ...card, lang: 'it' });
   const busy = load(async () => ok({ error: 'too_many_requests' }, 429));
   await assert.rejects(busy.create(card), (e) => { assert.match(busy.message(e), /Troppi tentativi/); return true; });
   const down = load(async () => { throw new Error('offline'); });

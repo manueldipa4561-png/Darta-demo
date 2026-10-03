@@ -6,7 +6,7 @@ import { readFileSync } from 'node:fs';
 const source = readFileSync(new URL('../js/pay.js', import.meta.url), 'utf8');
 async function load({ fetchImpl, cart, demo = true }) {
   globalThis.document = { querySelector: (sel) => (sel === 'meta[name="darta-demo"]' && demo ? {} : null) };
-  globalThis.window = { DARTA: { store: {
+  globalThis.window = { DARTA: { lang: 'it', t: (s) => s, store: {
     lines: cart?.lines ?? [{ k: 'wax', id: 'wax', v: '', q: 2, extra: 'ignored' }],
     coupon: cart?.coupon ?? '',
     totals: () => ({ ship: cart?.ship ?? false }),
@@ -50,7 +50,7 @@ test('start sends only ids, variants and quantities plus coupon and mode, and re
   assert.match(sent.url, /\/functions\/v1\/darta-checkout$/);
   assert.equal(sent.init.method, 'POST');
   assert.deepEqual(JSON.parse(sent.init.body), {
-    lines: [{ id: 'wax', v: '', q: 2 }, { id: 'gift', v: '50', q: 1 }], coupon: 'BENVENUTO10', mode: 'ship',
+    lines: [{ id: 'wax', v: '', q: 2 }, { id: 'gift', v: '50', q: 1 }], coupon: 'BENVENUTO10', mode: 'ship', lang: 'it',
   });
 });
 

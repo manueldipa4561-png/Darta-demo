@@ -92,3 +92,22 @@ test('what Stripe will charge equals the quote: lines - discount + shipping', ()
   const ship = params.shipping_options ? params.shipping_options[0].shipping_rate_data.fixed_amount.amount : 0;
   assert.equal(sum - couponParams(q, ctx.now).amount_off + ship, q.total);
 });
+
+test('English checkout: Stripe locale, English return links, English texts', () => {
+  const en = (mode) => build({ lines: [{ id: 'wax', v: '', q: 2 }], coupon: '', mode, lang: 'en' });
+  const pick = sessionParams(en('pickup'), ctx);
+  assert.equal(pick.locale, 'en');
+  assert.equal(pick.success_url, 'https://shop.example/en/order?s={CHECKOUT_SESSION_ID}');
+  assert.equal(pick.cancel_url, 'https://shop.example/en/shop#cart');
+  assert.match(pick.custom_text.submit.message, /Free pickup at the studio/);
+  assert.equal(pick.metadata.lang, 'en');
+  const ship = sessionParams(build({ lines: [{ id: 'clay', v: '', q: 1 }], coupon: '', mode: 'ship', lang: 'en' }), ctx);
+  assert.equal(ship.shipping_options[0].shipping_rate_data.display_name, 'Standard shipping');
+  assert.match(ship.custom_text.submit.message, /pack your order/);
+  const free = sessionParams(en('ship'), ctx);
+  assert.equal(free.shipping_options[0].shipping_rate_data.display_name, 'Free shipping');
+  const it = sessionParams(build({ lines: [{ id: 'wax', v: '', q: 1 }], coupon: '', mode: 'pickup' }), ctx);
+  assert.equal(it.locale, 'it');
+  assert.equal(it.success_url, 'https://shop.example/ordine?s={CHECKOUT_SESSION_ID}');
+  assert.equal(it.metadata.lang, 'it');
+});

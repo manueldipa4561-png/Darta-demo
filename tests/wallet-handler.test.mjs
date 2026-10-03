@@ -65,7 +65,7 @@ test('POST stores the card and answers with the links for the wallets that are o
   assert.equal(body.id, ID);
   assert.equal(body.apple, `${SUPA}/functions/v1/darta-wallet/apple/${ID}`);
   assert.match(body.google, /^https:\/\/pay\.google\.com\/gp\/v\/save\/ey/);
-  assert.deepEqual(d.log.inserted, [CARD]);
+  assert.deepEqual(d.log.inserted, [{ ...CARD, lang: 'it' }]);
   assert.match(d.log.hits[0].bucket, /^wallet:[0-9a-f]{16}$/);
   assert.deepEqual([d.log.hits[1].bucket, d.log.hits[1].max], ['wallet:all', 300]);
 });

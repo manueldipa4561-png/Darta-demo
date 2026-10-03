@@ -12,7 +12,7 @@ import { appleConfig, buildPkpass, passAssets, passJson } from '../supabase/func
 import { googleConfig, saveLink, walletPayload, MAX_LINK_LENGTH } from '../supabase/functions/darta-wallet/google.ts';
 
 const SITE = 'https://shop.example';
-const CARD = { id: '3f2b8c1e-9d4a-4b7e-8a61-0c5d2e7f9a10', name: 'Lorenzo', finish: 'onyx', icon: 'scissors', barber: 'Thomas', stamps: 3 };
+const CARD = { id: '3f2b8c1e-9d4a-4b7e-8a61-0c5d2e7f9a10', name: 'Lorenzo', finish: 'onyx', icon: 'scissors', barber: 'Thomas', stamps: 3, lang: 'it' };
 const sh = (cmd, args, opts) => execFileSync(cmd, args, { stdio: 'pipe', ...opts });
 let dir, pems;
 
@@ -37,7 +37,7 @@ const assetsFor = (stamps) => new Map(passAssets(stamps).map(([name], i) => [nam
 
 test('card input: only known looks and 0..10 stamps are accepted, the name is cleaned', () => {
   assert.deepEqual(parseCardInput({ name: '  Lore\n<b>nzo  ', finish: 'gobetti', icon: 'fire', barber: 'Rrapi', stamps: 10 }).value,
-    { name: 'Lore b nzo', finish: 'gobetti', icon: 'fire', barber: 'Rrapi', stamps: 10 });
+    { name: 'Lore b nzo', finish: 'gobetti', icon: 'fire', barber: 'Rrapi', stamps: 10, lang: 'it' });
   for (const bad of [null, 'x', {}, { ...CARD, finish: 'gold' }, { ...CARD, icon: 'x' }, { ...CARD, barber: 'Evil' },
     { ...CARD, stamps: 11 }, { ...CARD, stamps: -1 }, { ...CARD, stamps: 2.5 }, { ...CARD, stamps: '3' }]) {
     assert.equal(parseCardInput(bad).ok, false, JSON.stringify(bad));
@@ -165,4 +165,28 @@ test('google: typed text can only land in text fields, and config needs all thre
   assert.equal(payload.loyaltyObjects[0].accountName, '"}{<script>');   // JSON-encoded later, never concatenated
   assert.equal(googleConfig(() => undefined), null);
   assert.equal(googleConfig((k) => ({ GOOGLE_WALLET_ISSUER_ID: '1', GOOGLE_WALLET_SA_EMAIL: 'a@b' })[k]), null);
+});
+
+test('English cards: the language is taken from the request and everything on the pass is English', () => {
+  assert.equal(parseCardInput({ ...CARD, lang: 'en' }).value.lang, 'en');
+  assert.equal(parseCardInput({ ...CARD, lang: 'fr' }).value.lang, 'it');       // anything else is Italian
+  assert.equal(parseCardInput({ name: 'x', finish: 'onyx', icon: 'fire', barber: 'Thomas', stamps: 1 }).value.lang, 'it');
+  assert.match(rewardText(9, 'en'), /^1 more haircut until/);
+  assert.match(rewardText(7, 'en'), /^3 more haircuts until/);
+  assert.match(rewardText(10, 'en'), /unlocked/);
+  const p = passJson({ ...CARD, lang: 'en' }, { passTypeId: 'pass.t', teamId: 'T' }, SITE);
+  assert.equal(p.description, 'Darta Club card');
+  assert.deepEqual(p.storeCard.secondaryFields.map((f) => f.label), ['STAMPS', 'BARBER']);
+  assert.deepEqual(p.storeCard.auxiliaryFields.map((f) => f.label), ['CARDHOLDER', 'NEXT REWARD']);
+  assert.equal(p.storeCard.backFields.find((f) => f.key === 'site').value, `${SITE}/en/`);
+  const everything = JSON.stringify(p);
+  for (const italian of ['Tessera', 'TIMBRI', 'LIVELLO', 'TITOLARE', 'Dove', 'Orari', 'Nota', 'taglio omaggio']) assert.ok(!everything.includes(italian), italian);
+  const g = walletPayload({ ...CARD, lang: 'en' }, { issuerId: '1' }, SITE).loyaltyObjects[0];
+  assert.equal(g.loyaltyPoints.label, 'Stamps');
+  assert.equal(g.textModulesData[1].header, 'Next reward');
+});
+
+test('a card without a language is Italian', () => {
+  const { lang, ...old } = CARD;
+  assert.equal(passJson(old, { passTypeId: 'pass.t', teamId: 'T' }, SITE).storeCard.secondaryFields[0].label, 'TIMBRI');
 });
