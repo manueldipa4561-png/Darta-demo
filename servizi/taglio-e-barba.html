@@ -6,6 +6,7 @@
 <title>Taglio e barba | Servizi Darta Barber Studio</title>
 <meta name="description" content="Taglio e barba, 60 min, 35€. Taglio e barba nella stessa seduta, con un solo appuntamento: capelli e barba pensati insieme per un risultato coerente.">
 <meta name="robots" content="noindex">
+<meta name="darta-demo" content="1">
 <meta name="theme-color" content="#0b0b0a">
 <meta property="og:title" content="Taglio e barba | Servizi Darta Barber Studio">
 <meta property="og:description" content="Taglio e barba, 60 min, 35€. Taglio e barba nella stessa seduta, con un solo appuntamento: capelli e barba pensati insieme per un risultato coerente.">
@@ -155,13 +156,15 @@
       <ul class="co-sum" id="coSum"></ul>
       <dl class="co-rows" id="coRows"></dl>
       <div class="co-tot"><span>Totale</span><b class="num" id="coTot"></b></div>
-      <p class="demo-note">Pagamento in demo: nessun addebito e nessun dato lasciato in questa pagina. Nella versione live: carta, Apple Pay, Satispay o alla consegna.</p>
+      <p class="demo-note" id="coDemoNote">Pagamento in demo: nessun addebito e nessun dato lasciato in questa pagina. Nella versione live: carta, Apple Pay o Google Pay.</p>
+      <p class="demo-note" id="coLiveNote" hidden>Paghi in sicurezza su Stripe con carta, Apple Pay o Google Pay. Nome, telefono e indirizzo li inserisci l&igrave; e noi non vediamo i dati della carta.</p>
+      <p class="err" id="coPayErr" role="alert" hidden></p>
       <button class="btn btn-p" type="submit" id="coSubmit"><svg class="i" aria-hidden="true"><use href="#s-check"/></svg><span id="coSubmitTxt">Conferma ordine</span></button>
     </form>
     <div id="coDone" hidden>
       <div class="done-in">
         <div class="done-art" aria-hidden="true"><div class="burst" id="doneBurst"></div><svg id="doneCheck" viewBox="0 0 96 96"><circle cx="48" cy="48" r="44" pathLength="1"/><path d="M28 50l14 14 27-30" pathLength="1"/></svg></div>
-        <h2 class="d h2sm" id="doneTitle" tabindex="-1">Ordine <em>ricevuto.</em></h2>
+        <h2 class="d h2sm" id="doneTitle" tabindex="-1">Ordine di prova <em>ricevuto.</em></h2>
         <p class="mono num" id="doneNo"></p>
         <p id="doneTxt"></p>
         <ul class="done-list" id="doneList"></ul>
@@ -176,6 +179,7 @@
 <script defer src="/js/vendor/anime.umd.min.js"></script>
 <script defer src="/js/core.js"></script>
 <script defer src="/js/store.js"></script>
+<script defer src="/js/pay.js"></script>
 <script defer src="/js/cart.js"></script>
 <script defer src="/js/motion.js"></script>
 <script defer src="/js/main.js"></script>
