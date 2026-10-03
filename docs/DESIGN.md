@@ -20,6 +20,16 @@ Dials used with the `ui-ux-pro-max` generator: variance 8, motion 8, density 5. 
 | Body | Barlow 400 to 600 | copy |
 | Mono | system mono stack | indices, labels, specs (same device as puntoduestudio.it) |
 
+## Phones
+
+Anything heavy scales down on phone-class devices (`D.lite()`: touch screen or a window under 700 px; `?lite` forces it for testing):
+
+- Images: `srcset` serves 900 to 1000 px WebP files (about a third of the bytes) and only larger ones to big screens.
+- Hero 3D: texture capped at 1024 px, canvas at 1.5x pixel ratio, and if the 3D hero is not up within 7 seconds the plain photo takes over instead of leaving a dark screen.
+- Wax Powder film: its own WebGL context is created only when the section is within one and a half screens, the canvas renders at 1.5x, the powder cloud uses 45 percent of the grains, and when you stop scrolling it redraws only a few frames per second (just the gentle float).
+- Layout: shorter scroll tracks on phones; the bottle is fitted into the free space above the price block (measured, so a 320 x 568 screen does not overlap); landscape phones switch to words left, price right.
+- Cache: scripts and styles revalidate on every load, so a new page can never meet an old script.
+
 ## Team cards
 
 Three equal cards (same size, type, button and baselines): nobody is featured, the founder included. Each has its own finish and a barbering texture on the big initial: teal with an outlined letter (the blade edge), amber with a letter that fades out (the skin fade), steel with diagonal stripes (the barber pole). The amber and steel are used on these cards only; the teal stays the site accent.
