@@ -19,6 +19,7 @@
 <script>/* set layout flags before first paint: GL corridor, first-visit curtain */(function(d){var r=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!r){d.classList.add('gl');try{if(!sessionStorage.getItem('darta-seen')&&!location.hash){d.classList.add('intro');sessionStorage.setItem('darta-seen','1')}}catch(e){}}})(document.documentElement)</script>
 <link rel="stylesheet" href="css/styles.css">
 <link rel="stylesheet" href="css/shop.css">
+<link rel="stylesheet" href="css/scenes.css">
 </head>
 <body>
 
@@ -52,7 +53,7 @@
 
 <header class="hdr" id="hdr">
   <a class="logo" href="#top" aria-label="Darta Barber Studio, torna su"><img src="img/logo-darta.svg" alt="Darta Barber Studio" width="790" height="342"></a>
-  <nav aria-label="Principale"><a href="#lavori">Lavori</a><a href="#shop">Shop</a><a href="#listino">Listino</a><a href="#storia">Storia</a><a href="#orari">Orari</a></nav>
+  <nav aria-label="Principale"><a href="#lavori">Lavori</a><a href="#film">Wax Powder</a><a href="#shop">Shop</a><a href="#listino">Listino</a><a href="#storia">Storia</a><a href="#orari">Orari</a></nav>
   <div class="hdr-r">
     <span class="chip" id="hdrOpen"><i></i><span>Orari</span></span>
     <a class="hdr-cart" id="hdrCart" href="#carrello" data-route data-cart-target data-cart-label aria-label="Carrello vuoto"><svg class="i" aria-hidden="true"><use href="#s-bag"/></svg><span class="cart-count" hidden>0</span></a>
@@ -64,7 +65,7 @@
   <div id="journey">
     <div id="stage">
       <img class="hero-img" src="img/sign-hd.webp" alt="L'insegna Darta Barber Studio sulla parete del salone" width="1800" height="2207" fetchpriority="high">
-      <canvas id="gl" role="img" aria-label="Scena 3D: l'insegna del salone e quattro tagli recenti. Scorri per attraversarla."></canvas>
+      <canvas id="gl" role="img" aria-label="Scena 3D: l'insegna del salone. Scorri per entrare."></canvas>
 
       <div class="hero-copy" id="heroCopy">
         <p class="kicker rv">Barber studio <b></b> Pescara <b></b> Shop online</p>
@@ -75,23 +76,49 @@
           <a class="btn btn-g mag" href="#shop"><svg class="i"><use href="#s-bag"/></svg>Vai allo shop</a>
         </div>
       </div>
+      <div class="flash" id="flash" aria-hidden="true"></div>
+    </div>
+  </div>
 
-      <ol class="cuts" id="lavori" aria-label="Lavori recenti">
-        <li class="cut"><figure><img src="img/fade-hd.webp" alt="Skin fade con barba definita" width="1400" height="1729" loading="lazy"><figcaption><strong>Skin fade &amp; barba</strong><span>Sfumatura a pelle, contorni della barba a lama.</span></figcaption></figure></li>
-        <li class="cut"><figure><img src="img/curly-hd.webp" alt="Ricci naturali con barba piena" width="1400" height="1655" loading="lazy"><figcaption><strong>Ricci &amp; barba piena</strong><span>Volume sotto controllo, linee pulite.</span></figcaption></figure></li>
-        <li class="cut"><figure><img src="img/platinum-hd.webp" alt="Taglio corto decolorato platino" width="1400" height="1874" loading="lazy"><figcaption><strong>Platino</strong><span>Decolorazione totale su un corto texturizzato.</span></figcaption></figure></li>
-        <li class="cut"><figure><img src="img/sidepart-hd.webp" alt="Side part con riga a rasoio e sfumatura" width="1400" height="1729" loading="lazy"><figcaption><strong>Side part</strong><span>Riga a rasoio e sfumatura bassa.</span></figcaption></figure></li>
-      </ol>
-
-      <div class="end-copy" id="endCopy">
-        <h2 class="d h2">La tua poltrona<br>ti aspetta.</h2>
-        <div class="cta-row">
-          <button type="button" class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
-          <a class="btn btn-g" href="#shop"><svg class="i"><use href="#s-bag"/></svg>Shop</a>
+  <section class="film" id="film" aria-labelledby="filmTitle">
+    <div class="film-track">
+      <div class="film-stage" id="filmStage">
+        <p class="film-brand" aria-hidden="true">Darta Shop <b></b> Pescara</p>
+        <div class="film-ghost" id="filmGhost" aria-hidden="true"><span>Wax</span><span>Powder</span></div>
+        <div class="film-gl" id="filmGl"></div>
+        <img class="film-poster" id="filmPoster" alt="" width="640" height="640" hidden src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
+        <div class="film-steps" id="filmSteps" aria-hidden="true">
+          <span class="film-step" data-s="0">Svita</span>
+          <span class="film-step" data-s="1">Scuoti</span>
+          <span class="film-step" data-s="2">Dai volume</span>
+        </div>
+        <div class="film-buy" id="filmBuy">
+          <p class="film-name" id="filmTitle">Wax Powder <span>Volumizzante</span></p>
+          <p class="film-price num" id="filmPrice">&euro;20</p>
+          <a class="btn btn-ink" href="#prodotto/wax-powder" data-route>Acquista nello shop<svg class="i" aria-hidden="true"><use href="#s-arrow"/></svg></a>
+          <p class="film-addr">Via Gobetti 184, Pescara</p>
         </div>
       </div>
     </div>
-  </div>
+    <p class="sr-only">Svita il tappo, scuoti la polvere sulle radici asciutte, massaggia e dai volume. Wax Powder Volumizzante, 20 euro.</p>
+  </section>
+
+  <section class="works" id="lavori" aria-labelledby="worksTitle">
+    <div class="works-track">
+      <div class="works-stage" id="worksStage">
+        <div class="works-head"><p class="eyebrow">/ Lavori recenti</p><p class="works-count num" aria-hidden="true"><b id="worksN">01</b> / 04</p></div>
+        <h2 class="sr-only" id="worksTitle">Lavori recenti</h2>
+        <div class="works-words" id="worksWords" aria-hidden="true"></div>
+        <ol class="cuts" aria-label="Lavori recenti">
+          <li class="cut" data-word="Fade"><figure><img src="img/fade-hd.webp" alt="Skin fade con barba definita" width="1400" height="1729" loading="lazy"><figcaption><strong>Skin fade &amp; barba</strong><span>Sfumatura a pelle, contorni della barba a lama.</span></figcaption></figure></li>
+          <li class="cut" data-word="Ricci"><figure><img src="img/curly-hd.webp" alt="Ricci naturali con barba piena" width="1400" height="1655" loading="lazy"><figcaption><strong>Ricci &amp; barba piena</strong><span>Volume sotto controllo, linee pulite.</span></figcaption></figure></li>
+          <li class="cut" data-word="Platino"><figure><img src="img/platinum-hd.webp" alt="Taglio corto decolorato platino" width="1400" height="1874" loading="lazy"><figcaption><strong>Platino</strong><span>Decolorazione totale su un corto texturizzato.</span></figcaption></figure></li>
+          <li class="cut" data-word="Side part"><figure><img src="img/sidepart-hd.webp" alt="Side part con riga a rasoio e sfumatura" width="1400" height="1729" loading="lazy"><figcaption><strong>Side part</strong><span>Riga a rasoio e sfumatura bassa.</span></figcaption></figure></li>
+        </ol>
+        <div class="works-bar" aria-hidden="true"><i id="worksFill"></i></div>
+      </div>
+    </div>
+  </section>
 
   <div class="tick" id="tick" aria-hidden="true">
     <div class="tick-track">
@@ -99,6 +126,16 @@
       <div class="tick-group"><span>Skin fade</span><span>Barba a lama</span><span>Taglio anglosassone</span><span>Pescara</span><span>Shop online</span><span>Via Gobetti 184</span></div>
     </div>
   </div>
+
+  <section class="sec seat" aria-labelledby="seatTitle">
+    <div class="wrap">
+      <h2 class="d h2" id="seatTitle"><span class="ln"><span class="rv">La tua poltrona</span></span><span class="ln"><span class="rv" style="--i:1">ti <em>aspetta.</em></span></span></h2>
+      <div class="cta-row rv" style="--i:2">
+        <button type="button" class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Prenota</button>
+        <a class="btn btn-g" href="#shop"><svg class="i"><use href="#s-bag"/></svg>Shop</a>
+      </div>
+    </div>
+  </section>
 
   <div class="wrap">
     <div class="proof">
@@ -336,6 +373,7 @@
       <span class="pdp-no" id="pdpNo"></span>
       <img class="pdp-fallback" id="pdpFallback" alt="" width="560" height="560" hidden src="data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw==">
       <div class="pdp-host" id="pdpHost"></div>
+      <button type="button" class="pdp-try" id="pdpTry" hidden><svg class="i" aria-hidden="true"><use href="#i-play"/></svg><span id="pdpTryTxt">Apri</span></button>
       <p class="pdp-hint" aria-hidden="true">Trascina per ruotare</p>
       <div class="pdp-rot">
         <button type="button" id="pdpL" aria-label="Ruota a sinistra"><svg class="i" aria-hidden="true"><use href="#s-chev-l"/></svg></button>
@@ -444,6 +482,8 @@
 <script defer src="js/motion.js"></script>
 <script defer src="js/club.js"></script>
 <script defer src="js/journey.js"></script>
+<script defer src="js/film.js"></script>
+<script defer src="js/works.js"></script>
 <script defer src="js/main.js"></script>
 </body>
 </html>

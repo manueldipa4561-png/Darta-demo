@@ -8,9 +8,11 @@ The site is a booking landing page that now doubles as a small **e-commerce**: a
 
 | Area | What it does |
 |---|---|
-| Hero corridor | Raw WebGL scroll journey through the salon sign and four recent cuts (swipe rail fallback without WebGL) |
+| Hero | Raw WebGL dive into the salon sign, then a white-out into the product film (plain photo without WebGL) |
+| Wax Powder film (`#film`) | Pinned scroll scene on a white studio set: scroll scrubs the real 3D bottle (SVITA: cap unscrews, SCUOTI: it tips and pours powder, DAI VOLUME: it rights itself), the price counts up to the real catalog price. Same model and timeline as the shop (still poster without WebGL or with reduced motion) |
+| Lavori (`#lavori`) | The four recent cuts as a scroll-driven deck with a giant word behind each photo; plain DOM, so the photos stay sharp (swipe rail with reduced motion) |
 | Shop (`#shop`) | Product shelf with 3D renders, category filters, free-shipping rules, deep links (`#prodotto/matte-clay`) |
-| Product sheet | Live WebGL viewer (drag, arrow keys or buttons to rotate), gift card amounts that re-render on the card |
+| Product sheet | Live WebGL viewer (drag, arrow keys or buttons to rotate), gift card amounts that re-render on the card, "Svita e scuoti" / "Apri" plays the product's own animation |
 | Cart (`#carrello`) | Drawer with quantity steppers, pickup or shipping, coupon `BENVENUTO10`, free-shipping progress bar |
 | Checkout (`#checkout`) | Validated form, order confirmation, optional WhatsApp hand-off. **Demo only: no payment, nothing is sent** |
 | Club | Customisable loyalty card with tilt and stamps |
@@ -26,7 +28,7 @@ Any static server works. There is nothing to install.
 
 ## Edit the shop
 
-Everything sold lives in [`data/catalog.json`](data/catalog.json): names, prices (in cents), categories, variants, coupons and shipping rules. Product looks (colours, label text) sit in each product's `look` and `label` fields and feed the 3D renderer directly. Add a product with kind `jar`, `dropper`, `spray`, `kit` or `card` and it appears on the shelf with its own 3D model, no image needed.
+Everything sold lives in [`data/catalog.json`](data/catalog.json): names, prices (in cents), categories, variants, coupons and shipping rules. Product looks (colours, label text) sit in each product's `look` and `label` fields and feed the 3D renderer directly. Add a product with kind `jar`, `dropper`, `spray`, `powder`, `kit` or `card` and it appears on the shelf with its own 3D model, no image needed.
 
 ## Structure
 
@@ -34,14 +36,17 @@ Everything sold lives in [`data/catalog.json`](data/catalog.json): names, prices
 index.html            markup, dialogs, one tiny inline pre-paint script
 css/styles.css        base system (tokens, type, hero, sections, loyalty card)
 css/shop.css          shop layer (shelf, product sheet, cart, checkout, motion pieces)
+css/scenes.css        scroll scenes (Wax Powder film, Lavori deck); static layout by default, pinned layout when the script switches it on
 data/catalog.json     products, coupons, shipping
 js/core.js            helpers, reveal observer, history-aware router
 js/store.js           catalog loading, cart state, totals
-js/product-gl.js      raw WebGL renderer (lathe models, studio lighting, label textures, viewer)
+js/product-gl.js      raw WebGL renderer (lathe models, studio lighting, label textures, viewer, scrubbable poses, powder particles); createGL() makes independent renderers
 js/shop.js            shelf, filters, product sheet
 js/cart.js            drawer, checkout, fly-to-cart
 js/motion.js          anime.js choreography (progressive enhancement)
-js/journey.js         hero WebGL corridor
+js/journey.js         hero WebGL dive into the sign + white-out
+js/film.js            Wax Powder film: scroll progress -> 3D pose, captions, price count
+js/works.js           Lavori deck: scroll progress -> card positions (CSS variables)
 js/club.js            loyalty card
 js/main.js            wiring
 js/vendor/            anime.js 4.5.0 (MIT), vendored because the CSP only allows same-origin scripts
