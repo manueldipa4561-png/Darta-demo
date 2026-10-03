@@ -20,6 +20,10 @@ Dials used with the `ui-ux-pro-max` generator: variance 8, motion 8, density 5. 
 | Body | Barlow 400 to 600 | copy |
 | Mono | system mono stack | indices, labels, specs (same device as puntoduestudio.it) |
 
+## Team cards
+
+Three equal cards (same size, type, button and baselines): nobody is featured, the founder included. Each has its own finish and a barbering texture on the big initial: teal with an outlined letter (the blade edge), amber with a letter that fades out (the skin fade), steel with diagonal stripes (the barber pole). The amber and steel are used on these cards only; the teal stays the site accent.
+
 ## Inspiration (patterns, not copies)
 
 | Source | Taken |
