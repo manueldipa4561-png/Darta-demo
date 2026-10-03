@@ -75,6 +75,46 @@
   to = "/ordine.html"
   status = 200
 
+# English twins under /en/ (same rule: /en/services is also a folder, so it is forced)
+[[redirects]]
+  from = "/en/shop"
+  to = "/en/shop.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/en/shop/"
+  to = "/en/shop.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/en/services"
+  to = "/en/services.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/en/services/"
+  to = "/en/services.html"
+  status = 200
+  force = true
+
+[[redirects]]
+  from = "/en/order"
+  to = "/en/order.html"
+  status = 200
+
+[[redirects]]
+  from = "/en/products/:slug"
+  to = "/en/products/:slug.html"
+  status = 200
+
+[[redirects]]
+  from = "/en/services/:slug"
+  to = "/en/services/:slug.html"
+  status = 200
+
 [[redirects]]
   from = "/prodotti/:slug"
   to = "/prodotti/:slug.html"
