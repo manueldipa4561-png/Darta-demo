@@ -1,6 +1,6 @@
 // Google Wallet: a "Save to Google Wallet" link is a JWT signed with the service account key. It carries the loyalty class
 // (the programme) and the loyalty object (this card) so nothing has to be created through the API first.
-import { GOAL, THEME, hex, rewardText, tierOf } from './card.ts';
+import { GOAL, THEME, WORDS, hex, langOf, rewardText, tierOf } from './card.ts';
 import type { Card } from './card.ts';
 import { normalizePem, privateKeyDer } from './cms.ts';
 
@@ -18,6 +18,8 @@ export const MAX_LINK_LENGTH = 1800;   // Google rejects longer "save" links
 
 export function walletPayload(card: Card, cfg: Pick<GoogleConfig, 'issuerId'>, siteUrl: string) {
   const classId = `${cfg.issuerId}.darta-club`;
+  const lang = langOf(card);
+  const w = WORDS[lang];
   return {
     loyaltyClasses: [{
       id: classId,
@@ -34,12 +36,12 @@ export function walletPayload(card: Card, cfg: Pick<GoogleConfig, 'issuerId'>, s
       accountId: card.id.slice(0, 8).toUpperCase(),
       accountName: card.name,
       hexBackgroundColor: hex(THEME[card.finish].bg),
-      loyaltyPoints: { label: 'Timbri', balance: { string: `${card.stamps} / ${GOAL}` } },
-      secondaryLoyaltyPoints: { label: 'Livello', balance: { string: tierOf(card.stamps) } },
+      loyaltyPoints: { label: w.points, balance: { string: `${card.stamps} / ${GOAL}` } },
+      secondaryLoyaltyPoints: { label: w.level, balance: { string: tierOf(card.stamps) } },
       barcode: { type: 'QR_CODE', value: card.id, alternateText: card.id.slice(0, 8).toUpperCase() },
       textModulesData: [
         { id: 'barber', header: 'Barber', body: card.barber },
-        { id: 'next', header: 'Prossimo premio', body: rewardText(card.stamps) },
+        { id: 'next', header: w.nextHead, body: rewardText(card.stamps, lang) },
       ],
     }],
   };

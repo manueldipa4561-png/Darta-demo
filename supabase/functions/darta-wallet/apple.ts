@@ -1,5 +1,5 @@
 // Apple Wallet: a .pkpass is a ZIP of pass.json, its pictures, manifest.json (SHA-1 of every file) and a signature of the manifest.
-import { GOAL, THEME, rewardText, rgb, tierOf } from './card.ts';
+import { GOAL, THEME, WORDS, langOf, rewardText, rgb, tierOf } from './card.ts';
 import type { Card } from './card.ts';
 import { importSigningKey, normalizePem, pemToDer, signDetached } from './cms.ts';
 import { zipStore } from './zip.ts';
@@ -36,32 +36,35 @@ export const passAssets = (stamps: number): [string, string][] => [
 
 export function passJson(card: Card, cfg: Pick<AppleConfig, 'passTypeId' | 'teamId'>, siteUrl: string) {
   const theme = THEME[card.finish];
+  const lang = langOf(card);
+  const w = WORDS[lang];
+  const home = lang === 'en' ? `${siteUrl}/en/` : siteUrl;
   return {
     formatVersion: 1,
     passTypeIdentifier: cfg.passTypeId,
     teamIdentifier: cfg.teamId,
     serialNumber: card.id,
     organizationName: 'Darta Barber Studio',
-    description: 'Tessera Darta Club',
+    description: w.description,
     backgroundColor: rgb(theme.bg),
     foregroundColor: rgb(theme.fg),
     labelColor: rgb(theme.label),
     storeCard: {
-      headerFields: [{ key: 'tier', label: 'LIVELLO', value: tierOf(card.stamps) }],
+      headerFields: [{ key: 'tier', label: w.tier, value: tierOf(card.stamps) }],
       secondaryFields: [
-        { key: 'stamps', label: 'TIMBRI', value: `${card.stamps} / ${GOAL}` },
-        { key: 'barber', label: 'BARBER', value: card.barber },
+        { key: 'stamps', label: w.stamps, value: `${card.stamps} / ${GOAL}` },
+        { key: 'barber', label: w.barber, value: card.barber },
       ],
       auxiliaryFields: [
-        { key: 'name', label: 'TITOLARE', value: card.name },
-        { key: 'next', label: 'PROSSIMO PREMIO', value: rewardText(card.stamps) },
+        { key: 'name', label: w.holder, value: card.name },
+        { key: 'next', label: w.next, value: rewardText(card.stamps, lang) },
       ],
       backFields: [
-        { key: 'where', label: 'Dove', value: 'Via Gobetti 184, 65100 Pescara' },
-        { key: 'hours', label: 'Orari', value: 'Da martedì a sabato, 10:00 - 19:00' },
-        { key: 'site', label: 'Sito', value: siteUrl },
-        { key: 'terms', label: 'Come funziona', value: 'Un timbro a ogni taglio. Il decimo taglio è omaggio.' },
-        { key: 'demo', label: 'Nota', value: 'Tessera dimostrativa: i timbri non sono ancora collegati al salone.' },
+        { key: 'where', label: w.where, value: 'Via Gobetti 184, 65100 Pescara' },
+        { key: 'hours', label: w.hours, value: w.hoursValue },
+        { key: 'site', label: w.site, value: home },
+        { key: 'terms', label: w.how, value: w.howValue },
+        { key: 'demo', label: w.note, value: w.noteValue },
       ],
     },
     barcodes: [{ format: 'PKBarcodeFormatQR', message: card.id, messageEncoding: 'iso-8859-1', altText: card.id.slice(0, 8).toUpperCase() }],

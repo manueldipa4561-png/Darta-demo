@@ -23,7 +23,7 @@ Deno.serve((req) =>
       return data.id as string;
     },
     getCard: async (id) => {
-      const { data, error } = await db.from('darta_cards').select('id, name, finish, icon, barber, stamps').eq('id', id).maybeSingle();
+      const { data, error } = await db.from('darta_cards').select('id, name, finish, icon, barber, stamps, lang').eq('id', id).maybeSingle();
       if (error) throw new Error(error.message);
       return (data as Card) ?? null;
     },
