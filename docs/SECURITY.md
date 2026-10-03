@@ -8,7 +8,7 @@ Audit date: 2026-10-02. Scope: the static site in this repository (frontend, Net
 |---|---|---|
 | Secrets | Grep for keys, tokens, private keys, credentials in all first-party files | None found |
 | XSS | Every data source (hash, localStorage, catalog.json, form fields) traced to every sink | No `innerHTML`, `eval`, inline handlers or `javascript:` URLs in first-party code. All dynamic text goes through `textContent` / `createElement` |
-| Static analysis | ESLint with `eslint-plugin-security` and `eslint-plugin-no-unsanitized` over `js/*.js` | 0 errors. 53 `detect-object-injection` hits reviewed: keys come from fixed tables or null-prototype maps, not user input |
+| Static analysis | ESLint with `eslint-plugin-security` and `eslint-plugin-no-unsanitized` over `js/*.js` | 0 errors. 66 `detect-object-injection` warnings reviewed: keys come from fixed tables, null-prototype maps or numeric array indexes, not user input |
 | Prototype keys | `#prodotto/constructor`, coupon `constructor`, poisoned localStorage | Catalog maps and coupons use null-prototype objects; restored carts are re-validated field by field |
 | Supply chain | `anime.js` 4.5.0 vendored | Tarball integrity matches the npm registry; bundle SHA-256 identical to the published file; no network, `eval` or `Function` calls inside. ECC IOC scanner: no findings (no package manifests in the repo) |
 | CSP | Enforced locally with the real `netlify.toml` headers across shelf, product sheet, cart, checkout, filters, 3D | 0 violations. `style-src 'self'` (no `'unsafe-inline'` for style elements), `script-src 'self'` plus one hash |
