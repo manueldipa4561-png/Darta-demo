@@ -56,7 +56,7 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 .hdr .btn{min-height:44px;padding:0 1.25em;font-size:.9375rem}
 @media(min-width:900px){.hdr nav{display:flex}}
 
-/* ===== journey: hero + 3D corridor ===== */
+/* ===== journey: hero ===== */
 #journey{position:relative}
 #stage{position:relative;min-height:100svh;overflow:hidden;background:var(--bg)}
 #stage canvas{position:absolute;inset:0;width:100%;height:100%;opacity:0;transition:opacity .8s}
@@ -71,31 +71,14 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 .hero-copy .lead{margin-bottom:1.6rem;color:#d3cdc2}
 .cta-row{display:flex;flex-wrap:wrap;gap:.75rem}
 
-/* cuts: captions over the 3D corridor (GL) / swipe rail (fallback) */
-.cuts{list-style:none;position:relative;z-index:3}
-.cut figcaption strong{display:block;font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,9vw,4.4rem);line-height:.9;margin-bottom:.35rem}
-.cut figcaption span{color:var(--muted)}
-.end-copy{display:none}
-
+/* hero: the camera dives into the sign, then a white-out hands over to the Wax Powder film */
+.flash{position:absolute;inset:0;z-index:4;background:#f4f5f6;opacity:0;pointer-events:none}
+html:not(.gl) .flash{display:none}
 html:not(.gl) #stage{overflow:visible}
 html:not(.gl) .hero-copy{position:relative}
-html:not(.gl) .cuts{display:grid;grid-auto-flow:column;grid-auto-columns:min(78vw,380px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:var(--sec) var(--g) 0;scroll-padding:0 var(--g);scrollbar-width:none}
-html:not(.gl) .cuts::-webkit-scrollbar{display:none}
-html:not(.gl) .cut{scroll-snap-align:start}
-html:not(.gl) .cut img{aspect-ratio:4/5;width:100%;object-fit:cover;border-radius:var(--r);margin-bottom:1rem}
-html:not(.gl) .cut figcaption strong{font-size:2rem}
 html:not(.gl) #stage::after{height:100svh;top:0;bottom:auto;background:linear-gradient(transparent 42%,rgba(11,11,10,.94))}
-
-.gl #journey{height:560svh}
+.gl #journey{height:300svh}
 .gl #stage{position:sticky;top:0;height:100svh}
-.gl .cuts{position:absolute;inset:auto 0 0;pointer-events:none;height:0}
-.gl .cut{position:absolute;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0;transform:translateY(24px);transition:opacity .45s var(--ease),transform .6s var(--ease)}
-.gl .cut.on{opacity:1;transform:none}
-.gl .cut img{display:none}
-.gl .end-copy{display:block;position:absolute;z-index:3;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0;transform:translateY(24px);transition:opacity .5s var(--ease),transform .7s var(--ease);pointer-events:none}
-.gl .end-copy.on{opacity:1;transform:none;pointer-events:auto}
-.end-copy .h2{margin-bottom:1.25rem}
-@media(min-width:900px){.gl .cut,.gl .end-copy{padding-bottom:64px}}
 
 /* ===== sections ===== */
 section{position:relative}
@@ -267,3 +250,17 @@ dialog[open]{animation:up .45s var(--ease)}
   .rv,.ln>span.rv{opacity:1;transform:none}
   html{scroll-behavior:auto}
 }
+
+/* bridge, one deploy only: the previous markup kept the cuts and the closing call to action inside #stage */
+#stage .cuts{list-style:none;position:relative;z-index:3}
+#stage .cut figcaption strong{display:block;font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,9vw,4.4rem);line-height:.9;margin-bottom:.35rem}
+#stage .cut figcaption span{color:var(--muted)}
+#stage .end-copy{display:none}
+html:not(.gl) #stage .cuts{display:grid;grid-auto-flow:column;grid-auto-columns:min(78vw,380px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:var(--sec) var(--g) 0;scroll-padding:0 var(--g);scrollbar-width:none}
+html:not(.gl) #stage .cut{scroll-snap-align:start}
+html:not(.gl) #stage .cut img{aspect-ratio:4/5;width:100%;object-fit:cover;border-radius:var(--r);margin-bottom:1rem}
+html:not(.gl) #stage .cut figcaption strong{font-size:2rem}
+.gl #stage .cuts{position:absolute;inset:auto 0 0;pointer-events:none;height:0}
+.gl #stage .cut{position:absolute;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0}
+.gl #stage .cut img{display:none}
+.gl #stage .end-copy{display:none}

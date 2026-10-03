@@ -140,6 +140,12 @@ dialog.pdp::backdrop{background:rgba(0,0,0,.72)}
 .pdp-rot button:hover{border-color:var(--text)}
 .pdp-rot button:active{scale:.92}
 .pdp-stage:not(.live) .pdp-rot{display:none}
+.pdp-try{position:absolute;left:26px;top:56px;z-index:3;display:inline-flex;align-items:center;gap:.55em;min-height:44px;padding:0 1.15em 0 1em;border-radius:var(--pill);border:1px solid rgba(239,233,223,.26);background:rgba(11,11,10,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font:600 .875rem/1 var(--fb);letter-spacing:.04em;color:var(--text);transition:border-color .2s,background .2s,scale .2s}
+.pdp-try:hover{border-color:var(--text)}
+.pdp-try:active{scale:.96}
+.pdp-try svg{width:1.05em;height:1.05em}
+.pdp-try.playing{border-color:var(--accent);background:rgba(108,192,184,.14);pointer-events:none}
+.pdp-try[hidden],.pdp-stage:not(.live) .pdp-try{display:none}
 .pdp-info{padding:clamp(20px,4vw,40px);display:block;position:relative}
 .pdp-badge{position:static;display:inline-block;margin-bottom:.9rem}
 .pdp-h{font-size:clamp(3rem,10vw,4.8rem);line-height:.9}
