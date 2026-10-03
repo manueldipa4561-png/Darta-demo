@@ -15,6 +15,10 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 
 /* ===== header additions ===== */
 .hdr-r{display:flex;align-items:center;gap:.6rem}
+.lang-sw{display:inline-grid;place-items:center;min-width:44px;height:44px;border-radius:var(--pill);border:1px solid rgba(239,233,223,.28);background:rgba(11,11,10,.4);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);color:var(--muted);font:600 .75rem/1 var(--mono);letter-spacing:.12em;text-decoration:none;transition:border-color .25s,color .25s}
+.lang-sw:hover{border-color:var(--text);color:var(--text)}
+@media(max-width:380px){.hdr-r{gap:.4rem}.lang-sw{min-width:40px;height:40px}}
+@media(max-width:360px){.hdr-r>.btn{display:none}}   /* the dock at the bottom already has Book: the logo gets its room back */
 .hdr-cart{position:relative;width:44px;height:44px;border-radius:50%;border:1px solid rgba(239,233,223,.28);display:grid;place-items:center;background:rgba(11,11,10,.4);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px);transition:border-color .25s}
 .hdr-cart:hover{border-color:var(--text)}
 .hdr-cart svg{width:22px;height:22px}
