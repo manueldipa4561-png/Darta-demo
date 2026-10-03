@@ -65,12 +65,13 @@ js/journey.js         hero WebGL dive into the sign (dissolves into the shop sce
 js/shopintro.js       shop intro: 3D lineup, spotlight tour, captions, all driven by scroll
 js/works.js           Lavori deck
 js/club.js            loyalty card
+js/wallet.js          talks to the darta-wallet function (which wallets are on, save the card, open the pass)
 js/main.js            wiring shared by every page (reveals, booking sheet, opening status, bootstrap)
 js/vendor/            anime.js 4.5.0 (MIT), vendored because the CSP only allows same-origin scripts
 docs/                 design, security and payment notes
 supabase/             Edge Functions (darta-checkout, darta-stripe-webhook, darta-order) and the orders migration
 tests/                node --test unit tests for pricing, Stripe requests, webhook signature, handlers and the pay client
-tools/                serve.py (dev server), build-pages.py (page generator), render-images.* (product pictures), csp.py (CSP hash)
+tools/                serve.py (dev server), build-pages.py (page generator), render-images.* (product pictures), make-wallet-images.py (wallet icon and stamp strips), csp.py (CSP hash)
 ```
 
 ## Security and deploy notes
@@ -84,6 +85,8 @@ tools/                serve.py (dev server), build-pages.py (page generator), re
 ## Payments
 
 Stripe Checkout is built and switched off until the server has the Stripe keys; until then the shop stays in demo mode and nothing is charged. The cart is priced again on the server (Supabase Edge Functions in `supabase/functions/`), the customer pays on Stripe's own page (cards, Apple Pay, Google Pay) and paid orders land in the `darta_orders` table. Setup, secrets, webhook and the go-live steps: [`docs/PAYMENTS.md`](docs/PAYMENTS.md). Unit tests: `node --test tests/*.test.mjs` (Node 24, no dependencies).
+
+The loyalty card has an "Aggiungi al Wallet" button for Apple Wallet and Google Wallet (Edge Function `darta-wallet`, table `darta_cards`, pictures in `img/wallet/`). It stays a demo message until the wallet accounts exist: [`docs/WALLET.md`](docs/WALLET.md).
 
 ## Accessibility
 
