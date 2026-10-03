@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 
 const read = (p) => readFileSync(new URL(`../supabase/functions/${p}`, import.meta.url), 'utf8');
 
-const copies = { 'cors.ts': ['darta-order'], 'stripe-api.ts': ['darta-stripe-webhook', 'darta-order'] };
+const copies = { 'cors.ts': ['darta-order', 'darta-wallet'], 'stripe-api.ts': ['darta-stripe-webhook', 'darta-order'] };
 for (const [file, dirs] of Object.entries(copies)) {
   test(`${file} is the same in every function folder that uses it`, () => {
     const canonical = read(`darta-checkout/${file}`);
