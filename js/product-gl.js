@@ -1,7 +1,8 @@
 /* Darta product renderer.
    Raw WebGL1, no library: lathe-built jars and bottles, a rounded-card extrusion,
    procedural studio lighting (key softbox, strip light, teal rim) and canvas-drawn labels.
-   ONE renderer serves the whole page: shelf snapshots and the live product viewer. */
+   Poses (unscrew, tilt, pour) are pure functions of a 0..1 progress value, so a scroll bar can scrub them both ways.
+   createGL() makes an independent renderer: D.GL serves the shelf and the product viewer, the scroll film makes its own. */
 (()=>{
 'use strict';
 const D=window.DARTA=window.DARTA||{};
@@ -90,7 +91,7 @@ precision mediump float;
 #endif
 varying vec3 vW;varying vec3 vN;varying vec2 vU;varying vec3 vL;
 uniform vec3 uCam,uBase,uRim;
-uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uTime,uHasT;
+uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uTime,uHasT,uShA,uAmb;
 uniform vec4 uDecal;
 uniform sampler2D uT;
 vec3 studio(vec3 R,float rough){
@@ -105,11 +106,12 @@ vec3 studio(vec3 R,float rough){
   vec3 lf=normalize(vec3(-.9,.05,-.35));
   c+=uRim*.55*smoothstep(.9-s,.99,dot(R,lf));
   c+=vec3(.55)*smoothstep(.86-s,1.,R.y)*.55;
+  c+=vec3(uAmb)*mix(.55,1.,smoothstep(-.6,.9,R.y));
   return c;
 }
 vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
 void main(){
-  if(uShadow>.5){float d=length(vU-.5)*2.;float a=smoothstep(1.,.05,d);a*=a*.62;gl_FragColor=vec4(0.,0.,0.,a);return;}
+  if(uShadow>.5){float d=length(vU-.5)*2.;float a=smoothstep(1.,.05,d);a*=a*.62*uShA;gl_FragColor=vec4(0.,0.,0.,a);return;}
   vec3 N=normalize(vN),V=normalize(uCam-vW);
   float front=step(0.,dot(N,V));
   if(uKnurl>0.){vec3 T=normalize(vec3(-N.z,0.,N.x));N=normalize(N+T*sin(vU.x*6.28318*uKnurl)*.13*(1.-smoothstep(.04,.16,abs(N.y))));}
@@ -154,8 +156,22 @@ void main(){
   gl_FragColor=vec4(pow(col,vec3(1./2.2)),1.);
 }`;
 
+/* powder grains + mist: one soft point sprite per particle, positions computed on the CPU each frame */
+const PVS=`attribute vec3 aP;attribute vec4 aA;uniform mat4 uVP;uniform float uScale,uMaxPt;
+varying float vA;varying float vS;
+void main(){gl_Position=uVP*vec4(aP,1.);gl_PointSize=clamp(aA.x*uScale/gl_Position.w,1.,uMaxPt);vA=aA.y;vS=aA.z;}`;
+const PFS=`precision mediump float;varying float vA;varying float vS;uniform vec3 uCol,uShade;uniform float uSoft;
+void main(){vec2 c=gl_PointCoord-.5;float d=length(c)*2.;if(d>1.)discard;
+float a=smoothstep(1.,uSoft,d)*vA;vec3 col=mix(uCol,uShade,vS*(.3+.7*smoothstep(-.7,.9,c.y*2.-c.x*.8)));
+gl_FragColor=vec4(col*a,a);}`;
+
 /* ---------- label textures ---------- */
-const fontOK=()=>document.fonts&&document.fonts.load?Promise.all([document.fonts.load('800 80px "Barlow Condensed"'),document.fonts.load('italic 800 80px "Barlow Condensed"'),document.fonts.load('500 30px Barlow'),document.fonts.load('600 34px Barlow')]).catch(()=>{}):Promise.resolve();
+const LOGO=new Image();let logoP=null;   // the script logo is printed on the Wax Powder bottle
+const logoReady=()=>logoP||(logoP=new Promise(r=>{LOGO.onload=LOGO.onerror=()=>r();LOGO.src='img/logo.png'}));
+const fontOK=()=>{
+  const f=document.fonts&&document.fonts.load?Promise.all([document.fonts.load('800 80px "Barlow Condensed"'),document.fonts.load('italic 800 80px "Barlow Condensed"'),document.fonts.load('500 30px Barlow'),document.fonts.load('600 34px Barlow')]).catch(()=>{}):Promise.resolve();
+  return Promise.all([f,logoReady()]).then(()=>{});
+};
 const MONO='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 function fit(ctx,text,font,maxW,startPx){let px=startPx;do{ctx.font=font.replace('{px}',px);px-=2}while(ctx.measureText(text).width>maxW&&px>16);return px+2}
 
@@ -174,6 +190,16 @@ function drawLabel(p){ // 1024x512, wrapped on jars/bottles
   const px=fit(x,name,'800 {px}px "Barlow Condensed"',640,184);x.font=`800 ${px}px "Barlow Condensed"`;x.fillText(name,512,338);
   x.fillStyle=acc;x.font='600 34px Barlow';x.fillText((p.label.sub||'').toUpperCase(),512,394);
   x.fillStyle=ink;x.globalAlpha=.55;x.fillRect(332,422,360,3);x.globalAlpha=.85;x.font=`500 26px ${MONO}`;x.fillText((p.label.vol||'')+'  -  PESCARA',512,466);x.globalAlpha=1;
+  return c;
+}
+const SERIF='"Bodoni 72","Didot","Bodoni MT","Playfair Display",Georgia,"Times New Roman",serif';
+function drawPowderLabel(p){ // 1024x1024, printed straight onto the black bottle: transparent canvas, ink only
+  const c=document.createElement('canvas');c.width=1024;c.height=1024;const x=c.getContext('2d'),L=p.look||{};
+  x.fillStyle=L.ink||'#f4f1ea';x.textAlign='center';x.textBaseline='alphabetic';
+  const px=fit(x,'POWDER','600 {px}px '+SERIF,700,230);x.font=`600 ${px}px ${SERIF}`;
+  const y1=48+px*.74;x.fillText('WAX',512,y1);x.fillText('POWDER',512,y1+px*.88);
+  if(LOGO.naturalWidth){x.globalAlpha=.96;x.drawImage(LOGO,150,y1+px*.88+30,724,724*LOGO.naturalHeight/LOGO.naturalWidth);x.globalAlpha=1}
+  x.textAlign='left';x.font=`700 70px ${SERIF}`;x.fillText((p.label&&p.label.sub)||'Volumizzante',140,930);
   return c;
 }
 function drawCard(p,side,amount){ // 1024x512, mapped on a 1.58:1 card
@@ -221,16 +247,23 @@ const PROF={
   sCollar:[[0,.84],[.19,.84],[.20,.86],[.20,.94],[.19,.96],[0,.96]],
   sStem:[[0,.95],[.07,.95],[.07,1.06],[0,1.06]],
   sHead:[[0,1.05],[.16,1.05],[.17,1.07],[.17,1.16],[.15,1.19],[0,1.19]],
-  nozzle:[[0,0],[.045,0],[.045,.2],[0,.2]]
+  nozzle:[[0,0],[.045,0],[.045,.2],[0,.2]],
+  // Wax Powder, proportions taken from the product film: slim gloss-black bottle, ribbed neck, silver screw cap
+  wbBody:[[0,0],[.20,0],[.27,.014],[.30,.06],[.30,.95],[.292,1.0],[.27,1.07],[.22,1.15],[.185,1.21],[.172,1.24],[.172,1.26],
+    [.19,1.272],[.20,1.29],[.20,1.305],[.19,1.322],[.172,1.334],[.172,1.35],[.19,1.362],[.20,1.38],[.20,1.395],[.19,1.412],[.172,1.424],[.172,1.44],
+    [.19,1.452],[.20,1.47],[.20,1.485],[.19,1.502],[.172,1.514],[.172,1.53],[.19,1.542],[.20,1.56],[.20,1.575],[.185,1.589],[.17,1.592],[.15,1.592],[.15,1.52],[0,1.52]],
+  wbPowder:[[.149,1.527],[0,1.527]],
+  wbCap:[[0,.40],[.215,.40],[.215,0],[.24,0],[.256,.02],[.262,.05],[.262,.41],[.255,.44],[.235,.46],[0,.46]]
 };
-const decal=(profKey,r,y0,y1)=>{ // label rectangle, 2:1, centred on the front
-  const pr=PROF[profKey],ys=pr.map(q=>q[1]),mn=Math.min(...ys),mx=Math.max(...ys),half=((y1-y0)*2/r)/TAU/2;
+const decal=(profKey,r,y0,y1,ar=2)=>{ // label rectangle (width:height = ar), centred on the front
+  const pr=PROF[profKey],ys=pr.map(q=>q[1]),mn=Math.min(...ys),mx=Math.max(...ys),half=((y1-y0)*ar/r)/TAU/2;
   return [.5-half,.5+half,(y0-mn)/(mx-mn),(y1-mn)/(mx-mn)];
 };
 const GEO_DEF={ // name -> builder
   jarBody:()=>lathe(PROF.jarBody),jarLid:()=>lathe(PROF.jarLid),
   bottle:()=>lathe(PROF.bottle),collar:()=>lathe(PROF.collar,56),bulb:()=>lathe(PROF.bulb,56),
   spray:()=>lathe(PROF.spray),sCollar:()=>lathe(PROF.sCollar,56),sStem:()=>lathe(PROF.sStem,32),sHead:()=>lathe(PROF.sHead,56),nozzle:()=>lathe(PROF.nozzle,32),
+  wbBody:()=>lathe(PROF.wbBody,96),wbPowder:()=>lathe(PROF.wbPowder,48),wbCap:()=>lathe(PROF.wbCap,96),
   quad:()=>QUAD
 };
 let SLAB=null;
@@ -243,17 +276,21 @@ function build(p,byId){
   switch(p.kind){
     case 'jar':return {rim,radius:.76,ty:.33,shadows:[{pos:[0,0,0],size:1.7}],parts:[
       part({g:'jarBody',col:hex(L.body||'#1b1b19'),rough:.58,tex:'lbl',decal:decal('jarBody',.5,.045,.425)}),
-      part({g:'jarLid',col:hex(L.lid||'#c9ccca'),rough:L.lidMetal?.5:.55,metal:L.lidMetal?.9:0,knurl:46})]};
+      part({g:'jarLid',col:hex(L.lid||'#c9ccca'),rough:L.lidMetal?.5:.55,metal:L.lidMetal?.9:0,knurl:46,role:'cap'})]};
     case 'dropper':return {rim,radius:.92,ty:.64,shadows:[{pos:[0,0,0],size:1.5}],parts:[
       part({g:'bottle',col:hex(L.glass||'#b4570d'),rough:.05,glass:1,liquid:.74,tex:'lbl',decal:decal('bottle',.34,.1,.54)}),
-      part({g:'collar',col:hex('#161615'),rough:.38,metal:.85,knurl:36}),
-      part({g:'bulb',col:hex('#0e0e0d'),rough:.55})]};
+      part({g:'collar',col:hex('#161615'),rough:.38,metal:.85,knurl:36,role:'cap'}),
+      part({g:'bulb',col:hex('#0e0e0d'),rough:.55,role:'cap'})]};
     case 'spray':return {rim,radius:.96,ty:.6,shadows:[{pos:[0,0,0],size:1.55}],parts:[
       part({g:'spray',col:hex(L.body||'#2f6f6a'),rough:.42,tex:'lbl',decal:decal('spray',.37,.1,.56)}),
-      part({g:'sCollar',col:hex('#cfd2d0'),rough:.3,metal:1,knurl:40}),
-      part({g:'sStem',col:hex('#0e0e0d'),rough:.5}),
-      part({g:'sHead',col:hex('#101010'),rough:.38}),
-      part({g:'nozzle',col:hex('#0b0b0b'),rough:.45,pos:[0,1.115,.12],rot:[Math.PI/2,0,0]})]};
+      part({g:'sCollar',col:hex('#cfd2d0'),rough:.3,metal:1,knurl:40,role:'cap'}),
+      part({g:'sStem',col:hex('#0e0e0d'),rough:.5,role:'cap'}),
+      part({g:'sHead',col:hex('#101010'),rough:.38,role:'cap'}),
+      part({g:'nozzle',col:hex('#0b0b0b'),rough:.45,pos:[0,1.115,.12],rot:[Math.PI/2,0,0],role:'cap'})]};
+    case 'powder':return {rim,radius:1.0,ty:.84,zoomOpen:.85,tyOpen:.45,shadows:[{pos:[0,0,0],size:1.5}],pose:'powder',parts:[
+      part({g:'wbBody',col:hex(L.body||'#0b0b0c'),rough:.1,tex:'lbl',decal:decal('wbBody',.30,.30,.94,1),role:'body'}),
+      part({g:'wbPowder',col:[.86,.85,.82],rough:.96,role:'body'}),
+      part({g:'wbCap',col:hex(L.cap||'#cfd3d6'),rough:.3,metal:1,amb:.4,pos:[0,1.205,0],role:'cap'})]};
     case 'kit':{
       const out={rim,radius:1.2,ty:.44,shadows:[],parts:[]};
       (p.items||[]).forEach((id,i)=>{
@@ -274,29 +311,99 @@ function build(p,byId){
   return {rim,radius:1,ty:.5,shadows:[],parts:[]};
 }
 
+/* ---------- poses: pure functions of progress t (0..1), so scrolling can scrub them in both directions ---------- */
+const ss=t=>t*t*(3-2*t),seg=(t,a,b)=>cl((t-a)/(b-a),0,1);
+const xf=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2]+M[12],M[1]*v[0]+M[5]*v[1]+M[9]*v[2]+M[13],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]+M[14]];
+const xd=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2],M[1]*v[0]+M[5]*v[1]+M[9]*v[2],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]];
+const PW={PIV:.83,CAPC:[0,1.435,0],MOUTH:[0,1.56,0]};
+/* Wax Powder: SVITA (cap unscrews and floats off) -> tilt -> SCUOTI (shake, powder pours) -> DAI VOLUME (bottle rights itself, cap screws back on) */
+function powderPose(t,time=0){
+  const bob=Math.sin(time*1.7)*.02;
+  const up=ss(seg(t,.06,.30)),drift=ss(seg(t,.26,.44)),tilt=ss(seg(t,.34,.52)),back=ss(seg(t,.80,.92)),capBack=ss(seg(t,.82,.97));
+  const sk=seg(t,.52,.80),shake=Math.sin(sk*TAU*6)*Math.sin(sk*Math.PI)*.11;
+  const ta=tilt*(1-back),ang=2.18*ta+shake;
+  const ox=.5*ta,oy=.34*ta+bob*(1-ta);
+  const body=m4.mul(m4.T(ox,oy,0),m4.mul(m4.T(0,PW.PIV,0),m4.mul(m4.Rz(ang),m4.T(0,-PW.PIV,0))));
+  const qa=up*(1-capBack),qd=drift*(1-capBack),C=PW.CAPC;
+  const spin=-TAU*3*qa,lift=.9*qa,tum=Math.sin(time*.9)*.25*qd;
+  const cap=m4.mul(m4.T(.95*qd,lift+.35*qd+bob*(1-qa),.25*qd),m4.mul(m4.T(C[0],C[1],C[2]),m4.mul(m4.Rz(-.55*qd),m4.mul(m4.Rx(.5*qd+tum),m4.mul(m4.Ry(spin),m4.T(-C[0],-C[1],-C[2]))))));
+  return {body,cap,mouth:{p:xf(body,PW.MOUTH),d:xd(body,[0,1,0])},
+    zoom:ss(seg(t,.05,.26))*(1-ss(seg(t,.88,.99))),
+    shadow:{x:ox*.9,size:1.5+.5*ta-.3*Math.max(0,oy),a:Math.max(.3,.85-.9*Math.max(0,oy))}};
+}
+function genericPose(t,time=0){ // jars, dropper, spray: the lid or head unscrews, floats up and comes back
+  const open=ss(seg(t,.12,.42))*(1-ss(seg(t,.62,.92))),bob=Math.sin(time*1.7)*.02;
+  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.85*open,0),m4.Ry(-TAU*2*open)),mouth:null,zoom:0,shadow:null};
+}
+const POSES={powder:powderPose};
+
+/* ---------- powder: stateless particle field (position = f(age)), so it scrubs like everything else ---------- */
+const FX={N:5200,M:110,T:9,E0:.5,E1:.8,K:1.5,G:.95,FLOOR:-1.55,ready:false};
+const hash=(i,k)=>{const x=Math.sin(i*127.1+k*311.7)*43758.5453;return x-Math.floor(x)};
+function fxInit(){
+  if(FX.ready)return;FX.ready=true;
+  const n=FX.N+FX.M;
+  FX.o=new Float32Array(n*3);FX.v=new Float32Array(n*3);FX.te=new Float32Array(n);FX.life=new Float32Array(n);FX.sz=new Float32Array(n);FX.sh=new Float32Array(n);FX.fy=new Float32Array(n);
+  for(let i=0;i<n;i++){
+    const mist=i<FX.M;
+    const te=FX.E0+(FX.E1-FX.E0)*Math.pow(hash(i,1),.85);
+    const m=powderPose(te).mouth,sp=mist?.62:.46,ang=hash(i,2)*TAU,rr=Math.sqrt(hash(i,3))*sp;
+    const ux=-m.d[1],uy=m.d[0];
+    const speed=(mist?.6:.9)+Math.pow(hash(i,4),1.5)*(mist?1.2:2.8);
+    FX.o.set([m.p[0],m.p[1],m.p[2]],i*3);
+    FX.v.set([(m.d[0]+ux*Math.cos(ang)*rr)*speed,(m.d[1]+uy*Math.cos(ang)*rr)*speed,Math.sin(ang)*rr*speed],i*3);
+    FX.te[i]=te;FX.life[i]=(mist?3.6:2.6)+hash(i,5)*1.2;
+    FX.sz[i]=mist?.6+hash(i,6)*.7:.016+hash(i,6)*.034;FX.sh[i]=hash(i,7);FX.fy[i]=hash(i,8)*.28;
+  }
+}
+// fills out (7 floats per live point: x y z size alpha shade pad); mist first, then grains. Returns [mistCount, grainCount]
+function fxFill(t,out){
+  fxInit();
+  const {N,M,T,K,G,FLOOR}=FX,fade=1-seg(t,.88,.98);let k=0,nm=0;
+  for(let i=0;i<N+M;i++){
+    const age=(t-FX.te[i])*T;
+    if(age<=0||fade<=0||age>FX.life[i])continue;
+    const mist=i<M,e=1-Math.exp(-K*age),f=(age-e/K)*G/K,w=Math.sin(age*3+FX.sh[i]*6)*.015*e;
+    let y=FX.o[i*3+1]+FX.v[i*3+1]*e/K-f;const fl=FLOOR+FX.fy[i];
+    const settled=y<fl;if(settled)y=fl;
+    const life=FX.life[i],a=Math.min(1,age/.12)*(1-seg(age,life*.62,life))*fade*(settled?.9:1);
+    out[k++]=FX.o[i*3]+FX.v[i*3]*e/K+w;out[k++]=y;out[k++]=FX.o[i*3+2]+FX.v[i*3+2]*e/K;
+    out[k++]=mist?FX.sz[i]*(1+age*.5):FX.sz[i];out[k++]=mist?a*.15:a*.95;out[k++]=FX.sh[i];out[k++]=0;
+    if(mist)nm++;
+  }
+  return [nm,k/7-nm];
+}
+
 /* ---------- renderer ---------- */
 const nul=()=>Object.create(null);
-const R={gl:null,canvas:null,prog:null,U:{},A:{},geo:nul(),tex:nul(),specs:nul(),byId:nul(),dead:false,aniso:null};
-let catalogById=Object.create(null);
+function createGL(hooks={}){
+const R={gl:null,canvas:null,prog:null,pp:null,U:{},A:{},PU:{},geo:nul(),tex:nul(),specs:nul(),dead:false,aniso:null,pbuf:null,parr:new Float32Array(7*(FX.N+FX.M))};
+let catalogById=nul();
 
 function compile(gl,type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s}
+function link(gl,vs,fs,attrs){
+  const pr=gl.createProgram();gl.attachShader(pr,compile(gl,gl.VERTEX_SHADER,vs));gl.attachShader(pr,compile(gl,gl.FRAGMENT_SHADER,fs));
+  attrs.forEach((a,i)=>gl.bindAttribLocation(pr,i,a));   // fixed slots so both programs can share the enabled arrays
+  gl.linkProgram(pr);if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(pr));return pr;
+}
 function init(){
   if(R.gl&&!R.dead)return true;
   try{
     if(!R.canvas){R.canvas=document.createElement('canvas')}
     const gl=R.canvas.getContext('webgl',{antialias:true,alpha:true,premultipliedAlpha:true,powerPreference:'high-performance',preserveDrawingBuffer:false});
     if(!gl)return false;
-    const pr=gl.createProgram();gl.attachShader(pr,compile(gl,gl.VERTEX_SHADER,VS));gl.attachShader(pr,compile(gl,gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
-    if(!gl.getProgramParameter(pr,gl.LINK_STATUS))throw new Error(gl.getProgramInfoLog(pr));
-    gl.useProgram(pr);R.gl=gl;R.prog=pr;R.geo=nul();R.tex=nul();R.specs=nul();R.dead=false;
-    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uTime','uHasT','uDecal','uT'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
-    ['aP','aN','aU'].forEach(k=>{R.A[k]=gl.getAttribLocation(pr,k);gl.enableVertexAttribArray(R.A[k])});
+    const pr=link(gl,VS,FS,['aP','aN','aU']),pp=link(gl,PVS,PFS,['aP','aA']);
+    gl.useProgram(pr);R.gl=gl;R.prog=pr;R.pp=pp;R.geo=nul();R.tex=nul();R.specs=nul();R.dead=false;
+    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uShA','uAmb','uTime','uHasT','uDecal','uT'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
+    ['uVP','uScale','uMaxPt','uCol','uShade','uSoft'].forEach(k=>R.PU[k]=gl.getUniformLocation(pp,k));
+    R.pbuf=gl.createBuffer();R.maxPt=gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1]||64;
+    ['aP','aN','aU'].forEach((k,i)=>{R.A[k]=i;gl.enableVertexAttribArray(i)});
     gl.uniform1i(R.U.uT,0);
     gl.enable(gl.DEPTH_TEST);gl.enable(gl.BLEND);gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);
     R.aniso=gl.getExtension('EXT_texture_filter_anisotropic');
     if(!R.bound){R.bound=true;
-      R.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();R.dead=true;Viewer.stop();if(D.onGLLost)D.onGLLost()});
-      R.canvas.addEventListener('webglcontextrestored',()=>{if(init()&&D.onGLRestored)D.onGLRestored()});
+      R.canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();R.dead=true;Viewer.stop();hooks.onLost&&hooks.onLost()});
+      R.canvas.addEventListener('webglcontextrestored',()=>{if(init()&&hooks.onRestored)hooks.onRestored()});
     }
     return true;
   }catch(e){console.warn('Darta GL unavailable',e);R.gl=null;return false}
@@ -325,7 +432,7 @@ function partTex(pt,p,amount){
   if(!pt.tex)return null;
   const q=pt.texOf||p;
   if(q.kind==='card'){return texFor(`${q.id}:${amount||0}:${pt.tex}`,()=>drawCard(q,pt.tex,amount))}
-  return texFor(`${q.id}:lbl`,()=>drawLabel(q));
+  return texFor(`${q.id}:lbl`,()=>q.kind==='powder'?drawPowderLabel(q):drawLabel(q));
 }
 function specFor(p){
   const key=p.id;
@@ -337,29 +444,51 @@ function bindGeo(g){
   const gl=R.gl;gl.bindBuffer(gl.ARRAY_BUFFER,g.vb);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,g.ib);
   gl.vertexAttribPointer(R.A.aP,3,gl.FLOAT,false,32,0);gl.vertexAttribPointer(R.A.aN,3,gl.FLOAT,false,32,12);gl.vertexAttribPointer(R.A.aU,2,gl.FLOAT,false,32,24);
 }
-function frame(p,{yaw=0,pitch=.2,amount=0,time=0}={}){
+const TINT={light:{col:[.98,.98,.97],shade:[.4,.44,.49]},dark:{col:[.96,.95,.92],shade:[.66,.68,.68]}};
+function drawFx(fx,VP,fov){
+  const gl=R.gl,P=R.PU,arr=R.parr,[nm,ng]=fxFill(fx.t,arr),tint=TINT[fx.tint]||TINT.light;
+  if(nm+ng<=0)return;
+  gl.useProgram(R.pp);
+  gl.bindBuffer(gl.ARRAY_BUFFER,R.pbuf);gl.bufferData(gl.ARRAY_BUFFER,arr.subarray(0,(nm+ng)*7),gl.DYNAMIC_DRAW);
+  gl.vertexAttribPointer(0,3,gl.FLOAT,false,28,0);gl.vertexAttribPointer(1,4,gl.FLOAT,false,28,12);
+  gl.uniformMatrix4fv(P.uVP,false,VP);gl.uniform1f(P.uScale,R.canvas.height/(2*Math.tan(fov/2)));gl.uniform1f(P.uMaxPt,R.maxPt);
+  gl.uniform3fv(P.uCol,tint.col);gl.uniform3fv(P.uShade,tint.shade);
+  gl.depthMask(false);
+  if(nm){gl.uniform1f(P.uSoft,0);gl.drawArrays(gl.POINTS,0,nm)}
+  if(ng){gl.uniform1f(P.uSoft,.55);gl.drawArrays(gl.POINTS,nm,ng)}
+  gl.depthMask(true);gl.useProgram(R.prog);
+}
+// opts: yaw, pitch, amount (gift card), time (s, drives the idle float), pose {t}, fx {t,tint}, cam {dist,ty} (overrides the fitted camera)
+function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null}={}){
   const gl=R.gl,spec=specFor(p),w=R.canvas.width,h=R.canvas.height,U=R.U;
   gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
-  const asp=w/h,fov=.5,dist=spec.radius/Math.sin(fov/2)/Math.min(1,asp);
+  const P=pose?(POSES[spec.pose]||genericPose)(pose.t,time):null;
+  const asp=w/h,fov=.5,fitD=spec.radius/Math.sin(fov/2)/Math.min(1,asp);
+  const zo=cam&&cam.zo!=null?cam.zo:(spec.zoomOpen||0),dist=(cam&&cam.dist!=null?cam.dist:fitD)*(1+(P?P.zoom:0)*zo),ty=(cam&&cam.ty!=null?cam.ty:spec.ty)+(P?P.zoom:0)*(spec.tyOpen||0);
   const pt=pitch+(spec.pitch||0);
-  const eye=[0,spec.ty+Math.sin(pt)*dist,Math.cos(pt)*dist];
-  const VP=m4.mul(m4.persp(fov,asp,.1,60),m4.look(eye,[0,spec.ty,0],[0,1,0]));
+  const eye=[0,ty+Math.sin(pt)*dist,Math.cos(pt)*dist];
+  const VP=m4.mul(m4.persp(fov,asp,.1,80),m4.look(eye,[0,ty,0],[0,1,0]));
+  gl.useProgram(R.prog);
   gl.uniformMatrix4fv(U.uVP,false,VP);gl.uniform3fv(U.uCam,eye);gl.uniform3fv(U.uRim,spec.rim);gl.uniform1f(U.uTime,time);
   // floor shadows (no depth write; objects draw over them)
   gl.depthMask(false);gl.uniform1f(U.uShadow,1);gl.uniform1f(U.uHasT,0);
   bindGeo(geo('quad'));
-  spec.shadows.forEach(s=>{
+  const sh=P&&P.shadow?[{pos:[P.shadow.x,0,0],size:P.shadow.size,a:P.shadow.a}]:spec.shadows;
+  sh.forEach(s=>{
+    gl.uniform1f(U.uShA,s.a==null?1:s.a);
     gl.uniformMatrix4fv(U.uM,false,m4.mul(m4.Ry(yaw),m4.mul(m4.T(s.pos[0],.003,s.pos[2]),m4.S(s.size))));
     gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0);
   });
-  gl.depthMask(true);gl.uniform1f(U.uShadow,0);
+  gl.uniform1f(U.uShA,1);gl.depthMask(true);gl.uniform1f(U.uShadow,0);
   const draw=pt=>{
     const g=geo(pt.g);bindGeo(g);
     const rm=m4.mul(m4.Ry(pt.rot[1]),m4.mul(m4.Rx(pt.rot[0]),m4.Rz(pt.rot[2])));
-    const M=m4.mul(m4.Ry(yaw),m4.mul(m4.T(pt.pos[0],pt.pos[1],pt.pos[2]),m4.mul(rm,m4.S(pt.s))));
+    let M=m4.mul(m4.T(pt.pos[0],pt.pos[1],pt.pos[2]),m4.mul(rm,m4.S(pt.s)));
+    if(P)M=m4.mul(pt.role==='cap'?P.cap:P.body,M);       // animated groups move as one piece
+    M=m4.mul(m4.Ry(yaw),M);
     gl.uniformMatrix4fv(U.uM,false,M);
     gl.uniform3fv(U.uBase,pt.col);gl.uniform1f(U.uRough,pt.rough);gl.uniform1f(U.uMetal,pt.metal);
-    gl.uniform1f(U.uKnurl,pt.knurl||0);gl.uniform1f(U.uGlass,pt.glass?1:0);gl.uniform1f(U.uLiquid,pt.liquid||0);gl.uniform1f(U.uHolo,pt.holo||0);
+    gl.uniform1f(U.uAmb,pt.amb||0);gl.uniform1f(U.uKnurl,pt.knurl||0);gl.uniform1f(U.uGlass,pt.glass?1:0);gl.uniform1f(U.uLiquid,pt.liquid||0);gl.uniform1f(U.uHolo,pt.holo||0);
     const t=partTex(pt,p,amount);
     if(t){gl.bindTexture(gl.TEXTURE_2D,t);gl.uniform1f(U.uHasT,pt.tf||1);const d=pt.decal||[0,1,0,1];gl.uniform4fv(U.uDecal,d)}
     else gl.uniform1f(U.uHasT,0);
@@ -367,6 +496,9 @@ function frame(p,{yaw=0,pitch=.2,amount=0,time=0}={}){
   };
   spec.parts.filter(q=>!q.glass).forEach(draw);
   gl.depthMask(false);spec.parts.filter(q=>q.glass).forEach(draw);gl.depthMask(true);
+  if(fx&&P&&P.mouth){ // the powder is drawn in the world frame, yawed with the product
+    drawFx(fx,m4.mul(VP,m4.Ry(yaw)),fov);
+  }
 }
 
 /* ---------- public: snapshots ---------- */
@@ -376,7 +508,7 @@ async function snapshot(p,opts={}){
   await fontOK();
   const size=opts.size||560;
   setSize(size,size);
-  frame(p,{yaw:opts.yaw??-.34,pitch:opts.pitch??.2,amount:opts.amount});
+  frame(p,{yaw:opts.yaw??-.34,pitch:opts.pitch??.2,amount:opts.amount,pose:opts.pose||null,fx:opts.fx||null});
   let url=null;
   try{url=R.canvas.toDataURL('image/webp',.92)}catch(e){/* tainted or lost canvas: caller shows the fallback */}
   if(Viewer.p)Viewer.size(); // a live viewer shares this canvas: restore its size
@@ -385,12 +517,12 @@ async function snapshot(p,opts={}){
 
 /* ---------- public: live viewer ---------- */
 const Viewer={
-  p:null,host:null,yaw:-.5,pitch:.2,vy:0,vp:0,drag:null,raf:0,idleAt:0,amount:0,ro:null,
+  p:null,host:null,yaw:-.5,pitch:.2,vy:0,vp:0,drag:null,raf:0,idleAt:0,amount:0,ro:null,anim:null,onPlay:null,
   async start(host,p,opts={}){
     if(!init())return false;
     await fontOK();
     this.stop();
-    this.p=p;this.host=host;this.amount=opts.amount||0;this.yaw=opts.yaw??-.5;this.pitch=.2;this.vy=0;this.vp=0;this.idleAt=performance.now();
+    this.p=p;this.host=host;this.amount=opts.amount||0;this.yaw=opts.yaw??-.5;this.pitch=.2;this.vy=0;this.vp=0;this.idleAt=performance.now();this.anim=null;
     const c=R.canvas;
     c.className='pv-canvas';c.setAttribute('role','img');c.setAttribute('tabindex','0');
     c.setAttribute('aria-label',`Visualizzatore 3D: ${p.name}. Trascina o usa le frecce per ruotare.`);
@@ -422,19 +554,32 @@ const Viewer={
   loop(){
     this.raf=requestAnimationFrame(t=>{
       if(!this.p||R.dead)return;
-      if(!this.drag){
+      let pose=null,fx=null;
+      if(this.anim){ // the product's own animation: lid unscrews / powder pours (same timeline as the scroll film)
+        const e=(t-this.anim.t0)/this.anim.dur;
+        if(e>=1){this.anim=null;this.idleAt=t;this.dirty=true;this.onPlay&&this.onPlay(false)}
+        else{pose={t:e};fx={t:e,tint:'dark'};this.dirty=true;this.idleAt=t}
+      }
+      if(!this.drag&&!pose){
         if(Math.abs(this.vy)>.0004){this.yaw+=this.vy;this.vy*=.94;this.dirty=true}
         else if(!this.reduce&&t-this.idleAt>2200&&t-this.idleAt<16000){this.yaw+=.0045;this.dirty=true}   // gentle turntable for a while, then rest (battery)
       }
-      if(this.dirty){frame(this.p,{yaw:this.yaw,pitch:this.pitch,amount:this.amount,time:t/1000});this.dirty=false}
+      if(this.dirty){frame(this.p,{yaw:this.yaw,pitch:this.pitch,amount:this.amount,time:t/1000,pose,fx});this.dirty=false}
       this.loop();
     });
+  },
+  canPlay(){return !!this.p&&specFor(this.p).parts.some(q=>q.role==='cap')},
+  play(){
+    if(!this.canPlay()||this.anim||this.reduce)return false;
+    const long=specFor(this.p).pose==='powder';
+    this.yaw=long?-.12:this.yaw;this.vy=0;this.anim={t0:performance.now(),dur:long?9500:4200};this.dirty=true;this.onPlay&&this.onPlay(true);return true;
   },
   setAmount(a){this.amount=a;this.dirty=true},
   nudge(d){this.yaw+=d;this.vy=0;this.idleAt=performance.now();this.dirty=true},
   refresh(){this.dirty=true},
   stop(){
     cancelAnimationFrame(this.raf);this.raf=0;
+    if(this.anim){this.anim=null;this.onPlay&&this.onPlay(false)}
     if(this.ro){this.ro.disconnect();this.ro=null}
     const c=R.canvas;
     if(c&&this.h){c.removeEventListener('pointerdown',this.h.down);c.removeEventListener('pointermove',this.h.move);c.removeEventListener('pointerup',this.h.up);c.removeEventListener('pointercancel',this.h.up);c.removeEventListener('keydown',this.h.key);c.removeEventListener('dblclick',this.h.dbl);this.h=null}
@@ -444,5 +589,11 @@ const Viewer={
 };
 
 let SUP=null; // probing creates a context: do it once, contexts are a scarce page-wide resource
-D.GL={init,setCatalog,snapshot,viewer:Viewer,supported:()=>{if(SUP===null){try{const g=document.createElement('canvas').getContext('webgl');SUP=!!g;const l=g&&g.getExtension('WEBGL_lose_context');if(l)l.loseContext()}catch(e){SUP=false}}return SUP},fontsReady:fontOK};   // supported(): probe once, then release the probe context
+return {init,setCatalog,snapshot,viewer:Viewer,frame,specFor,canvas:()=>R.canvas,setSize,dead:()=>R.dead,
+  supported:()=>{if(SUP===null){try{const g=document.createElement('canvas').getContext('webgl');SUP=!!g;const l=g&&g.getExtension('WEBGL_lose_context');if(l)l.loseContext()}catch(e){SUP=false}}return SUP},   // supported(): probe once, then release the probe context
+  fontsReady:fontOK};
+}
+
+D.makeGL=createGL;
+D.GL=createGL({onLost:()=>{D.onGLLost&&D.onGLLost()},onRestored:()=>{D.onGLRestored&&D.onGLRestored()}});
 })();

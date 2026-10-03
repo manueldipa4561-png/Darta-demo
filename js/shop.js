@@ -13,7 +13,7 @@ const idle=()=>new Promise(r=>'requestIdleCallback' in window?requestIdleCallbac
 
 /* ---------- shelf ---------- */
 function fallbackArt(p){ // no WebGL: simple silhouette so cards are never empty
-  const paths={jar:'M30 62h60v52H30zM26 50h68v14H26z',dropper:'M54 18h12v26H54zM48 44h24v10H48zM42 54h36v62H42z',spray:'M52 20h24v10H52zM50 30h20v18H50zM40 48h40v68H40z',kit:'M14 74h36v40H14zM58 50h24v64H58zM90 36h20v78H90z',card:'M18 40h84v56H18z'};
+  const paths={jar:'M30 62h60v52H30zM26 50h68v14H26z',dropper:'M54 18h12v26H54zM48 44h24v10H48zM42 54h36v62H42z',spray:'M52 20h24v10H52zM50 30h20v18H50zM40 48h40v68H40z',powder:'M50 12h20v24H50zM47 36h26v8H47zM40 44h40v76H40z',kit:'M14 74h36v40H14zM58 50h24v64H58zM90 36h20v78H90z',card:'M18 40h84v56H18z'};
   const s=document.createElementNS('http://www.w3.org/2000/svg','svg');
   s.setAttribute('viewBox','0 0 120 140');s.setAttribute('class','pcard-art');s.setAttribute('aria-hidden','true');
   const path=document.createElementNS('http://www.w3.org/2000/svg','path');path.setAttribute('d',paths[p.kind]||paths.jar);s.appendChild(path);return s;
@@ -89,7 +89,9 @@ async function snapAll(){
   for(const which of ['a','b'])for(const p of ps){
     await idle();
     while(GL.viewer.p)await new Promise(r=>setTimeout(r,250)); // never fight the live viewer for the canvas
-    const url=await GL.snapshot(p,{yaw:which==='a'?-.34:.62,pitch:which==='a'?.2:.14,amount:+defVid(p)||0});
+    // the powder's hover picture is the moment it pours; everything else is simply turned around
+    const pour=p.kind==='powder'&&which==='b';
+    const url=await GL.snapshot(p,pour?{yaw:-.1,pitch:.12,pose:{t:.62},fx:{t:.62,tint:'dark'}}:{yaw:which==='a'?-.34:.62,pitch:which==='a'?.2:.14,amount:+defVid(p)||0});
     if(url)setSnap(p,which,url);
   }
 }
@@ -149,7 +151,16 @@ async function mountViewer(){
   if(tok!==mountTok||!$('#pdp').open)return;
   const ok=await GL.viewer.start(host,p,{amount:+vid||0});
   if(tok!==mountTok||!$('#pdp').open)return;                  // a newer mount (or a close) owns the viewer now
-  if(ok){stage.classList.add('live');stage.classList.toggle('still',D.reduce())}
+  if(ok){stage.classList.add('live');stage.classList.toggle('still',D.reduce());setTry()}
+}
+/* "Svita e scuoti" / "Apri": plays the product's own animation in the viewer (same timeline as the home film) */
+function setTry(){
+  const b=$('#pdpTry'),v=GL.viewer,can=!!b&&v.canPlay()&&!D.reduce();
+  if(!b)return;
+  b.hidden=!can;b.classList.remove('playing');b.disabled=false;
+  if(!can)return;
+  $('#pdpTryTxt').textContent=current.kind==='powder'?'Svita e scuoti':'Apri';
+  v.onPlay=on=>{b.classList.toggle('playing',on);b.disabled=on;if(!on)$('#pdpTryTxt').textContent=current&&current.kind==='powder'?'Svita e scuoti':'Apri'};
 }
 function openPDP(slug){
   const p=S.bySlug[slug];
@@ -179,6 +190,8 @@ function bind(){
   $('#pdpPlus').addEventListener('click',()=>{qty=Math.min(9,qty+1);syncBuy()});
   $('#pdpL').addEventListener('click',()=>GL.viewer.nudge(-.6));
   $('#pdpR').addEventListener('click',()=>GL.viewer.nudge(.6));
+  const tryBtn=$('#pdpTry');
+  if(tryBtn)tryBtn.addEventListener('click',()=>{if(GL.viewer.play())$('#pdpTryTxt').textContent=current.kind==='powder'?'Scuoti...':'Apri...'});
   $('#pdpAdd').addEventListener('click',()=>{
     S.add(current.id,vid,qty);
     D.cart.fly($('#pdpStage'),$('#pdpAdd'));
@@ -199,6 +212,7 @@ D.shop={
     if(S.lines.length)idle().then(snapAll); // returning visitor with a saved cart: thumbnails for the drawer
   },
   warm:snapAll,
+  art:fallbackArt,
   snap:id=>snaps[id]&&snaps[id].a
 };
 })();

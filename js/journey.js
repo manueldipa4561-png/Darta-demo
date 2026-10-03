@@ -1,4 +1,5 @@
-/* Darta journey: raw-WebGL scroll corridor (hero sign, then four recent cuts). Falls back to a swipe rail. */
+/* Darta journey: raw-WebGL hero. The camera dives into the salon sign, then the screen whites out into the Wax Powder film.
+   Falls back to the plain photo when WebGL is off. */
 (()=>{
 'use strict';
 const {$,$$}=window.DARTA;
@@ -64,23 +65,16 @@ function persp(f,a,n,fa){const t=1/Math.tan(f/2),nf=1/(n-fa);return new Float32A
 function model(x,y,z,ry,sx,sy){const c=Math.cos(ry),s=Math.sin(ry);return new Float32Array([c*sx,0,-s*sx,0,0,sy,0,0,s,0,c,0,x,y,z,1])}
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 
-// scene: hero sign plane at z=0, four cuts behind it; camera dives through the sign
-const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),D=2.4,Z0=3.2;
-const frameZ=[-2.5,-7,-11.5,-16];
-const stops=[Z0,...frameZ.map(z=>z+D),frameZ[3]+D-3];
-let ASP=1,dirty=true,P,hero=null,frames=[],cur=Z0,vel=0,raf=0,visible=true,lastCap=-2,endOn=false;
-const caps=$$('.cut'),endCopy=$('#endCopy'),heroCopy=$('#heroCopy');
+// scene: the hero sign plane at z=0; the camera starts back at Z0 and dives toward it
+const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),Z0=3.2,ZE=1.1,WHITE=[.7,.96];   // WHITE: scroll range of the white-out
+let ASP=1,dirty=true,P,hero=null,cur=Z0,vel=0,raf=0,visible=true;
+const heroCopy=$('#heroCopy'),flash=$('#flash')||document.createElement('div');   // fallback node: older markup has no white-out layer
 
 function layout(){
   const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
   const A=W/H,dpr=Math.min(devicePixelRatio||1,2); // native sharpness on retina screens, capped at 2x for phones
   canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);gl.viewport(0,0,canvas.width,canvas.height);
   ASP=A;P=persp(FOV,A,.05,60);
-  const vh=2*D*TAN,vw=vh*A,mob=A<.9;
-  frames.forEach((f,i)=>{
-    const h=mob?Math.min(vw*.84/f.a,vh*.6):vh*.66;
-    Object.assign(f,{h,w:h*f.a,x:(mob?.05:.21)*vw*(i%2?1:-1),y:mob?vh*.1:0,z:frameZ[i]});
-  });
   if(hero){hero.h=2*Z0*TAN*1.08;hero.w=hero.h*A}
   dirty=true;draw();
 }
@@ -97,35 +91,23 @@ function plane(o,alpha,sat,bend,wave,rad,dark,ry){
 function draw(){
   if(!hero||!P)return;
   gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform1f(U.uTm,performance.now()/1000);
-  for(let i=frames.length-1;i>=0;i--){ // far to near
-    const f=frames[i],dz=cur-f.z;
-    if(dz<.15)continue; // behind camera
-    const focus=1-cl(Math.abs(dz-D)/3.6,0,1), fog=cl(1-(dz-D-2)/12,0,1);
-    plane(f,cl((dz-.15)/.9,0,1)*fog,.12+.88*Math.pow(focus,.8),cl(vel*1.4,-.3,.3),cl(Math.abs(vel)*4,0,.8),.035,1,(f.x>0?-1:1)*.42*(1-focus));
-  }
-  if(cur>.12){
-    const dive=cl((Z0-cur)/Z0,0,1);
-    plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.5,0,cl(Math.abs(vel)*5,0,.7)+dive*1.4,0,.66,0);
-  }
+  const dive=cl((Z0-cur)/Z0,0,1);
+  plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.5,0,cl(Math.abs(vel)*5,0,.7)+dive*.7,0,.66,0);
 }
-function camFor(p){ // smootherstep between stops = the camera lingers on each cut
-  const n=stops.length-1,s=p*n,i=Math.min(Math.floor(s),n-1),t=s-i,e=t*t*t*(t*(t*6-15)+10);
-  return stops[i]+(stops[i+1]-stops[i])*e;
-}
-function ui(r){
-  const ho=cl((cur-2.3)/.8,0,1);
+const smoother=e=>e*e*e*(e*(e*6-15)+10);
+function camFor(p){return Z0+(ZE-Z0)*smoother(cl(p/.82,0,1))}   // slow start, slow arrival
+function ui(r,p){
+  const ho=cl((cur-2.35)/.6,0,1);
   heroCopy.style.opacity=ho;heroCopy.style.transform=`translateY(${(1-ho)*-40}px)`;heroCopy.style.visibility=ho<.01?'hidden':'visible';
-  let k=-1;frames.forEach((f,i)=>{if(Math.abs(cur-(f.z+D))<.95)k=i});
-  if(k!==lastCap){caps.forEach((c,i)=>c.classList.toggle('on',i===k));lastCap=k}
-  const e=cur<frameZ[3]+D-1.3;if(e!==endOn){endCopy.classList.toggle('on',e);endOn=e}
+  flash.style.opacity=smoother(cl((p-WHITE[0])/(WHITE[1]-WHITE[0]),0,1));
   dock.classList.toggle('show',-r.top>innerHeight*.55);
-  hdr.classList.toggle('solid',r.bottom<innerHeight*.2);
+  hdr.classList.toggle('solid',r.bottom<innerHeight*.2||p>WHITE[0]);
 }
 function tick(){
   raf=0;if(!visible)return;
   const r=journey.getBoundingClientRect(),p=cl(-r.top/(r.height-innerHeight),0,1),target=camFor(p);
   vel=target-cur;const moving=vel!==0;cur+=vel*.14;if(Math.abs(vel)<.0004){cur=target;vel=0}
-  if(moving||dirty){draw();ui(r);dirty=false}
+  if(moving||dirty){draw();ui(r,p);dirty=false}
   raf=requestAnimationFrame(tick);
 }
 const jio=new IntersectionObserver(([e])=>{
@@ -134,13 +116,12 @@ const jio=new IntersectionObserver(([e])=>{
 });jio.observe(journey);
 new ResizeObserver(layout).observe(canvas);
 // GPU reset on phones: drop to the static layout instead of a blank stage
-canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');caps.forEach(c=>c.classList.remove('on'));root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');flash.removeAttribute('style');root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
 
-// Sources come from the markup: .hero-img (optional data-wide for landscape screens) and the four .cut images.
+// The hero photo comes from the markup (optional data-wide for landscape screens).
 const heroEl=$('.hero-img'),wideScreen=innerWidth/innerHeight>1.15;
-const SRC=[(wideScreen&&heroEl.dataset.wide)||heroEl.getAttribute('src'),...$$('.cut img').map(i=>i.getAttribute('src'))];
-Promise.all(SRC.map(tex)).then(([h,...fs])=>{
-  hero={t:h.t,a:h.a,x:0,y:0,z:0};frames=fs.map(f=>({t:f.t,a:f.a}));layout();
+tex((wideScreen&&heroEl.dataset.wide)||heroEl.getAttribute('src')).then(h=>{
+  hero={t:h.t,a:h.a,x:0,y:0,z:0};layout();
   root.classList.add('gl-ready');if(!raf)raf=requestAnimationFrame(tick);
 }).catch(()=>{root.classList.remove('gl');plainChrome()});
 })();

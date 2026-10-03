@@ -43,11 +43,11 @@ D.motion&&D.motion.init();
 
 /* shop: catalog -> shelf, cart, deep links */
 D.store.load().then(()=>{
-  D.shop.init();D.cart.init();
+  D.shop.init();D.cart.init();D.film&&D.film.init();
   D.router.sync();
 }).catch(err=>{
   console.warn('Darta shop unavailable',err);
-  $('#shop').hidden=true;$$('[data-cart-label]').forEach(a=>a.hidden=true);
+  $('#shop').hidden=true;if($('#film'))$('#film').hidden=true;$$('[data-cart-label]').forEach(a=>a.hidden=true);
   $$('a[href="#shop"]').forEach(a=>a.hidden=true);
 });
 })();
