@@ -121,13 +121,21 @@ section{position:relative}
 .team-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,400px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:2.5rem;padding:0 var(--g) 6px;scroll-padding:0 var(--g);scrollbar-width:none}
 .team-rail::-webkit-scrollbar{display:none}
 .mate{scroll-snap-align:start;position:relative;overflow:hidden;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);padding:1.5rem;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end}
-.mate .ini{position:absolute;top:-.12em;right:-.04em;font-family:var(--fd);font-weight:800;font-size:17rem;line-height:1;color:transparent;-webkit-text-stroke:1.5px rgba(108,192,184,.4);pointer-events:none}
-.mate.lead-mate{background:linear-gradient(160deg,#16302e,#101312 70%)}
-.mate .role{color:var(--accent);font-weight:600;font-size:.9375rem;margin-bottom:.25rem}
-.mate .h3{font-size:clamp(2.2rem,9vw,2.9rem)}
+.mate{--c:var(--accent)}
+.mate .ini{position:absolute;top:-.12em;right:-.04em;font-family:var(--fd);font-weight:800;font-size:17rem;line-height:1;color:transparent;pointer-events:none;transition:transform .7s var(--ease)}
+.mate:hover .ini{transform:translate(-8px,6px)}
+/* three equals: same size, same weight, same button; each has its own finish and a barbering texture on the initial */
+.mate.m-thomas{--c:#6cc0b8;background:linear-gradient(160deg,#16302e,#101312 70%)}
+.mate.m-thomas .ini{-webkit-text-stroke:1.5px rgba(108,192,184,.45)}                                                            /* the blade edge: outline */
+.mate.m-mattia{--c:#dcab6a;background:linear-gradient(160deg,#34250f,#14110d 70%)}
+.mate.m-mattia .ini{background:linear-gradient(180deg,rgba(220,171,106,.5),transparent 82%);-webkit-background-clip:text;background-clip:text}     /* the skin fade: solid to nothing */
+.mate.m-rrapi{--c:#b9c6d2;background:linear-gradient(160deg,#252c33,#0f1012 70%)}
+.mate.m-rrapi .ini{background:repeating-linear-gradient(135deg,rgba(185,198,210,.5) 0 7px,transparent 7px 16px);-webkit-background-clip:text;background-clip:text}   /* the barber pole: stripes */
+.mate .role{color:var(--c);font-weight:600;font-size:.9375rem;margin-bottom:.25rem}
+.mate .h3{font-size:clamp(2rem,8vw,2.5rem)}
 .mate p{color:var(--muted);margin:.6rem 0 1.25rem;max-width:32ch}
 .mate .btn{align-self:flex-start}
-@media(min-width:1100px){.team-rail{grid-auto-flow:row;grid-template-columns:1.3fr 1fr 1fr;overflow:visible;max-width:1320px;margin-left:auto;margin-right:auto}}
+@media(min-width:1100px){.team-rail{grid-auto-flow:row;grid-template-columns:repeat(3,1fr);overflow:visible;max-width:1320px;margin-left:auto;margin-right:auto}}
 
 .club-grid{display:grid;gap:3rem}
 /* loyalty card: wallet pass look, 3D tilt + sheen */
