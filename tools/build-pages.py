@@ -110,6 +110,7 @@ def page(title, desc, body_class, main, scripts, og=None, jsonld=None, preload_c
 <title>{esc(title)}</title>
 <meta name="description" content="{esc(desc)}">
 <meta name="robots" content="noindex">
+<meta name="darta-demo" content="1">
 <meta name="theme-color" content="#0b0b0a">
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">{og_img}
@@ -208,7 +209,7 @@ def shop_page():
         {'@type': 'ListItem', 'position': i + 1, 'url': f'/prodotti/{p["slug"]}', 'name': p['name']} for i, p in enumerate(PRODUCTS)]}
     return page('Shop | Darta Barber Studio, Pescara',
                 "Lo shop di Darta Barber Studio: wax powder, argilla, pomata, olio barba, sea salt spray, kit e gift card. Ritiro gratis in salone o spedizione in Italia.",
-                'page-shop', main, ['core.js', 'store.js', 'cart.js', 'motion.js', 'shop.js', 'main.js'], og=thumb(PRODUCTS[0]), jsonld=ld)
+                'page-shop', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'shop.js', 'main.js'], og=thumb(PRODUCTS[0]), jsonld=ld)
 
 
 # ---------------------------------------------------------------- product pages
@@ -274,7 +275,32 @@ def product_page(p):
           'brand': {'@type': 'Brand', 'name': 'Darta Barber Studio'},
           'offers': {'@type': 'Offer', 'priceCurrency': 'EUR', 'price': f'{unit / 100:.2f}', 'availability': 'https://schema.org/InStock', 'url': f'/prodotti/{p["slug"]}'}}
     return page(f'{p["name"]} | Shop Darta Barber Studio', f'{p["name"]}: {p["short"]} {p["desc"]}'[:300], 'page-product', main,
-                ['core.js', 'store.js', 'product-gl.js', 'cart.js', 'motion.js', 'product.js', 'main.js'], og=thumb(p), jsonld=ld)
+                ['core.js', 'store.js', 'pay.js', 'product-gl.js', 'cart.js', 'motion.js', 'product.js', 'main.js'], og=thumb(p), jsonld=ld)
+
+
+# ---------------------------------------------------------------- order confirmation (Stripe sends the customer back here)
+def order_page():
+    main = f'''<main id="top">
+  <section class="sec ord" aria-labelledby="ordTitle">
+    <div class="wrap">
+      {crumbs(('Ordine', None))}
+      <div class="done-in" id="ordBox" aria-live="polite">
+        <p class="eyebrow">/ Il tuo ordine</p>
+        <h1 class="d h2sm" id="ordTitle">Controllo il pagamento&hellip;</h1>
+        <p class="mono num" id="ordNo" hidden></p>
+        <p id="ordTxt"></p>
+        <ul class="done-list" id="ordList"></ul>
+        <div class="cta-row">
+          <a class="btn btn-p" id="ordRetry" href="/shop#carrello" hidden>Torna al carrello</a>
+          <a class="btn btn-p" href="/shop">Torna allo shop</a>
+          <a class="btn btn-g" id="ordWa" href="https://wa.me/393939031656" target="_blank" rel="noopener noreferrer">Scrivi al salone su WhatsApp</a>
+        </div>
+      </div>
+    </div>
+  </section>
+</main>'''
+    return page('Il tuo ordine | Darta Barber Studio', 'Conferma del tuo ordine su Darta Barber Studio.', 'page-order', main,
+                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'order.js', 'main.js'], preload_catalog=False)
 
 
 # ---------------------------------------------------------------- services
@@ -313,7 +339,7 @@ def services_page():
         {'@type': 'ListItem', 'position': i + 1, 'url': f'/servizi/{s["slug"]}', 'name': s['name']} for i, s in enumerate(SERVICES)]}
     return page('Servizi e listino | Darta Barber Studio, Pescara',
                 'Servizi di Darta Barber Studio: taglio uomo, skin fade, barba a lama, rasatura tradizionale, combo. Prezzi e durate, prenota dall\'app.',
-                'page-services', main, ['core.js', 'store.js', 'cart.js', 'motion.js', 'main.js'], jsonld=ld, preload_catalog=False)
+                'page-services', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'main.js'], jsonld=ld, preload_catalog=False)
 
 
 def service_page(s):
@@ -350,7 +376,7 @@ def service_page(s):
                        'address': {'@type': 'PostalAddress', 'streetAddress': 'Via Piero Gobetti 184', 'postalCode': '65129', 'addressLocality': 'Pescara', 'addressCountry': 'IT'}},
           'offers': {'@type': 'Offer', 'priceCurrency': 'EUR', 'price': f'{s["price"] / 100:.2f}'}}
     return page(f'{s["name"]} | Servizi Darta Barber Studio', f'{s["name"]}, {s["time"]}, {svc_price(s)}. {s["desc"]}'[:300], 'page-service', main,
-                ['core.js', 'store.js', 'cart.js', 'motion.js', 'main.js'], jsonld=ld, preload_catalog=False)
+                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'main.js'], jsonld=ld, preload_catalog=False)
 
 
 # ---------------------------------------------------------------- home teaser (kept in sync with the data)
@@ -370,6 +396,7 @@ def update_home_groups():
 def main():
     write('shop.html', shop_page()); print('wrote    shop.html')
     write('servizi.html', services_page()); print('wrote    servizi.html')
+    write('ordine.html', order_page()); print('wrote    ordine.html')
     for p in PRODUCTS:
         write(f'prodotti/{p["slug"]}.html', product_page(p))
     print(f'wrote    prodotti/ ({len(PRODUCTS)} pages)')
