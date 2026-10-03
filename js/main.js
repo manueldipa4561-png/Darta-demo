@@ -26,16 +26,29 @@ $$('#clubs li').forEach(li=>clubIO.observe(li));
   sheet.addEventListener('close',()=>D.lock(false));
 })();
 
-/* live opening status, Europe/Rome */
+/* live opening status, Europe/Rome: header chip (red closed / green open) and the hours block, kept current without a reload */
 (()=>{
-  const p=Object.fromEntries(new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false}).formatToParts(new Date()).map(x=>[x.type,x.value]));
-  const d=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'].indexOf(p.weekday),m=(+p.hour%24)*60+(+p.minute);
-  const openDay=d>=2&&d<=6,open=openDay&&m>=600&&m<1140,st=$('#status');
-  st.classList.toggle('open',open);
-  st.lastElementChild.textContent=open?'Aperto ora, chiude alle 19:00':(openDay&&m<600)?'Chiuso, apre oggi alle 10:00':`Chiuso, riapre ${d===6||d===0?'martedì':'domani'} alle 10:00`;
-  const li=$(`#hours li[data-d="${d}"]`);li&&li.classList.add('today');
-  // the header chip mirrors it
-  const chip=$('#hdrOpen');if(chip){chip.classList.toggle('open',open);chip.lastElementChild.textContent=open?'Aperto':'Chiuso'}
+  const fmt=new Intl.DateTimeFormat('en-GB',{timeZone:'Europe/Rome',weekday:'short',hour:'2-digit',minute:'2-digit',hour12:false});
+  const DAYS=['Sun','Mon','Tue','Wed','Thu','Fri','Sat'],OPEN=10*60,CLOSE=19*60;   // open Tuesday to Saturday, 10:00 to 19:00
+  let shownDay=-1;
+  function update(now=new Date()){
+    const p=Object.fromEntries(fmt.formatToParts(now).map(x=>[x.type,x.value]));
+    const d=DAYS.indexOf(p.weekday),m=(+p.hour%24)*60+(+p.minute);
+    const openDay=d>=2&&d<=6,open=openDay&&m>=OPEN&&m<CLOSE;
+    const txt=open?'Aperto ora, chiude alle 19:00':(openDay&&m<OPEN)?'Chiuso, apre oggi alle 10:00':`Chiuso, riapre ${d===6||d===0?'martedì':'domani'} alle 10:00`;
+    const st=$('#status'),chip=$('#hdrOpen');
+    if(st){st.classList.toggle('open',open);st.lastElementChild.textContent=txt}
+    if(chip){chip.classList.toggle('open',open);chip.lastElementChild.textContent=open?'Aperto':'Chiuso';chip.title=txt}
+    if(d!==shownDay){                                   // new day: move the "oggi" marker in the hours list
+      $$('#hours li.today').forEach(li=>li.classList.remove('today'));
+      const li=$(`#hours li[data-d="${d}"]`);li&&li.classList.add('today');shownDay=d;
+    }
+  }
+  update();
+  setInterval(update,20000);                              // flips at 10:00 and 19:00 by itself
+  document.addEventListener('visibilitychange',()=>{if(!document.hidden)update()});   // timers sleep in background tabs: catch up on return
+  addEventListener('pageshow',()=>update());
+  D.openStatus=update;                                    // update(date) lets tests check any moment
 })();
 
 /* motion layer */
