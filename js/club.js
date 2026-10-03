@@ -39,7 +39,31 @@ const D=window.DARTA,{$}=D;
     if(s.n===10){lc.classList.remove('full');void lc.offsetWidth;lc.classList.add('full')}
     navigator.vibrate&&navigator.vibrate(s.n===10?[30,40,60]:18);
   };
-  $('#walletBtn').onclick=()=>D.toast('Demo: qui la tessera si aggiunge ad Apple o Google Wallet.');
+  // wallet: the server says which wallets are on; none yet = the demo message
+  const wb=$('#walletBtn'),pick=$('#walletPick'),wbText=wb.textContent;
+  async function addToWallet(which){
+    if(pick)pick.hidden=true;
+    wb.disabled=true;wb.textContent='Preparo la tessera…';
+    try{
+      const made=await D.wallet.create({name:s.name,finish:s.f,icon:s.ic,barber:s.b,stamps:s.n});
+      const url=made[which];
+      if(typeof url!=='string'||!D.wallet.links[which].test(url))throw new Error('no link');
+      location.href=url;                       // iPhone: the Add to Wallet sheet; Android: Google's save page
+    }catch(e){D.toast(D.wallet.message(e))}
+    finally{wb.disabled=false;wb.textContent=wbText}
+  }
+  wb.onclick=async()=>{
+    const av=D.wallet&&await D.wallet.availability();
+    if(!av||(!av.apple&&!av.google))return D.toast('Demo: qui la tessera si aggiunge ad Apple o Google Wallet.');
+    const which=D.wallet.choose(av,D.wallet.platform());
+    if(which)return addToWallet(which);
+    if(!pick||!wa||!wg)return D.toast('Apri la pagina aggiornata per aggiungere la tessera.');
+    wa.hidden=!av.apple;wg.hidden=!av.google;pick.hidden=false;   // both on and we cannot tell the phone: let the visitor pick
+  };
+  const wa=$('#walletApple'),wg=$('#walletGoogle');
+  if(wa)wa.onclick=()=>addToWallet('apple');
+  if(wg)wg.onclick=()=>addToWallet('google');
+  addEventListener('pageshow',e=>{if(e.persisted){wb.disabled=false;wb.textContent=wbText}});   // Back from the wallet page
   // tilt: pointer on desktop, drag on touch (vertical scroll stays native)
   if(!matchMedia('(prefers-reduced-motion: reduce)').matches){
     const set=(x,y)=>{lc.style.setProperty('--ry',(x-.5)*22+'deg');lc.style.setProperty('--rx',(.5-y)*18+'deg');lc.style.setProperty('--mx',x*100+'%');lc.style.setProperty('--my',y*100+'%')};
