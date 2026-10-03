@@ -2,7 +2,7 @@
    Falls back to the plain photo when WebGL is off. */
 (()=>{
 'use strict';
-const {$,$$}=window.DARTA;
+const {$,$$}=window.DARTA,lite=window.DARTA.lite||(()=>false);   // lite: phone-class device (older core.js may not have it yet)
 const root=document.documentElement,hdr=$('#hdr'),dock=$('#dock'),journey=$('#journey');
 /* header + dock without GL */
 function plainChrome(){
@@ -44,7 +44,7 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ELEMEN
 const aP=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,2,gl.FLOAT,false,0,0);
 gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(11/255,11/255,10/255,1);gl.uniform1i(U.uT,0);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
 
-const ANISO=gl.getExtension('EXT_texture_filter_anisotropic'),MAXTEX=Math.min(2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));
+const ANISO=gl.getExtension('EXT_texture_filter_anisotropic'),MAXTEX=Math.min(lite()?1024:2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));   // phones: a 1024 texture is plenty and a quarter of the memory
 const potNear=n=>Math.pow(2,Math.round(Math.log2(Math.max(2,n))));
 // Photos are resampled once to a power-of-two canvas so the GPU can build mipmaps: big uploads then shrink cleanly
 // (no shimmer) and small ones are not sharpened by accident. UVs are normalised, so the stretch is invisible.
@@ -72,7 +72,7 @@ const heroCopy=$('#heroCopy'),flash=$('#flash')||document.createElement('div'); 
 
 function layout(){
   const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
-  const A=W/H,dpr=Math.min(devicePixelRatio||1,2); // native sharpness on retina screens, capped at 2x for phones
+  const A=W/H,dpr=Math.min(devicePixelRatio||1,lite()?1.5:2); // native sharpness on retina screens, lighter on phones
   canvas.width=Math.round(W*dpr);canvas.height=Math.round(H*dpr);gl.viewport(0,0,canvas.width,canvas.height);
   ASP=A;P=persp(FOV,A,.05,60);
   if(hero){hero.h=2*Z0*TAN*1.08;hero.w=hero.h*A}
@@ -118,10 +118,16 @@ new ResizeObserver(layout).observe(canvas);
 // GPU reset on phones: drop to the static layout instead of a blank stage
 canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');flash.removeAttribute('style');root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
 
-// The hero photo comes from the markup (optional data-wide for landscape screens).
+// The hero photo comes from the markup (srcset picks the phone-sized file on small screens; data-wide is optional for landscape).
+// Safety net: if the 3D hero is not up within 7 s, drop to the plain photo instead of leaving a dark screen.
 const heroEl=$('.hero-img'),wideScreen=innerWidth/innerHeight>1.15;
-tex((wideScreen&&heroEl.dataset.wide)||heroEl.getAttribute('src')).then(h=>{
+let gaveUp=false;
+const giveUp=()=>{gaveUp=true;jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;root.classList.remove('gl','gl-ready');heroCopy.removeAttribute('style');flash.removeAttribute('style');plainChrome()};
+setTimeout(()=>{if(!root.classList.contains('gl-ready')&&!gaveUp)giveUp()},7000);
+const heroReady=heroEl.complete?Promise.resolve():new Promise(r=>{heroEl.addEventListener('load',r,{once:true});heroEl.addEventListener('error',r,{once:true})});
+heroReady.then(()=>tex((wideScreen&&heroEl.dataset.wide)||heroEl.currentSrc||heroEl.getAttribute('src'))).then(h=>{
+  if(gaveUp)return;
   hero={t:h.t,a:h.a,x:0,y:0,z:0};layout();
   root.classList.add('gl-ready');if(!raf)raf=requestAnimationFrame(tick);
-}).catch(()=>{root.classList.remove('gl');plainChrome()});
+}).catch(()=>{if(!gaveUp)giveUp()});
 })();

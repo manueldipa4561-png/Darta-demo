@@ -8,6 +8,8 @@ D.$=(s,r=document)=>r.querySelector(s);
 D.$$=(s,r=document)=>[...r.querySelectorAll(s)];
 D.reduce=()=>mq.matches;
 D.cl=(v,a,b)=>Math.max(a,Math.min(b,v));
+// phone-class device: touch screen or small window. Heavy visuals scale down (texture size, pixel ratio, particle count)
+D.lite=()=>/[?&]lite\b/.test(location.search)||matchMedia('(pointer:coarse)').matches||Math.min(innerWidth,innerHeight)<700;   // ?lite forces it, for testing
 D.A=window.anime||null; // anime.js v4 (vendored), null-safe: every caller falls back to CSS
 
 // reveal-on-scroll: add class "rv" in markup, or call D.reveal(el) for nodes created later

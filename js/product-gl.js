@@ -357,10 +357,10 @@ function fxInit(){
   }
 }
 // fills out (7 floats per live point: x y z size alpha shade pad); mist first, then grains. Returns [mistCount, grainCount]
-function fxFill(t,out){
+function fxFill(t,out,q=1){
   fxInit();
-  const {N,M,T,K,G,FLOOR}=FX,fade=1-seg(t,.88,.98);let k=0,nm=0;
-  for(let i=0;i<N+M;i++){
+  const {N,M,T,K,G,FLOOR}=FX,fade=1-seg(t,.88,.98),lim=M+Math.floor(N*q);let k=0,nm=0;   // q<1 (phones): fewer grains, same cloud
+  for(let i=0;i<lim;i++){
     const age=(t-FX.te[i])*T;
     if(age<=0||fade<=0||age>FX.life[i])continue;
     const mist=i<M,e=1-Math.exp(-K*age),f=(age-e/K)*G/K,w=Math.sin(age*3+FX.sh[i]*6)*.015*e;
@@ -446,7 +446,7 @@ function bindGeo(g){
 }
 const TINT={light:{col:[.98,.98,.97],shade:[.4,.44,.49]},dark:{col:[.96,.95,.92],shade:[.66,.68,.68]}};
 function drawFx(fx,VP,fov){
-  const gl=R.gl,P=R.PU,arr=R.parr,[nm,ng]=fxFill(fx.t,arr),tint=TINT[fx.tint]||TINT.light;
+  const gl=R.gl,P=R.PU,arr=R.parr,[nm,ng]=fxFill(fx.t,arr,fx.q),tint=TINT[fx.tint]||TINT.light;
   if(nm+ng<=0)return;
   gl.useProgram(R.pp);
   gl.bindBuffer(gl.ARRAY_BUFFER,R.pbuf);gl.bufferData(gl.ARRAY_BUFFER,arr.subarray(0,(nm+ng)*7),gl.DYNAMIC_DRAW);
