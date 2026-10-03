@@ -1,5 +1,5 @@
-/* Darta journey: raw-WebGL hero. The camera dives into the salon sign, then the screen whites out into the Wax Powder film.
-   Falls back to the plain photo when WebGL is off. */
+/* Darta journey: raw-WebGL hero. The camera dives into the salon sign, and the sign dissolves into the shop scene (js/shopintro.js)
+   that sits underneath the same pinned stage. Falls back to the plain photo when WebGL is off. */
 (()=>{
 'use strict';
 const {$,$$}=window.DARTA,lite=window.DARTA.lite||(()=>false);   // lite: phone-class device (older core.js may not have it yet)
@@ -66,9 +66,9 @@ function model(x,y,z,ry,sx,sy){const c=Math.cos(ry),s=Math.sin(ry);return new Fl
 const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 // scene: the hero sign plane at z=0; the camera starts back at Z0 and dives toward it
-const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),Z0=3.2,ZE=1.1,WHITE=[.7,.96];   // WHITE: scroll range of the white-out
+const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),Z0=3.2,ZE=1.1,J=window.DARTA.J||{hero:.26,scene:.12};
 let ASP=1,dirty=true,P,hero=null,cur=Z0,vel=0,raf=0,visible=true;
-const heroCopy=$('#heroCopy'),flash=$('#flash')||document.createElement('div');   // fallback node: older markup has no white-out layer
+const heroCopy=$('#heroCopy');
 
 function layout(){
   const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
@@ -89,19 +89,20 @@ function plane(o,alpha,sat,bend,wave,rad,dark,ry){
   gl.bindTexture(gl.TEXTURE_2D,o.t);gl.drawElements(gl.TRIANGLES,idx.length,gl.UNSIGNED_SHORT,0);
 }
 function draw(){
-  if(!hero||!P)return;
+  if(!hero||!P||canvas.style.opacity!==''&&+canvas.style.opacity<.01)return;   // fully dissolved: nothing to paint
   gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform1f(U.uTm,performance.now()/1000);
   const dive=cl((Z0-cur)/Z0,0,1);
   plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.5,0,cl(Math.abs(vel)*5,0,.7)+dive*.7,0,.66,0);
 }
 const smoother=e=>e*e*e*(e*(e*6-15)+10);
-function camFor(p){return Z0+(ZE-Z0)*smoother(cl(p/.82,0,1))}   // slow start, slow arrival
+function camFor(p){return Z0+(ZE-Z0)*smoother(cl(p/J.hero,0,1))}   // slow start, slow arrival
 function ui(r,p){
   const ho=cl((cur-2.35)/.6,0,1);
   heroCopy.style.opacity=ho;heroCopy.style.transform=`translateY(${(1-ho)*-40}px)`;heroCopy.style.visibility=ho<.01?'hidden':'visible';
-  flash.style.opacity=smoother(cl((p-WHITE[0])/(WHITE[1]-WHITE[0]),0,1));
+  // the sign fades out while the shop scene fades in underneath: one continuous move, no flash
+  canvas.style.opacity=(1-smoother(cl((p/J.hero-.55)/.45,0,1))).toFixed(3);
   dock.classList.toggle('show',-r.top>innerHeight*.55);
-  hdr.classList.toggle('solid',r.bottom<innerHeight*.2||p>WHITE[0]);
+  hdr.classList.toggle('solid',r.bottom<innerHeight*.2);
 }
 function tick(){
   raf=0;if(!visible)return;
@@ -116,13 +117,14 @@ const jio=new IntersectionObserver(([e])=>{
 });jio.observe(journey);
 new ResizeObserver(layout).observe(canvas);
 // GPU reset on phones: drop to the static layout instead of a blank stage
-canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');flash.removeAttribute('style');root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
+canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
 
 // The hero photo comes from the markup (srcset picks the phone-sized file on small screens; data-wide is optional for landscape).
 // Safety net: if the 3D hero is not up within 7 s, drop to the plain photo instead of leaving a dark screen.
 const heroEl=$('.hero-img'),wideScreen=innerWidth/innerHeight>1.15;
 let gaveUp=false;
-const giveUp=()=>{gaveUp=true;jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;root.classList.remove('gl','gl-ready');heroCopy.removeAttribute('style');flash.removeAttribute('style');plainChrome()};
+const giveUp=()=>{if(gaveUp)return;gaveUp=true;jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;root.classList.remove('gl','gl-ready');heroCopy.removeAttribute('style');plainChrome()};
+window.DARTA.heroOff=giveUp;   // the shop scene calls this if its own 3D fails, so the page falls back to the plain layout as a whole
 setTimeout(()=>{if(!root.classList.contains('gl-ready')&&!gaveUp)giveUp()},7000);
 const heroReady=heroEl.complete?Promise.resolve():new Promise(r=>{heroEl.addEventListener('load',r,{once:true});heroEl.addEventListener('error',r,{once:true})});
 heroReady.then(()=>tex((wideScreen&&heroEl.dataset.wide)||heroEl.currentSrc||heroEl.getAttribute('src'))).then(h=>{

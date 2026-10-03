@@ -16,9 +16,10 @@ $$('#clubs li').forEach(li=>clubIO.observe(li));
   if(/Android/.test(navigator.userAgent)){const a=$('[data-os=android]'),i=$('[data-os=ios]');a.className='btn btn-p';i.className='btn btn-g';i.before(a)}
   const defTxt=$('#shTxt').textContent;
   $$('[data-book]').forEach(b=>b.addEventListener('click',()=>{
-    const who=b.dataset.who,t=$('#shTxt');
-    t.textContent=who?"Nell'app scegli il servizio, poi ":defTxt;
+    const who=b.dataset.who,service=b.dataset.service,t=$('#shTxt');
+    t.textContent=who?"Nell'app scegli il servizio, poi ":service?"Nell'app scegli ":defTxt;
     if(who){const w=document.createElement('b');w.textContent=who;t.append(w," come barber e l'orario che preferisci.")}
+    if(service){const s=document.createElement('b');s.textContent=service;t.append(s," e il barber con l'orario che preferisci.")}
     sheet.showModal();D.lock(true);
   }));
   $('#shClose').onclick=()=>sheet.close();
@@ -54,13 +55,14 @@ $$('#clubs li').forEach(li=>clubIO.observe(li));
 /* motion layer */
 D.motion&&D.motion.init();
 
-/* shop: catalog -> shelf, cart, deep links */
+/* catalog: shop page behaviours, product page, cart, and the home shop intro, whichever of them this page has */
 D.store.load().then(()=>{
-  D.shop.init();D.cart.init();D.film&&D.film.init();
+  D.shop&&D.shop.init();D.product&&D.product.init();D.cart.init();D.shopIntro&&D.shopIntro.init();
   D.router.sync();
 }).catch(err=>{
   console.warn('Darta shop unavailable',err);
-  $('#shop').hidden=true;if($('#film'))$('#film').hidden=true;$$('[data-cart-label]').forEach(a=>a.hidden=true);
-  $$('a[href="#shop"]').forEach(a=>a.hidden=true);
+  $$('[data-cart-label]').forEach(a=>a.hidden=true);
+  const add=$('#ppAdd');if(add)add.disabled=true;
+  $$('.pcard-add').forEach(b=>{b.hidden=true});
 });
 })();

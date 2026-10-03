@@ -7,7 +7,7 @@ D.store={
   catalog:null,byId:Object.create(null),bySlug:Object.create(null),lines:[],coupon:'',mode:'pickup',ls:new Set(),
 
   async load(){
-    const res=await fetch('data/catalog.json');
+    const res=await fetch('/data/catalog.json');
     if(!res.ok)throw new Error('catalog '+res.status);
     this.catalog=await res.json();
     this.catalog.coupons=Object.assign(Object.create(null),this.catalog.coupons);   // no prototype keys as coupon codes

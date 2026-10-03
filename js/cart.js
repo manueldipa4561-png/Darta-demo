@@ -29,19 +29,13 @@ function fly(from,btn,url){
 }
 
 /* ---------- drawer ---------- */
-function thumb(p){const u=D.shop&&D.shop.snap(p.id);return el('img',u?{src:u,alt:'',width:72,height:72}:{alt:'',width:72,height:72,class:'nosnap'})}
-function thumbs(){                       // late snapshots: set the missing images, leave everything else (focus, typing) alone
-  $$('#lines .line').forEach(li=>{
-    const img=li.querySelector('img.nosnap'),l=S.lines.find(x=>x.k===li.dataset.k),u=l&&D.shop.snap(l.id);
-    if(img&&u){img.src=u;img.classList.remove('nosnap')}
-  });
-}
+function thumb(p){return el('img',{src:D.url.thumb(p),alt:'',width:72,height:72})}
 function lineEl(x){
   const {l,p,unit}=x,k=l.k,name=S.lineLabel(p,l.v);
   return el('li',{class:'line','data-k':k},
-    el('div',{class:'line-img'},thumb(p)),
+    el('a',{class:'line-img',href:D.url.product(p),'aria-hidden':'true',tabindex:'-1'},thumb(p)),
     el('div',{class:'line-main'},
-      el('b',{text:name}),
+      el('b',{},el('a',{href:D.url.product(p),text:name})),
       el('span',{text:p.recurring?'Abbonamento mensile':p.tag+' · '+p.size}),
       el('div',{class:'qty','role':'group','aria-label':`Quantità ${name}`},
         el('button',{type:'button','data-act':'dec','aria-label':`Meno ${name}`},icon('s-minus')),
@@ -88,14 +82,14 @@ function openCart(){
   if(D.cancelClose(dlg)){render();return}                          // reopened during its exit animation
   if(dlg.open)return;
   if(justOrdered&&D.router.nav&&!S.lines.length){D.router.reset();return}   // Back after an order
-  dlg.showModal();D.lock(true);render();D.shop.warm();
+  dlg.showModal();D.lock(true);render();
   if(D.A&&!D.reduce()&&S.lines.length)D.A.animate('#lines .line',{opacity:[0,1],x:[28,0],duration:560,delay:D.A.stagger(60,{start:120}),ease:'outExpo'});
 }
 function closeCart(){D.closeDialog($('#cart'))}
 function bindCart(){
   D.dialogEvents($('#cart'));
   $('#cartClose').addEventListener('click',()=>D.router.back());
-  $('#cartShop').addEventListener('click',()=>{D.router.back();setTimeout(()=>$('#shop').scrollIntoView({behavior:D.reduce()?'auto':'smooth'}),60)});
+  $('#cartShop').addEventListener('click',()=>{location.href='/shop'});
   $('#lines').addEventListener('click',e=>{
     const b=e.target.closest('button[data-act]');if(!b)return;
     const k=b.closest('.line').dataset.k,l=S.lines.find(x=>x.k===k);if(!l)return;
@@ -215,6 +209,6 @@ function bindCheckout(){
 
 D.cart={
   init(){bindCart();bindCheckout();S.on(()=>{if(S.lines.length)justOrdered=false;render()});render()},
-  fly,bump,render,thumbs
+  fly,bump,render
 };
 })();

@@ -90,8 +90,8 @@ precision highp float;
 precision mediump float;
 #endif
 varying vec3 vW;varying vec3 vN;varying vec2 vU;varying vec3 vL;
-uniform vec3 uCam,uBase,uRim;
-uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uTime,uHasT,uShA,uAmb;
+uniform vec3 uCam,uBase,uRim,uShCol;
+uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uShMode,uDim,uTime,uHasT,uShA,uAmb;
 uniform vec4 uDecal;
 uniform sampler2D uT;
 vec3 studio(vec3 R,float rough){
@@ -111,7 +111,7 @@ vec3 studio(vec3 R,float rough){
 }
 vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
 void main(){
-  if(uShadow>.5){float d=length(vU-.5)*2.;float a=smoothstep(1.,.05,d);a*=a*.62*uShA;gl_FragColor=vec4(0.,0.,0.,a);return;}
+  if(uShadow>.5){float d=length(vU-.5)*2.;float a=smoothstep(1.,.05,d);a*=a*.62*uShA;gl_FragColor=uShMode>.5?vec4(uShCol*a,0.):vec4(0.,0.,0.,a);return;}   // uShMode 1: additive pool of light instead of a shadow
   vec3 N=normalize(vN),V=normalize(uCam-vW);
   float front=step(0.,dot(N,V));
   if(uKnurl>0.){vec3 T=normalize(vec3(-N.z,0.,N.x));N=normalize(N+T*sin(vU.x*6.28318*uKnurl)*.13*(1.-smoothstep(.04,.16,abs(N.y))));}
@@ -145,7 +145,7 @@ void main(){
     vec3 g=core*a+spec*mix(1.,.8,filled);
     float al=clamp(a+max(max(spec.r,spec.g),spec.b),0.,1.);
     g=aces(g*1.05);
-    gl_FragColor=vec4(pow(g,vec3(1./2.2))*al,al);
+    gl_FragColor=vec4(pow(g,vec3(1./2.2))*al*uDim,al);
     return;
   }
   vec3 Ld=normalize(vec3(-.5,.7,.6));
@@ -153,7 +153,7 @@ void main(){
   vec3 dif=base*(1.-metal)*(vec3(.075,.085,.09)+dl*vec3(.95,.92,.86)*.78+studio(N,1.)*.22);
   vec3 col=dif+spec+uRim*pow(1.-ndv,3.)*.22;
   col=aces(col*1.05);
-  gl_FragColor=vec4(pow(col,vec3(1./2.2)),1.);
+  gl_FragColor=vec4(pow(col,vec3(1./2.2))*uDim,1.);
 }`;
 
 /* powder grains + mist: one soft point sprite per particle, positions computed on the CPU each frame */
@@ -167,7 +167,7 @@ gl_FragColor=vec4(col*a,a);}`;
 
 /* ---------- label textures ---------- */
 const LOGO=new Image();let logoP=null;   // the script logo is printed on the Wax Powder bottle
-const logoReady=()=>logoP||(logoP=new Promise(r=>{LOGO.onload=LOGO.onerror=()=>r();LOGO.src='img/logo.png'}));
+const logoReady=()=>logoP||(logoP=new Promise(r=>{LOGO.onload=LOGO.onerror=()=>r();LOGO.src='/img/logo.png'}));
 const fontOK=()=>{
   const f=document.fonts&&document.fonts.load?Promise.all([document.fonts.load('800 80px "Barlow Condensed"'),document.fonts.load('italic 800 80px "Barlow Condensed"'),document.fonts.load('500 30px Barlow'),document.fonts.load('600 34px Barlow')]).catch(()=>{}):Promise.resolve();
   return Promise.all([f,logoReady()]).then(()=>{});
@@ -394,7 +394,7 @@ function init(){
     if(!gl)return false;
     const pr=link(gl,VS,FS,['aP','aN','aU']),pp=link(gl,PVS,PFS,['aP','aA']);
     gl.useProgram(pr);R.gl=gl;R.prog=pr;R.pp=pp;R.geo=nul();R.tex=nul();R.specs=nul();R.dead=false;
-    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uShA','uAmb','uTime','uHasT','uDecal','uT'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
+    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uShMode','uShCol','uDim','uShA','uAmb','uTime','uHasT','uDecal','uT'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
     ['uVP','uScale','uMaxPt','uCol','uShade','uSoft'].forEach(k=>R.PU[k]=gl.getUniformLocation(pp,k));
     R.pbuf=gl.createBuffer();R.maxPt=gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1]||64;
     ['aP','aN','aU'].forEach((k,i)=>{R.A[k]=i;gl.enableVertexAttribArray(i)});
@@ -458,6 +458,27 @@ function drawFx(fx,VP,fov){
   if(ng){gl.uniform1f(P.uSoft,.55);gl.drawArrays(gl.POINTS,nm,ng)}
   gl.depthMask(true);gl.useProgram(R.prog);
 }
+// draws every part of one product: base = where it stands (placement + yaw), P = optional animated groups, dim = spotlight brightness
+function drawParts(p,spec,base,P,amount,dim){
+  const gl=R.gl,U=R.U;
+  gl.uniform3fv(U.uRim,spec.rim);gl.uniform1f(U.uDim,dim);
+  const draw=pt=>{
+    const g=geo(pt.g);bindGeo(g);
+    const rm=m4.mul(m4.Ry(pt.rot[1]),m4.mul(m4.Rx(pt.rot[0]),m4.Rz(pt.rot[2])));
+    let M=m4.mul(m4.T(pt.pos[0],pt.pos[1],pt.pos[2]),m4.mul(rm,m4.S(pt.s)));
+    if(P)M=m4.mul(pt.role==='cap'?P.cap:P.body,M);       // animated groups move as one piece
+    M=m4.mul(base,M);
+    gl.uniformMatrix4fv(U.uM,false,M);
+    gl.uniform3fv(U.uBase,pt.col);gl.uniform1f(U.uRough,pt.rough);gl.uniform1f(U.uMetal,pt.metal);
+    gl.uniform1f(U.uAmb,pt.amb||0);gl.uniform1f(U.uKnurl,pt.knurl||0);gl.uniform1f(U.uGlass,pt.glass?1:0);gl.uniform1f(U.uLiquid,pt.liquid||0);gl.uniform1f(U.uHolo,pt.holo||0);
+    const t=partTex(pt,p,amount);
+    if(t){gl.bindTexture(gl.TEXTURE_2D,t);gl.uniform1f(U.uHasT,pt.tf||1);const d=pt.decal||[0,1,0,1];gl.uniform4fv(U.uDecal,d)}
+    else gl.uniform1f(U.uHasT,0);
+    gl.drawElements(gl.TRIANGLES,g.n,gl.UNSIGNED_SHORT,0);
+  };
+  spec.parts.filter(q=>!q.glass).forEach(draw);
+  gl.depthMask(false);spec.parts.filter(q=>q.glass).forEach(draw);gl.depthMask(true);
+}
 // opts: yaw, pitch, amount (gift card), time (s, drives the idle float), pose {t}, fx {t,tint}, cam {dist,ty} (overrides the fitted camera)
 function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null}={}){
   const gl=R.gl,spec=specFor(p),w=R.canvas.width,h=R.canvas.height,U=R.U;
@@ -480,25 +501,35 @@ function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null}={})
     gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0);
   });
   gl.uniform1f(U.uShA,1);gl.depthMask(true);gl.uniform1f(U.uShadow,0);
-  const draw=pt=>{
-    const g=geo(pt.g);bindGeo(g);
-    const rm=m4.mul(m4.Ry(pt.rot[1]),m4.mul(m4.Rx(pt.rot[0]),m4.Rz(pt.rot[2])));
-    let M=m4.mul(m4.T(pt.pos[0],pt.pos[1],pt.pos[2]),m4.mul(rm,m4.S(pt.s)));
-    if(P)M=m4.mul(pt.role==='cap'?P.cap:P.body,M);       // animated groups move as one piece
-    M=m4.mul(m4.Ry(yaw),M);
-    gl.uniformMatrix4fv(U.uM,false,M);
-    gl.uniform3fv(U.uBase,pt.col);gl.uniform1f(U.uRough,pt.rough);gl.uniform1f(U.uMetal,pt.metal);
-    gl.uniform1f(U.uAmb,pt.amb||0);gl.uniform1f(U.uKnurl,pt.knurl||0);gl.uniform1f(U.uGlass,pt.glass?1:0);gl.uniform1f(U.uLiquid,pt.liquid||0);gl.uniform1f(U.uHolo,pt.holo||0);
-    const t=partTex(pt,p,amount);
-    if(t){gl.bindTexture(gl.TEXTURE_2D,t);gl.uniform1f(U.uHasT,pt.tf||1);const d=pt.decal||[0,1,0,1];gl.uniform4fv(U.uDecal,d)}
-    else gl.uniform1f(U.uHasT,0);
-    gl.drawElements(gl.TRIANGLES,g.n,gl.UNSIGNED_SHORT,0);
-  };
-  spec.parts.filter(q=>!q.glass).forEach(draw);
-  gl.depthMask(false);spec.parts.filter(q=>q.glass).forEach(draw);gl.depthMask(true);
+  drawParts(p,spec,m4.Ry(yaw),P,amount,1);
   if(fx&&P&&P.mouth){ // the powder is drawn in the world frame, yawed with the product
     drawFx(fx,m4.mul(VP,m4.Ry(yaw)),fov);
   }
+}
+
+// A row of products in one frame (the home shop intro). items: [{p, x, y, z, yaw, s, dim, glow, lift}]; cam: {x, y, dist, pitch}.
+// dim is the spotlight brightness, glow the strength of the light pool on the floor, lift how far the product floats (shadow fades with it).
+function scene(items,{time=0,cam={},glowCol=[.42,.75,.72]}={}){
+  const gl=R.gl,w=R.canvas.width,h=R.canvas.height,U=R.U;
+  gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
+  const asp=w/h,fov=.5,pt=cam.pitch==null?.1:cam.pitch,dist=cam.dist||9,cx=cam.x||0,cy=cam.y==null?.7:cam.y;
+  const eye=[cx,cy+Math.sin(pt)*dist,Math.cos(pt)*dist];
+  gl.useProgram(R.prog);
+  gl.uniformMatrix4fv(U.uVP,false,m4.mul(m4.persp(fov,asp,.1,120),m4.look(eye,[cx,cy,0],[0,1,0])));gl.uniform3fv(U.uCam,eye);gl.uniform1f(U.uTime,time);
+  const place=it=>m4.mul(m4.T(it.x,it.y||0,it.z||0),m4.mul(m4.Ry(it.yaw||0),m4.S(it.s||1)));
+  // light pools and contact shadows first (no depth write; products draw over them)
+  gl.depthMask(false);gl.uniform1f(U.uShadow,1);gl.uniform1f(U.uHasT,0);bindGeo(geo('quad'));
+  items.forEach(it=>{
+    const spec=specFor(it.p),floor=m4.mul(m4.T(it.x,0,it.z||0),m4.mul(m4.Ry(it.yaw||0),m4.S(it.s||1))),lift=cl(it.lift||0,0,1);
+    if(it.glow>0){
+      gl.uniform1f(U.uShMode,1);gl.uniform3fv(U.uShCol,glowCol);gl.uniform1f(U.uShA,it.glow);
+      gl.uniformMatrix4fv(U.uM,false,m4.mul(floor,m4.mul(m4.T(0,.002,0),m4.S(3.4))));gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0);
+    }
+    gl.uniform1f(U.uShMode,0);gl.uniform1f(U.uShA,(1-.7*lift)*(it.dim==null?1:Math.max(.3,it.dim)));
+    spec.shadows.forEach(s=>{gl.uniformMatrix4fv(U.uM,false,m4.mul(floor,m4.mul(m4.T(s.pos[0],.004,s.pos[2]),m4.S(s.size*(1+.25*lift)))));gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0)});
+  });
+  gl.uniform1f(U.uShMode,0);gl.uniform1f(U.uShA,1);gl.uniform1f(U.uShadow,0);gl.depthMask(true);
+  items.forEach(it=>drawParts(it.p,specFor(it.p),place(it),null,0,it.dim==null?1:it.dim));
 }
 
 /* ---------- public: snapshots ---------- */
@@ -510,7 +541,7 @@ async function snapshot(p,opts={}){
   setSize(size,size);
   frame(p,{yaw:opts.yaw??-.34,pitch:opts.pitch??.2,amount:opts.amount,pose:opts.pose||null,fx:opts.fx||null});
   let url=null;
-  try{url=R.canvas.toDataURL('image/webp',.92)}catch(e){/* tainted or lost canvas: caller shows the fallback */}
+  try{url=R.canvas.toDataURL('image/webp',opts.quality||.92)}catch(e){/* tainted or lost canvas: caller shows the fallback */}
   if(Viewer.p)Viewer.size(); // a live viewer shares this canvas: restore its size
   return url;
 }
@@ -589,7 +620,7 @@ const Viewer={
 };
 
 let SUP=null; // probing creates a context: do it once, contexts are a scarce page-wide resource
-return {init,setCatalog,snapshot,viewer:Viewer,frame,specFor,canvas:()=>R.canvas,setSize,dead:()=>R.dead,
+return {init,setCatalog,snapshot,viewer:Viewer,frame,scene,specFor,canvas:()=>R.canvas,setSize,dead:()=>R.dead,
   supported:()=>{if(SUP===null){try{const g=document.createElement('canvas').getContext('webgl');SUP=!!g;const l=g&&g.getExtension('WEBGL_lose_context');if(l)l.loseContext()}catch(e){SUP=false}}return SUP},   // supported(): probe once, then release the probe context
   fontsReady:fontOK};
 }

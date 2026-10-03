@@ -75,26 +75,32 @@ D.toast=(msg,action)=>{
   clearTimeout(t._t);t._t=setTimeout(()=>t.classList.remove('show'),action?4200:2600);
 };
 
-// history-aware routes: #prodotto/<slug>, #carrello, #checkout
+// history-aware routes: #carrello and #checkout open over whatever page you are on (products and services are real pages)
 D.router={
   routes:{},
   reg(name,r){this.routes[name]=r},
-  parse(){                          // '#prodotto/<slug>' | '#carrello' | '#checkout'; the slug may only hold [A-Za-z0-9_-]
+  parse(){                          // '#carrello' | '#checkout'
     const h=location.hash.slice(1),i=h.indexOf('/'),name=i<0?h:h.slice(0,i),arg=i<0?'':h.slice(i+1);
-    return (name==='prodotto'||name==='carrello'||name==='checkout')&&/^[\w-]*$/.test(arg)?{name,arg}:null;
+    return (name==='carrello'||name==='checkout')&&/^[\w-]*$/.test(arg)?{name,arg}:null;
   },
   go(h){if(location.hash!==h)history.pushState({dr:1},'',h);this.sync()},
   back(){
     if(history.state&&history.state.dr){history.back();return}
     this.reset();
   },
-  reset(){history.replaceState(null,'','#shop');this.sync();const s=document.getElementById('shop');s&&s.scrollIntoView({behavior:'instant'})},
+  reset(){history.replaceState(null,'',location.pathname+location.search);this.sync()},
   sync(){
     const r=this.parse();
     for(const k in this.routes){const x=this.routes[k];if((!r||r.name!==k)&&x.isOpen())x.close()}
     if(r&&this.routes[r.name])this.routes[r.name].open(r.arg);
   }
 };
+// home journey timeline (fractions of the pinned scroll): the dive into the sign takes [0, hero]; the shop scene starts to fade in at `scene`
+D.J={hero:.26,scene:.12};
+// where things live
+D.url={product:p=>'/prodotti/'+p.slug,service:s=>'/servizi/'+s.slug,thumb:(p,w='a')=>'/img/p/'+p.slug+'-'+w+'.webp'};
+// old shared links (#prodotto/<slug>) now have their own page
+{const old=/^#prodotto\/([\w-]{1,40})$/.exec(location.hash);if(old)location.replace('/prodotti/'+old[1])}
 // Back/Forward fire both events; sync() is idempotent and flags the pass as a history traversal
 const nav=()=>{D.router.nav=true;D.router.sync();D.router.nav=false};
 addEventListener('popstate',nav);
