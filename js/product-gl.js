@@ -556,7 +556,7 @@ const Viewer={
     this.p=p;this.host=host;this.amount=opts.amount||0;this.yaw=opts.yaw??-.5;this.pitch=.2;this.vy=0;this.vp=0;this.idleAt=performance.now();this.anim=null;
     const c=R.canvas;
     c.className='pv-canvas';c.setAttribute('role','img');c.setAttribute('tabindex','0');
-    c.setAttribute('aria-label',`Visualizzatore 3D: ${p.name}. Trascina o usa le frecce per ruotare.`);
+    c.setAttribute('aria-label',D.t('Visualizzatore 3D: {name}. Trascina o usa le frecce per ruotare.',{name:p.name}));
     host.appendChild(c);this.size();
     this.ro=new ResizeObserver(()=>this.size());this.ro.observe(host);
     this.bind();

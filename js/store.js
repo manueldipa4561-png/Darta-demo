@@ -3,13 +3,24 @@
 'use strict';
 const D=window.DARTA,KEY='darta-cart-v1',MAXQ=9,MAXLINES=20,ID=/^[a-z0-9-]{1,32}$/;
 
+/** The catalog with the English fields of `en` laid over the Italian ones (names, taglines, texts, category and coupon labels). */
+const translated=(cat,en)=>({
+  ...cat,
+  coupons:Object.fromEntries(Object.entries(cat.coupons).map(([k,c])=>[k,{...c,...(en.coupons&&en.coupons[k])}])),
+  cats:cat.cats.map(c=>({...c,label:(en.cats&&en.cats[c.id])||c.label})),
+  products:cat.products.map(p=>({...p,...(en.products&&en.products[p.id])}))
+});
+
 D.store={
   catalog:null,byId:Object.create(null),bySlug:Object.create(null),lines:[],coupon:'',mode:'pickup',ls:new Set(),
 
   async load(){
-    const res=await fetch('/data/catalog.json');
+    const en=D.lang==='en';   // English pages: the same catalog with the translated copy laid on top (data/catalog.en.json)
+    const [res,over]=await Promise.all([fetch('/data/catalog.json'),en?fetch('/data/catalog.en.json'):null]);
     if(!res.ok)throw new Error('catalog '+res.status);
+    if(over&&!over.ok)throw new Error('catalog.en '+over.status);
     this.catalog=await res.json();
+    if(over)this.catalog=translated(this.catalog,await over.json());
     this.catalog.coupons=Object.assign(Object.create(null),this.catalog.coupons);   // no prototype keys as coupon codes
     this.catalog.products=this.catalog.products.filter(p=>ID.test(p.id)&&ID.test(p.slug));   // ids end up in selectors and object keys
     this.catalog.products.forEach(p=>{this.byId[p.id]=p;this.bySlug[p.slug]=p});

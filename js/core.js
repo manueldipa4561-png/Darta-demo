@@ -4,6 +4,16 @@
 const D=window.DARTA=window.DARTA||{};
 const mq=matchMedia('(prefers-reduced-motion: reduce)');
 
+// language: Italian is the default; the English pages (/en/...) are <html lang="en"> and load /js/en.js first (the dictionary,
+// generated from data/en.json). The Italian text is the key: D.t('Il carrello è vuoto') is the same Italian on the Italian
+// pages and its English version on the English ones. {name} placeholders are filled from the second argument.
+D.lang=document.documentElement.lang==='en'?'en':'it';
+const EN=D.lang==='en',DICT=window.DARTA_EN||{};
+D.t=(s,v)=>{
+  const m=EN&&Object.prototype.hasOwnProperty.call(DICT,s)?DICT[s]:s;
+  return v?m.replace(/\{(\w+)\}/g,(_,k)=>k in v?v[k]:'{'+k+'}'):m;
+};
+
 D.$=(s,r=document)=>r.querySelector(s);
 D.$$=(s,r=document)=>[...r.querySelectorAll(s)];
 D.reduce=()=>mq.matches;
@@ -37,8 +47,11 @@ D.dialogEvents=(dlg,onUserClose)=>{
   dlg.addEventListener('click',e=>{if(e.target===dlg&&down===dlg)D.router.back();down=null});
 };
 
-// 1600 -> "16€", 490 -> "4,90€"
-D.eur=c=>(c/100).toLocaleString('it-IT',{minimumFractionDigits:c%100?2:0,maximumFractionDigits:2})+'€';
+// 1600 -> "16€", 490 -> "4,90€" (Italian) or "€16", "€4.90" (English)
+D.eur=c=>{
+  const n=(c/100).toLocaleString(EN?'en-IE':'it-IT',{minimumFractionDigits:c%100?2:0,maximumFractionDigits:2});
+  return EN?'€'+n:n+'€';
+};
 
 D.el=(tag,props,...kids)=>{
   const e=document.createElement(tag);
@@ -79,8 +92,8 @@ D.toast=(msg,action)=>{
 D.router={
   routes:{},
   reg(name,r){this.routes[name]=r},
-  parse(){                          // '#carrello' | '#checkout'
-    const h=location.hash.slice(1),i=h.indexOf('/'),name=i<0?h:h.slice(0,i),arg=i<0?'':h.slice(i+1);
+  parse(){                          // '#carrello' (English pages: '#cart') | '#checkout'
+    const h=location.hash.slice(1),i=h.indexOf('/'),raw=i<0?h:h.slice(0,i),arg=i<0?'':h.slice(i+1),name=raw==='cart'?'carrello':raw;
     return (name==='carrello'||name==='checkout')&&/^[\w-]*$/.test(arg)?{name,arg}:null;
   },
   go(h){if(location.hash!==h)history.pushState({dr:1},'',h);this.sync()},
@@ -97,8 +110,10 @@ D.router={
 };
 // home journey timeline (fractions of the pinned scroll): the dive into the sign takes [0, hero]; the shop scene starts to fade in at `scene`
 D.J={hero:.26,scene:.12};
-// where things live
-D.url={product:p=>'/prodotti/'+p.slug,service:s=>'/servizi/'+s.slug,thumb:(p,w='a')=>'/img/p/'+p.slug+'-'+w+'.webp'};
+// where things live (the English pages sit under /en/)
+D.url={product:p=>(EN?'/en/products/':'/prodotti/')+p.slug,service:s=>(EN?'/en/services/':'/servizi/')+s.slug,thumb:(p,w='a')=>'/img/p/'+p.slug+'-'+w+'.webp'};
+D.path={home:EN?'/en/':'/',shop:EN?'/en/shop':'/shop',services:EN?'/en/services':'/servizi',order:EN?'/en/order':'/ordine'};
+D.hash={cart:EN?'#cart':'#carrello',checkout:'#checkout'};
 // old shared links (#prodotto/<slug>) now have their own page
 {const old=/^#prodotto\/([\w-]{1,40})$/.exec(location.hash);if(old)location.replace('/prodotti/'+old[1])}
 // Back/Forward fire both events; sync() is idempotent and flags the pass as a history traversal

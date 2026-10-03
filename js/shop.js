@@ -2,13 +2,13 @@
    The cards themselves are static HTML written by tools/build-pages.py, so the page paints with no script and no 3D. */
 (()=>{
 'use strict';
-const D=window.DARTA,{$,$$}=D,S=D.store;
+const D=window.DARTA,{$,$$}=D,S=D.store,tr=D.t;
 
 function setFilter(cat){
   $$('.fbtn').forEach(b=>b.setAttribute('aria-pressed',String(b.dataset.cat===cat)));
   const shown=[];
   $$('.pcard').forEach(c=>{const on=cat==='tutti'||c.dataset.cat===cat;c.hidden=!on;if(on)shown.push(c)});
-  $('#shopCount').textContent=`${shown.length} ${shown.length===1?'prodotto':'prodotti'}`;
+  $('#shopCount').textContent=shown.length===1?tr('{n} prodotto',{n:1}):tr('{n} prodotti',{n:shown.length});
   if(D.A&&!D.reduce())D.A.animate(shown,{opacity:[0,1],y:[22,0],scale:[.97,1],duration:520,delay:D.A.stagger(55),ease:'outExpo',
     onComplete:()=>shown.forEach(c=>{c.style.removeProperty('transform');c.style.removeProperty('opacity')})});   // leave hover styles in charge
 }
@@ -27,7 +27,7 @@ function bindCard(card){
   if(add)add.addEventListener('click',()=>{
     const p=S.byId[add.dataset.add];if(!p)return;
     S.add(p.id,'',1);D.cart.fly($('.pcard-img.a',card),add);
-    D.toast(`${p.name} nel carrello`,{label:'Apri',fn:()=>D.router.go('#carrello')});
+    D.toast(tr('{name} nel carrello',{name:p.name}),{label:tr('Apri'),fn:()=>D.router.go(D.hash.cart)});
   });
 }
 

@@ -1,7 +1,7 @@
 /* Darta club: customisable loyalty card (state in localStorage). */
 (()=>{
 'use strict';
-const D=window.DARTA,{$}=D;
+const D=window.DARTA,{$}=D,tr=D.t;
 /* loyalty card: customise, stamp, tilt */
 (()=>{
   const lc=$('#lc'), box=$('#stamps'), txt=$('#stampTxt'), K='darta-card';
@@ -19,13 +19,13 @@ const D=window.DARTA,{$}=D;
   const st=[...box.children];
   function render(){
     lc.dataset.f=s.f;
-    $('#lcName').textContent=s.name.trim()||'Il tuo nome';
+    $('#lcName').textContent=s.name.trim()||tr('Il tuo nome');
     $('#lcBarber').textContent=s.b;
     $('#lcCount').firstChild.textContent=s.n;
     $('#lcTier').textContent=s.n>=10?'Gold':s.n>=5?'Regular':'Member';
     st.forEach((d,i)=>{d.classList.toggle('on',i<s.n);d.querySelector('use').setAttribute('href','#i-'+s.ic)});
-    if(s.n>=10){const b=document.createElement('b');b.textContent='Taglio omaggio sbloccato.';txt.replaceChildren(b,' Tocca Timbra per ricominciare.')}
-    else txt.textContent=s.n===0?'Il decimo taglio è omaggio.':`Ancora ${10-s.n} ${10-s.n===1?'taglio':'tagli'} al taglio omaggio.`;
+    if(s.n>=10){const b=document.createElement('b');b.textContent=tr('Taglio omaggio sbloccato.');txt.replaceChildren(b,' '+tr('Tocca Timbra per ricominciare.'))}
+    else txt.textContent=s.n===0?tr('Il decimo taglio è omaggio.'):10-s.n===1?tr('Ancora {n} taglio al taglio omaggio.',{n:1}):tr('Ancora {n} tagli al taglio omaggio.',{n:10-s.n});
   }
   // form -> state
   const nm=$('#inName');nm.value=s.name;
@@ -43,7 +43,7 @@ const D=window.DARTA,{$}=D;
   const wb=$('#walletBtn'),pick=$('#walletPick'),wbText=wb.textContent;
   async function addToWallet(which){
     if(pick)pick.hidden=true;
-    wb.disabled=true;wb.textContent='Preparo la tessera…';
+    wb.disabled=true;wb.textContent=tr('Preparo la tessera…');
     try{
       const made=await D.wallet.create({name:s.name,finish:s.f,icon:s.ic,barber:s.b,stamps:s.n});
       const url=made[which];
@@ -54,10 +54,10 @@ const D=window.DARTA,{$}=D;
   }
   wb.onclick=async()=>{
     const av=D.wallet&&await D.wallet.availability();
-    if(!av||(!av.apple&&!av.google))return D.toast('Demo: qui la tessera si aggiunge ad Apple o Google Wallet.');
+    if(!av||(!av.apple&&!av.google))return D.toast(tr('Demo: qui la tessera si aggiunge ad Apple o Google Wallet.'));
     const which=D.wallet.choose(av,D.wallet.platform());
     if(which)return addToWallet(which);
-    if(!pick||!wa||!wg)return D.toast('Apri la pagina aggiornata per aggiungere la tessera.');
+    if(!pick||!wa||!wg)return D.toast(tr('Apri la pagina aggiornata per aggiungere la tessera.'));
     wa.hidden=!av.apple;wg.hidden=!av.google;pick.hidden=false;   // both on and we cannot tell the phone: let the visitor pick
   };
   const wa=$('#walletApple'),wg=$('#walletGoogle');

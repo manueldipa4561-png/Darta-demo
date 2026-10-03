@@ -1,7 +1,7 @@
 /* Darta main: page wiring (reveals, booking sheet, opening status) and shop bootstrap. */
 (()=>{
 'use strict';
-const D=window.DARTA,{$,$$}=D;
+const D=window.DARTA,{$,$$}=D,tr=D.t;
 
 /* reveal on enter */
 $$('.rv').forEach(D.reveal);
@@ -17,9 +17,10 @@ $$('#clubs li').forEach(li=>clubIO.observe(li));
   const defTxt=$('#shTxt').textContent;
   $$('[data-book]').forEach(b=>b.addEventListener('click',()=>{
     const who=b.dataset.who,service=b.dataset.service,t=$('#shTxt');
-    t.textContent=who?"Nell'app scegli il servizio, poi ":service?"Nell'app scegli ":defTxt;
-    if(who){const w=document.createElement('b');w.textContent=who;t.append(w," come barber e l'orario che preferisci.")}
-    if(service){const s=document.createElement('b');s.textContent=service;t.append(s," e il barber con l'orario che preferisci.")}
+    const named=(sentence,name)=>{const [a,c]=sentence.split('{b}'),b=document.createElement('b');b.textContent=name;t.replaceChildren(a,b,c)};   // the name goes in bold, wherever the language puts it
+    if(who)named(tr("Nell'app scegli il servizio, poi {b} come barber e l'orario che preferisci."),who);
+    else if(service)named(tr("Nell'app scegli {b} e il barber con l'orario che preferisci."),service);
+    else t.textContent=defTxt;
     sheet.showModal();D.lock(true);
   }));
   $('#shClose').onclick=()=>sheet.close();
@@ -36,10 +37,10 @@ $$('#clubs li').forEach(li=>clubIO.observe(li));
     const p=Object.fromEntries(fmt.formatToParts(now).map(x=>[x.type,x.value]));
     const d=DAYS.indexOf(p.weekday),m=(+p.hour%24)*60+(+p.minute);
     const openDay=d>=2&&d<=6,open=openDay&&m>=OPEN&&m<CLOSE;
-    const txt=open?'Aperto ora, chiude alle 19:00':(openDay&&m<OPEN)?'Chiuso, apre oggi alle 10:00':`Chiuso, riapre ${d===6||d===0?'martedì':'domani'} alle 10:00`;
+    const txt=open?tr('Aperto ora, chiude alle 19:00'):(openDay&&m<OPEN)?tr('Chiuso, apre oggi alle 10:00'):(d===6||d===0)?tr('Chiuso, riapre martedì alle 10:00'):tr('Chiuso, riapre domani alle 10:00');
     const st=$('#status'),chip=$('#hdrOpen');
     if(st){st.classList.toggle('open',open);st.lastElementChild.textContent=txt}
-    if(chip){chip.classList.toggle('open',open);chip.lastElementChild.textContent=open?'Aperto':'Chiuso';chip.title=txt}
+    if(chip){chip.classList.toggle('open',open);chip.lastElementChild.textContent=open?tr('Aperto'):tr('Chiuso');chip.title=txt}
     if(d!==shownDay){                                   // new day: move the "oggi" marker in the hours list
       $$('#hours li.today').forEach(li=>li.classList.remove('today'));
       const li=$(`#hours li[data-d="${d}"]`);li&&li.classList.add('today');shownDay=d;

@@ -34,7 +34,7 @@ function curtain(){
 function counters(){
   $$('[data-count]').forEach(n=>{
     const to=parseFloat(n.dataset.count),dec=+n.dataset.dec||0,node=n.firstChild,o={v:0};
-    const fmt=v=>v.toLocaleString('it-IT',{minimumFractionDigits:dec,maximumFractionDigits:dec});
+    const fmt=v=>v.toLocaleString(D.lang==='en'?'en-IE':'it-IT',{minimumFractionDigits:dec,maximumFractionDigits:dec});
     const io=new IntersectionObserver(([e])=>{
       if(!e.isIntersecting)return;io.disconnect();
       node.textContent=fmt(0);n.classList.remove('cnt-wait');

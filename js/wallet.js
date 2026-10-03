@@ -29,7 +29,7 @@ function availability(){
 async function create(card){
   let res,json={};
   try{
-    res=await fetch(FN,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(card),signal:AbortSignal.timeout(15000)});
+    res=await fetch(FN,{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({...card,lang:D.lang}),signal:AbortSignal.timeout(15000)});
     json=await res.json().catch(()=>({}));
   }catch(e){throw Object.assign(new Error('network'),{code:'network'})}
   if(!res.ok)throw Object.assign(new Error(json.error||'wallet_unavailable'),{code:json.error||'wallet_unavailable'});
@@ -52,5 +52,5 @@ function choose(av,plat){
   return null;
 }
 
-D.wallet={availability,create,platform,choose,links:LINKS,message:e=>MESSAGES[e&&e.code]||FALLBACK};
+D.wallet={availability,create,platform,choose,links:LINKS,message:e=>D.t(MESSAGES[e&&e.code]||FALLBACK)};
 })();

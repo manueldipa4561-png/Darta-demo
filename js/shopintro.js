@@ -4,7 +4,7 @@
    The 3D lives in its own WebGL context, created lazily. Without WebGL or with reduced motion the section is plain text and a button. */
 (()=>{
 'use strict';
-const D=window.DARTA,{$,$$,el,eur,cl}=D,lite=D.lite||(()=>false);
+const D=window.DARTA,{$,$$,el,eur,cl}=D,lite=D.lite||(()=>false),tr=D.t;
 const journey=$('#journey'),sec=$('#shopIntro');
 let canvas=$('#glShop');                          // replaced by the renderer's own canvas once the 3D starts
 if(!journey||!canvas||!sec)return;
@@ -29,13 +29,13 @@ function line(txt){ // one <i> per letter so each word can assemble with a stagg
 }
 function buildWords(){
   wordsEl.replaceChildren();words=[];
-  const intro=el('div',{class:'si-w'},line('Il banco'),line('di Thomas.'));
+  const intro=el('div',{class:'si-w'},line(tr('Il banco')),line(tr('di Thomas.')));
   wordsEl.append(intro);words.push(intro);
   prods.forEach(p=>{
-    const price=p.variants?'da '+eur(p.variants[0].price):eur(p.price);
+    const price=p.variants?tr('da {price}',{price:eur(p.variants[0].price)}):eur(p.price);
     const w=el('div',{class:'si-w'},line(p.name),
       el('span',{class:'si-m'},el('b',{text:price}),el('span',{text:p.short}),
-        el('a',{class:'si-go',href:D.url.product(p),tabindex:'-1',text:'Scopri'})));
+        el('a',{class:'si-go',href:D.url.product(p),tabindex:'-1',text:tr('Scopri')})));
     wordsEl.append(w);words.push(w);
   });
 }

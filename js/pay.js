@@ -35,7 +35,7 @@ function mode(){
 /** Sends the cart (ids and quantities only; the server prices it) and returns Stripe's hosted checkout URL. */
 async function start(){
   const S=D.store,t=S.totals();
-  const body={lines:S.lines.map(l=>({id:l.id,v:l.v,q:l.q})),coupon:S.coupon,mode:t.ship?'ship':'pickup'};
+  const body={lines:S.lines.map(l=>({id:l.id,v:l.v,q:l.q})),coupon:S.coupon,mode:t.ship?'ship':'pickup',lang:D.lang};
   let res,json={};
   try{
     res=await fetch(FN+'/darta-checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify(body),signal:AbortSignal.timeout(20000)});
@@ -55,5 +55,5 @@ async function order(sessionId){
   }catch(e){return {error:'network'}}
 }
 
-D.pay={mode,start,order,message:err=>MESSAGES[err&&err.code]||FALLBACK};
+D.pay={mode,start,order,message:err=>D.t(MESSAGES[err&&err.code]||FALLBACK)};
 })();

@@ -2,7 +2,7 @@
    Text, price and a still picture are already in the HTML (tools/build-pages.py), so the page works without script or WebGL. */
 (()=>{
 'use strict';
-const D=window.DARTA,{$,$$,el,eur}=D,S=D.store;
+const D=window.DARTA,{$,$$,el,eur}=D,S=D.store,tr=D.t;
 const root=$('main.pp');
 if(!root)return;
 const GL=D.GL,stage=$('#ppStage'),host=$('#ppHost');
@@ -12,9 +12,9 @@ const defVid=q=>q.variants?(q.variants[1]||q.variants[0]).id:'';
 const unit=()=>S.unit(p,vid);
 
 function syncBuy(){
-  $('#ppPrice').textContent=eur(unit())+(p.recurring?' /mese':'');
+  $('#ppPrice').textContent=p.recurring?tr('{price} /mese',{price:eur(unit())}):eur(unit());
   $('#ppQ').textContent=qty;
-  $('#ppAddTxt').replaceChildren('Aggiungi',el('span',{class:'opt',text:' al carrello'}),` · ${eur(unit()*qty)}`);
+  $('#ppAddTxt').replaceChildren(tr('Aggiungi'),el('span',{class:'opt',text:' '+tr('al carrello')}),` · ${eur(unit()*qty)}`);
   $('#ppMinus').disabled=qty<=1;$('#ppPlus').disabled=qty>=9;
 }
 
@@ -25,7 +25,7 @@ function setTry(){
   const can=v.canPlay()&&!D.reduce();
   b.hidden=!can;b.classList.remove('playing');b.disabled=false;
   if(!can)return;
-  const label=p.kind==='powder'?'Svita e scuoti':'Apri';
+  const label=p.kind==='powder'?tr('Svita e scuoti'):tr('Apri');
   $('#ppTryTxt').textContent=label;
   v.onPlay=on=>{b.classList.toggle('playing',on);b.disabled=on;if(!on)$('#ppTryTxt').textContent=label};
 }
@@ -45,13 +45,13 @@ function bind(){
   $('#ppL').addEventListener('click',()=>GL.viewer.nudge(-.6));
   $('#ppR').addEventListener('click',()=>GL.viewer.nudge(.6));
   const tryBtn=$('#ppTry');
-  if(tryBtn)tryBtn.addEventListener('click',()=>{if(GL.viewer.play())$('#ppTryTxt').textContent=p.kind==='powder'?'Scuoti...':'Apri...'});
+  if(tryBtn)tryBtn.addEventListener('click',()=>{if(GL.viewer.play())$('#ppTryTxt').textContent=p.kind==='powder'?tr('Scuoti...'):tr('Apri...')});
   $('#ppAdd').addEventListener('click',()=>{
     S.add(p.id,vid,qty);
     D.cart.fly(stage,$('#ppAdd'),$('#ppFallback').src);
-    const add=$('#ppAdd');$('#ppAddTxt').textContent='Aggiunto';add.classList.add('done');
+    const add=$('#ppAdd');$('#ppAddTxt').textContent=tr('Aggiunto');add.classList.add('done');
     setTimeout(()=>{add.classList.remove('done');syncBuy()},1300);
-    D.toast(`${S.lineLabel(p,vid)} nel carrello`,{label:'Apri',fn:()=>D.router.go('#carrello')});
+    D.toast(tr('{name} nel carrello',{name:S.lineLabel(p,vid)}),{label:tr('Apri'),fn:()=>D.router.go(D.hash.cart)});
   });
   D.onGLLost=()=>stage.classList.remove('live');
   D.onGLRestored=()=>mountViewer();
