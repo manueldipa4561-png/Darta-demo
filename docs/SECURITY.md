@@ -42,7 +42,28 @@ No exploitable XSS, secret leak, open redirect, clickjacking or third-party requ
 
 ## What the demo cannot protect (by design)
 
-The checkout is a demo. Prices, coupons and shipping are computed in the browser from `data/catalog.json`. That is fine for a showcase because nothing is charged and nothing is sent, and the cart stores only product ids, variants and quantities (never prices or personal data). It would **not** be safe for a live shop.
+While the server has no Stripe keys the checkout is a demo. Prices, coupons and shipping are computed in the browser from `data/catalog.json`. That is fine for a showcase because nothing is charged and nothing is sent, and the cart stores only product ids, variants and quantities (never prices or personal data). It would **not** be safe for a live shop, which is why real payments run through the server-side flow described in [`PAYMENTS.md`](PAYMENTS.md) and reviewed below.
+
+## Payments: independent review and what was done (3 Oct 2026)
+
+A read-only security review of the Stripe integration (3 Supabase Edge Functions, orders table, `pay.js`, `order.js`, checkout parts of `cart.js`) found no critical issue. Findings and outcome:
+
+| # | Finding | Outcome |
+|---|---|---|
+| 1 HIGH | Origin check is not authentication; no rate limit; 0.50 EUR minimum invites card testing | Per-visitor and global rate limits in Postgres (IP stored only as a hash), minimum order 5 EUR. **Still open:** Turnstile before real traffic |
+| 2 HIGH | Customers could pay while the webhook secret was missing (order never recorded) | "Live" now requires `STRIPE_WEBHOOK_SECRET` as well; webhook alerts and a weekly reconciliation are in `PAYMENTS.md` |
+| 3 MED | Demo fallback could pass for a real confirmation | Demo mode only with `<meta name="darta-demo">`; heading says "Ordine di prova"; without the meta, "payments off" is an error state |
+| 4 MED | Webhook answered 500 for sessions that are not Darta's | Acknowledged with 200 and ignored |
+| 5 MED | 6-character order numbers could collide | `DA-` + 7 unambiguous characters (27 billion values); database constraint updated |
+| 6 MED | One powerful key shared by all functions and, in this project, with other apps | Optional restricted `STRIPE_READ_KEY`; dedicated client-owned Supabase project recommended for go-live |
+| 7-13 LOW | Email idempotency, `paid_at` drift, `markFailed` downgrade, body size, NaN prices, more than 10 line items, coupons that never expire, newlines in plain-text email | All fixed and covered by tests |
+| 14 LOW | Thank-you page promised a Stripe receipt | Reworded; receipts must be switched on in Stripe |
+
+Verified OK: webhook HMAC (constant time, 5-minute window, several `v1` values, checked before parsing), event bodies never trusted (the session is re-read from Stripe), idempotent upserts and a single-winner email claim, server-side pricing with digital items refused, Stripe URL prefix check on the browser side, `success_url`/`cancel_url` built only from `SITE_URL`, JSON content type plus exact Origin match, escaped email HTML, no personal data in `darta-order` or logs, RLS with no policies on `darta_orders` and `darta_rate_hits`, no secrets in the repository.
+
+To check by hand with a real test-mode order (mocks cannot prove them): the pinned Stripe API version `2024-06-20` (from 2025-03-31 the shipping address moves to `collected_information`), product photos on Stripe's page (the CORP header on `/img/*`), and an end-to-end shipping order with a coupon.
+
+Tests: `node --test tests/*.test.mjs` (89 tests: pricing parity with the browser cart, Stripe request building, webhook signature, handlers with fake Stripe/database/mail, the pay client).
 
 ## Go-live checklist (real payments)
 
