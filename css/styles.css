@@ -78,6 +78,7 @@ html:not(.gl) #stage{overflow:visible}
 html:not(.gl) .hero-copy{position:relative}
 html:not(.gl) #stage::after{height:100svh;top:0;bottom:auto;background:linear-gradient(transparent 42%,rgba(11,11,10,.94))}
 .gl #journey{height:300svh}
+@media(max-width:700px){.gl #journey{height:250svh}}
 .gl #stage{position:sticky;top:0;height:100svh}
 
 /* ===== sections ===== */

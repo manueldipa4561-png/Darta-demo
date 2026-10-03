@@ -38,13 +38,17 @@
 .film-live .film-step.past i{opacity:0;transform:translateY(-58%);filter:blur(7px)}
 .film-live .film-buy{position:absolute;left:0;right:0;bottom:calc(env(safe-area-inset-bottom) + clamp(96px,13svh,128px));opacity:0;transform:translateY(24px);pointer-events:none;transition:opacity .5s var(--ease),transform .7s var(--ease)}
 .film-live .film-buy.on{opacity:1;transform:none;pointer-events:auto}
-@media(min-width:900px){
+/* landscape (desktop, tablet, phone on its side): words on the left, price on the right */
+@media(min-aspect-ratio:23/20){
   .film-live .film-steps{left:var(--g);right:auto;bottom:12svh;width:60vw}
-  .film-live .film-step{justify-content:flex-start;font-size:clamp(5rem,10vw,10rem)}
+  .film-live .film-step{justify-content:flex-start;font-size:min(clamp(5rem,10vw,10rem),24svh)}
   .film-live .film-buy{left:auto;right:var(--g);bottom:12svh;justify-items:start;text-align:left;width:min(34vw,420px)}
-  .film-live .film-price{font-size:clamp(6rem,11vw,12rem)}
+  .film-live .film-price{font-size:min(clamp(6rem,11vw,12rem),26svh)}
   .film-name span{display:inline}
 }
+/* short portrait phones */
+@media(max-height:640px) and (max-aspect-ratio:23/20){.film-live .film-price{font-size:clamp(4rem,22vw,5.5rem)}.film-live .film-buy{gap:.6rem;bottom:calc(env(safe-area-inset-bottom) + 88px)}}
+@media(max-height:560px) and (max-aspect-ratio:23/20){.film-live .film-addr{display:none}}
 
 /* ===== lavori: the four cuts, a scroll-driven deck ===== */
 .works{position:relative;background:var(--bg);overflow:clip}
@@ -75,8 +79,11 @@
 .works-live .works-bar{display:block;position:absolute;z-index:3;left:var(--g);right:var(--g);bottom:calc(env(safe-area-inset-bottom) + 92px);height:2px;background:var(--line)}
 .works-bar i{display:block;height:100%;background:var(--accent);transform-origin:left;transform:scaleX(var(--p,0))}
 @media(min-width:900px){.works-live .works-bar{bottom:36px}.works-live .cut{width:min(40vw,52svh)}}
+@media(max-height:520px){.works-live .works-head{top:calc(env(safe-area-inset-top) + 74px)}.works-live .works-bar{bottom:14px}.works-live .cut figcaption span{display:none}}
 
 .seat .h2{margin-bottom:1.75rem}
+
+@media(max-width:700px){.film-live .film-track{height:520svh}.works-live .works-track{height:430svh}}
 
 @media (prefers-reduced-motion:reduce){
   .film-live .film-step i{transition:none}
