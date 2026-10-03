@@ -27,21 +27,22 @@
   [headers.values]
     Cache-Control = "public, max-age=31536000, immutable"
 
-# Code and data are not fingerprinted: let the CDN keep them briefly, always revalidate.
+# Code and data are not fingerprinted, so browsers must check with the server on every load (a cheap 304 when nothing changed).
+# A cached max-age here can pair a new page with an old script and break it until the cache expires.
 [[headers]]
   for = "/js/*"
   [headers.values]
-    Cache-Control = "public, max-age=300, must-revalidate"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/css/*"
   [headers.values]
-    Cache-Control = "public, max-age=300, must-revalidate"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 [[headers]]
   for = "/data/*"
   [headers.values]
-    Cache-Control = "public, max-age=120, must-revalidate"
+    Cache-Control = "public, max-age=0, must-revalidate"
 
 # publish = "." serves the whole repository: answer 404 for files that are not part of the site.
 [[redirects]]

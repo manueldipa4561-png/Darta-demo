@@ -11,7 +11,7 @@
 <meta property="og:description" content="Tagli da campioni in Via Gobetti 184. Prenota dall'app e porta a casa i prodotti di Thomas.">
 <meta property="og:image" content="img/sign-hd.webp">
 <link rel="icon" href="img/logo.png">
-<link rel="preload" as="image" href="img/sign-hd.webp" fetchpriority="high">
+<link rel="preload" as="image" imagesrcset="img/sign-m.webp 1000w, img/sign-hd.webp 1800w" imagesizes="(max-width:900px) 60vw, 100vw" href="img/sign-hd.webp" fetchpriority="high">
 <link rel="preload" as="image" href="img/logo-darta.svg" fetchpriority="high">
 <link rel="preload" as="font" type="font/woff2" href="fonts/BarlowCondensed-800.woff2" crossorigin>
 <link rel="preload" as="font" type="font/woff2" href="fonts/Barlow-400.woff2" crossorigin>
@@ -64,7 +64,7 @@
 <main id="top">
   <div id="journey">
     <div id="stage">
-      <img class="hero-img" src="img/sign-hd.webp" alt="L'insegna Darta Barber Studio sulla parete del salone" width="1800" height="2207" fetchpriority="high">
+      <img class="hero-img" src="img/sign-hd.webp" srcset="img/sign-m.webp 1000w, img/sign-hd.webp 1800w" sizes="(max-width:900px) 60vw, 100vw" alt="L'insegna Darta Barber Studio sulla parete del salone" width="1800" height="2207" fetchpriority="high">
       <canvas id="gl" role="img" aria-label="Scena 3D: l'insegna del salone. Scorri per entrare."></canvas>
 
       <div class="hero-copy" id="heroCopy">
@@ -110,10 +110,10 @@
         <h2 class="sr-only" id="worksTitle">Lavori recenti</h2>
         <div class="works-words" id="worksWords" aria-hidden="true"></div>
         <ol class="cuts" aria-label="Lavori recenti">
-          <li class="cut" data-word="Fade"><figure><img src="img/fade-hd.webp" alt="Skin fade con barba definita" width="1400" height="1729" loading="lazy"><figcaption><strong>Skin fade &amp; barba</strong><span>Sfumatura a pelle, contorni della barba a lama.</span></figcaption></figure></li>
-          <li class="cut" data-word="Ricci"><figure><img src="img/curly-hd.webp" alt="Ricci naturali con barba piena" width="1400" height="1655" loading="lazy"><figcaption><strong>Ricci &amp; barba piena</strong><span>Volume sotto controllo, linee pulite.</span></figcaption></figure></li>
-          <li class="cut" data-word="Platino"><figure><img src="img/platinum-hd.webp" alt="Taglio corto decolorato platino" width="1400" height="1874" loading="lazy"><figcaption><strong>Platino</strong><span>Decolorazione totale su un corto texturizzato.</span></figcaption></figure></li>
-          <li class="cut" data-word="Side part"><figure><img src="img/sidepart-hd.webp" alt="Side part con riga a rasoio e sfumatura" width="1400" height="1729" loading="lazy"><figcaption><strong>Side part</strong><span>Riga a rasoio e sfumatura bassa.</span></figcaption></figure></li>
+          <li class="cut" data-word="Fade"><figure><img src="img/fade-hd.webp" srcset="img/fade-m.webp 900w, img/fade-hd.webp 1400w" sizes="(min-width:900px) 40vw, 70vw" decoding="async" alt="Skin fade con barba definita" width="1400" height="1729" loading="lazy"><figcaption><strong>Skin fade &amp; barba</strong><span>Sfumatura a pelle, contorni della barba a lama.</span></figcaption></figure></li>
+          <li class="cut" data-word="Ricci"><figure><img src="img/curly-hd.webp" srcset="img/curly-m.webp 900w, img/curly-hd.webp 1400w" sizes="(min-width:900px) 40vw, 70vw" decoding="async" alt="Ricci naturali con barba piena" width="1400" height="1655" loading="lazy"><figcaption><strong>Ricci &amp; barba piena</strong><span>Volume sotto controllo, linee pulite.</span></figcaption></figure></li>
+          <li class="cut" data-word="Platino"><figure><img src="img/platinum-hd.webp" srcset="img/platinum-m.webp 900w, img/platinum-hd.webp 1400w" sizes="(min-width:900px) 40vw, 70vw" decoding="async" alt="Taglio corto decolorato platino" width="1400" height="1874" loading="lazy"><figcaption><strong>Platino</strong><span>Decolorazione totale su un corto texturizzato.</span></figcaption></figure></li>
+          <li class="cut" data-word="Side part"><figure><img src="img/sidepart-hd.webp" srcset="img/sidepart-m.webp 900w, img/sidepart-hd.webp 1400w" sizes="(min-width:900px) 40vw, 70vw" decoding="async" alt="Side part con riga a rasoio e sfumatura" width="1400" height="1729" loading="lazy"><figcaption><strong>Side part</strong><span>Riga a rasoio e sfumatura bassa.</span></figcaption></figure></li>
         </ol>
         <div class="works-bar" aria-hidden="true"><i id="worksFill"></i></div>
       </div>
