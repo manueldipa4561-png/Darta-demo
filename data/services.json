@@ -1,0 +1,73 @@
+{
+  "note": "Prezzi, durate e descrizioni sono d'esempio per la demo e da confermare con il salone.",
+  "groups": [
+    { "id": "capelli", "label": "Capelli", "lead": "Dal taglio classico alla sfumatura a pelle." },
+    { "id": "barba", "label": "Barba", "lead": "Forma, contorni e trattamenti a lama." },
+    { "id": "combo", "label": "Combo", "lead": "Più servizi in una sola seduta." }
+  ],
+  "services": [
+    {
+      "slug": "taglio-uomo", "group": "capelli", "name": "Taglio uomo", "time": "30 min", "mins": 30, "price": 2000,
+      "tag": "Il classico, su misura.",
+      "desc": "Parli con il barber di forma e lunghezza, poi taglio con macchinetta e forbici dove servono. Contorni rifiniti e styling finale: esci pronto.",
+      "steps": ["Scegli forma e lunghezza insieme al barber.", "Taglio con macchinetta e forbici.", "Contorni rifiniti e styling finale."],
+      "pairs": ["clay", "pomata"]
+    },
+    {
+      "slug": "skin-fade", "group": "capelli", "name": "Skin fade", "time": "40 min", "mins": 40, "price": 2500,
+      "tag": "Sfumatura a pelle, pulita.",
+      "desc": "La sfumatura che scende fino alla pelle, graduale e senza stacchi, con la lunghezza sopra decisa insieme. Sta benissimo con una barba definita.",
+      "steps": ["Decidi l'altezza della sfumatura e la lunghezza sopra.", "Sfumatura a pelle con macchinetta e rasoio.", "Rifinitura dei contorni e styling."],
+      "pairs": ["clay", "sale"]
+    },
+    {
+      "slug": "taglio-e-styling", "group": "capelli", "name": "Taglio e styling", "time": "45 min", "mins": 45, "price": 2800,
+      "tag": "Taglio più messa in piega.",
+      "desc": "Il taglio completo con più tempo per lo styling: asciugatura, prodotto e piega pensati per come porti i capelli ogni giorno, così sai rifarla a casa.",
+      "steps": ["Consulenza su taglio e piega.", "Taglio.", "Asciugatura e styling con i prodotti giusti."],
+      "pairs": ["pomata", "wax", "sale"]
+    },
+    {
+      "slug": "taglio-bambino", "group": "capelli", "name": "Taglio bambino", "time": "Fino a 12 anni, 30 min", "mins": 30, "price": 1500,
+      "tag": "Per i più piccoli.",
+      "desc": "Taglio veloce e senza stress per i bambini fino a 12 anni, con la stessa cura riservata agli adulti.",
+      "steps": ["Scegli il taglio insieme a mamma o papà.", "Taglio con macchinetta e forbici.", "Una sistemata finale e via."],
+      "pairs": []
+    },
+    {
+      "slug": "regolazione-barba", "group": "barba", "name": "Regolazione barba", "time": "20 min", "mins": 20, "price": 1200,
+      "tag": "Forma e contorni.",
+      "desc": "Per mantenere la barba in ordine tra un trattamento e l'altro: forma, lunghezza e linee di guance e collo.",
+      "steps": ["Scegli forma e lunghezza.", "Regolazione con macchinetta e forbici.", "Contorni netti di guance e collo."],
+      "pairs": ["olio"]
+    },
+    {
+      "slug": "barba-panno-caldo-e-lama", "group": "barba", "name": "Barba panno caldo e lama", "time": "30 min", "mins": 30, "price": 1800,
+      "tag": "Il trattamento completo.",
+      "desc": "Panno caldo per ammorbidire, definizione della forma, rifinitura a lama e un olio per finire. Il trattamento barba più completo.",
+      "steps": ["Panno caldo per aprire e ammorbidire.", "Forma e rifinitura a lama.", "Olio e finitura."],
+      "pairs": ["olio"]
+    },
+    {
+      "slug": "rasatura-tradizionale", "group": "barba", "name": "Rasatura tradizionale", "time": "30 min", "mins": 30, "price": 2000,
+      "tag": "Schiuma, panno caldo e lama.",
+      "desc": "La rasatura di una volta: schiuma, panno caldo e rasoio a lama per un risultato liscio, con la pelle idratata alla fine.",
+      "steps": ["Panno caldo e schiuma.", "Rasatura a lama, a mano libera.", "Panno e idratazione finale."],
+      "pairs": ["olio"]
+    },
+    {
+      "slug": "taglio-e-barba", "group": "combo", "name": "Taglio e barba", "time": "60 min", "mins": 60, "price": 3500,
+      "tag": "Il pacchetto completo.",
+      "desc": "Taglio e barba nella stessa seduta, con un solo appuntamento: capelli e barba pensati insieme per un risultato coerente.",
+      "steps": ["Consulenza su capelli e barba.", "Taglio e sistemazione della barba.", "Contorni e styling finale."],
+      "pairs": ["kit", "clay", "olio"]
+    },
+    {
+      "slug": "platino-e-taglio", "group": "combo", "name": "Platino e taglio", "time": "Su consulenza, 120 min", "mins": 120, "price": 6000, "from": true,
+      "tag": "Decolorazione su consulenza.",
+      "desc": "La decolorazione totale per il platino e un taglio che la valorizza. Si parte da una consulenza: tempi e costo dipendono dalla base di partenza dei capelli.",
+      "steps": ["Consulenza sulla base di partenza.", "Decolorazione e tonalizzazione.", "Taglio e styling."],
+      "pairs": ["pomata", "wax"]
+    }
+  ]
+}
