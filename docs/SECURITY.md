@@ -63,7 +63,9 @@ Verified OK: webhook HMAC (constant time, 5-minute window, several `v1` values, 
 
 To check by hand with a real test-mode order (mocks cannot prove them): the pinned Stripe API version `2024-06-20` (from 2025-03-31 the shipping address moves to `collected_information`), product photos on Stripe's page (the CORP header on `/img/*`), and an end-to-end shipping order with a coupon.
 
-Tests: `node --test tests/*.test.mjs` (89 tests: pricing parity with the browser cart, Stripe request building, webhook signature, handlers with fake Stripe/database/mail, the pay client).
+Wallet cards (3 Oct 2026): the `darta-wallet` function follows the same rules as the payment functions (exact Origin match for writes, JSON only, 1 KB body limit, per-visitor and global rate limits through `darta_rate_limit`, strict allow-lists for finish, stamp icon and barber, a cleaned 16-character name). The browser follows only two kinds of link coming back from the server: its own pass download and `pay.google.com/gp/v/save/`. The name on a card is stored in `darta_cards` (RLS on, no policies, service role only). The Apple signing key and the Google service account key live only in Supabase secrets, and the signing code is covered by OpenSSL-verified tests; see [`WALLET.md`](WALLET.md).
+
+Tests: `node --test tests/*.test.mjs` (112 tests: pricing parity with the browser cart, Stripe request building, webhook signature, handlers with fake Stripe/database/mail, the pay client).
 
 ## Go-live checklist (real payments)
 
