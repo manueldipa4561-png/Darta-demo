@@ -179,6 +179,8 @@ section{position:relative}
 .lc-msg{margin:1.1rem 0 1rem;color:var(--muted);min-height:1.6em}
 .lc-msg b{color:var(--accent)}
 .lc-actions{display:flex;flex-wrap:wrap;gap:.75rem}
+.lc-pick{display:flex;flex-wrap:wrap;gap:.75rem;margin-top:.75rem}
+.lc-pick[hidden]{display:none}
 .lc-edit{display:grid;gap:1.6rem;align-content:start;padding:1.5rem;border-radius:var(--r);background:var(--surface);border:1px solid var(--line)}
 .fld{border:0;display:grid;gap:.6rem}
 .fld>span,.fld legend{font:600 .875rem/1 var(--fb);color:var(--text);margin-bottom:.6rem}
