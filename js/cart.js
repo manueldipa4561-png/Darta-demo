@@ -1,4 +1,4 @@
-/* Darta cart: header/dock counters, cart drawer, demo checkout, fly-to-cart motion. */
+/* Darta cart: header/dock counters, cart drawer, checkout (real Stripe payment when the server has keys, demo otherwise), fly-to-cart motion. */
 (()=>{
 'use strict';
 const D=window.DARTA,{$,$$,el,eur,icon}=D,S=D.store;
@@ -143,6 +143,30 @@ function showErr(id,msg){
   if(msg)i.setAttribute('aria-describedby','err-'+id);else i.removeAttribute('aria-describedby');
   e.textContent=msg;e.hidden=!msg;
 }
+/* The checkout form has two faces: demo (our own form, nothing is charged) and live (Stripe collects name, address and payment). */
+let payMode='checking';   // 'checking' | 'demo' | 'live' | 'unknown' (server did not answer: never pretend the order went through)
+function applyPayMode(m,total){
+  payMode=m;
+  const f=$('#coForm'),btn=$('#coSubmit'),err=$('#coPayErr'),demoNote=$('#coDemoNote'),liveNote=$('#coLiveNote');   // the notes are missing on a page cached with older markup
+  f.classList.toggle('co-live',m==='live'||m==='unknown');   // unknown: no point asking for details we cannot use
+  if(demoNote)demoNote.hidden=m!=='demo';
+  if(liveNote)liveNote.hidden=m!=='live';
+  btn.disabled=m==='checking'||m==='unknown';
+  if(err){err.hidden=m!=='unknown';if(m==='unknown')err.textContent=D.pay.message(null)}
+  $('#coSubmitTxt').textContent=m==='live'?`Paga · ${eur(total)}`:m==='checking'?'Un attimo…':m==='unknown'?'Pagamento non disponibile':`Conferma ordine · ${eur(total)}`;
+}
+async function payNow(){
+  const btn=$('#coSubmit'),err=$('#coPayErr'),t=S.totals();
+  if(!t.count||btn.disabled)return;
+  if(err)err.hidden=true;
+  btn.disabled=true;$('#coSubmitTxt').textContent='Ti porto al pagamento…';
+  try{
+    location.href=await D.pay.start();   // the cart stays until the order page confirms the payment
+  }catch(ex){
+    if(err){err.textContent=D.pay.message(ex);err.hidden=false}else D.toast(D.pay.message(ex));
+    btn.disabled=false;$('#coSubmitTxt').textContent=`Paga · ${eur(t.total)}`;
+  }
+}
 function fillCheckout(){
   const t=S.totals();
   $('#coForm').hidden=false;$('#coDone').hidden=true;$('#coTitle').hidden=false;
@@ -154,7 +178,8 @@ function fillCheckout(){
     ...(t.discount?[el('div',{},el('dt',{text:'Sconto'}),el('dd',{class:'num',text:'−'+eur(t.discount)}))]:[]),
     ...(t.ship?[el('div',{},el('dt',{text:'Spedizione'}),el('dd',{class:'num',text:t.shipping?eur(t.shipping):'Gratis'}))]:[]));
   $('#coTot').textContent=eur(t.total);
-  $('#coSubmitTxt').textContent=`Conferma ordine · ${eur(t.total)}`;
+  applyPayMode('checking',t.total);
+  (D.pay?D.pay.mode():Promise.resolve('demo')).then(m=>applyPayMode(m,S.totals().total));
   ['coName','coEmail','coPhone','coAddr','coCap','coCity'].forEach(id=>showErr(id,''));
 }
 function openCheckout(){
@@ -168,6 +193,8 @@ function openCheckout(){
 function closeCheckout(){D.closeDialog($('#checkout'))}
 function submitOrder(e){
   e.preventDefault();
+  if(payMode==='live'){payNow();return}
+  if(payMode!=='demo')return;
   const t=S.totals();if(!t.count)return;
   const ids=['coName','coEmail','coPhone'].concat(t.ship?['coAddr','coCap','coCity']:[]);
   let first=null;
@@ -204,6 +231,7 @@ function bindCheckout(){
   $('#coForm').addEventListener('submit',submitOrder);
   Object.keys(RULES).forEach(id=>$('#'+id).addEventListener('blur',()=>{const i=$('#'+id);if(!i.closest('[hidden]')&&(i.value||i.getAttribute('aria-invalid')==='true'))showErr(id,RULES[id](i.value))}));
   $('#doneClose').addEventListener('click',()=>D.router.reset());
+  addEventListener('pageshow',e=>{if(e.persisted&&$('#checkout').open)fillCheckout()});   // Back from Stripe: bring the button back to life
   D.router.reg('checkout',{isOpen:()=>$('#checkout').open,open:openCheckout,close:closeCheckout});
 }
 
