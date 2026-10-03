@@ -121,7 +121,7 @@ section{position:relative}
 .team-rail{display:grid;grid-auto-flow:column;grid-auto-columns:min(82vw,400px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;margin-top:2.5rem;padding:0 var(--g) 6px;scroll-padding:0 var(--g);scrollbar-width:none}
 .team-rail::-webkit-scrollbar{display:none}
 .mate{scroll-snap-align:start;position:relative;overflow:hidden;border-radius:var(--r);background:var(--surface);border:1px solid var(--line);padding:1.5rem;min-height:400px;display:flex;flex-direction:column;justify-content:flex-end}
-.mate{--c:var(--accent)}
+.mate{--c:var(--accent);container-type:inline-size}
 .mate .ini{position:absolute;top:-.12em;right:-.04em;font-family:var(--fd);font-weight:800;font-size:17rem;line-height:1;color:transparent;pointer-events:none;transition:transform .7s var(--ease)}
 .mate:hover .ini{transform:translate(-8px,6px)}
 /* three equals: same size, same weight, same button; each has its own finish and a barbering texture on the initial */
@@ -132,7 +132,7 @@ section{position:relative}
 .mate.m-rrapi{--c:#b9c6d2;background:linear-gradient(160deg,#252c33,#0f1012 70%)}
 .mate.m-rrapi .ini{background:repeating-linear-gradient(135deg,rgba(185,198,210,.5) 0 7px,transparent 7px 16px);-webkit-background-clip:text;background-clip:text}   /* the barber pole: stripes */
 .mate .role{color:var(--c);font-weight:600;font-size:.9375rem;margin-bottom:.25rem}
-.mate .h3{font-size:clamp(2rem,8vw,2.5rem)}
+.mate .h3{font-size:clamp(2rem,8vw,2.5rem);font-size:min(2.5rem,11.4cqw)}   /* follows the card width, so the longest name never wraps and the three stay on one baseline */
 .mate p{color:var(--muted);margin:.6rem 0 1.25rem;max-width:32ch}
 .mate .btn{align-self:flex-start}
 @media(min-width:1100px){.team-rail{grid-auto-flow:row;grid-template-columns:repeat(3,1fr);overflow:visible;max-width:1320px;margin-left:auto;margin-right:auto}}
