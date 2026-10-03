@@ -31,9 +31,9 @@ class H(http.server.SimpleHTTPRequestHandler):
         if '?' in path:
             path, q = path.split('?', 1)
             q = '?' + q
-        if path.rstrip('/') in ('/shop', '/servizi', '/ordine'):
+        if path.rstrip('/') in ('/shop', '/servizi', '/ordine', '/en/shop', '/en/services', '/en/order'):
             return path.rstrip('/') + '.html' + q
-        if re.match(r'^/(prodotti|servizi)/[\w-]+$', path) and os.path.exists(ROOT + path + '.html'):
+        if re.match(r'^/(prodotti|servizi|en/products|en/services)/[\w-]+$', path) and os.path.exists(ROOT + path + '.html'):
             return path + '.html' + q
         return path + q
 

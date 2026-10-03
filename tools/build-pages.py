@@ -5,9 +5,17 @@
 
 Writes:   shop.html                    -> /shop
           servizi.html                 -> /servizi
+          ordine.html                  -> /ordine
           prodotti/<slug>.html         -> /prodotti/<slug>     one page per product
           servizi/<slug>.html          -> /servizi/<slug>      one page per service
+          en/index.html, en/shop.html, en/services.html, en/order.html, en/products/<slug>.html, en/services/<slug>.html
+                                       -> the same pages in English under /en/
+          js/en.js                     -> the Italian->English dictionary the scripts use on the English pages
 Updates:  the service-group teaser on the home page (between <!--gen:svc-groups--> markers)
+
+English: data/en.json maps each Italian phrase to its English version, data/catalog.en.json and data/services.en.json hold the
+translated product and service copy. Run with --check to build everything in memory and fail if an English page still has Italian
+in it, or a script asks for a phrase the dictionary does not have.
 
 The header, footer, cart drawer, checkout and booking sheet are copied from the <!--shared:...--> blocks of index.html, and the
 inline pre-paint script is copied byte for byte (the CSP allows exactly one hash). No dependencies, no build step on Netlify:
@@ -17,7 +25,12 @@ import html as H
 import json
 import os
 import re
+import sys
 
+sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
+import i18n
+
+SITE = 'https://darta-demo.netlify.app'   # absolute URLs for hreflang; change when the domain changes
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 esc = lambda s: H.escape(str(s), quote=True)
 
@@ -34,18 +47,61 @@ def write(p, s):
         f.write(s)
 
 
+LANG = 'it'
+
+
 def eur(c):
+    if LANG == 'en':
+        return f"€{c // 100}" if c % 100 == 0 else f"€{c / 100:.2f}"
     return f"{c // 100}€" if c % 100 == 0 else f"{c / 100:.2f}".replace('.', ',') + '€'
 
 
-CAT = json.loads(read('data/catalog.json'))
-SVC = json.loads(read('data/services.json'))
+MAP = json.loads(read('data/en.json'))
+
+
+def tr(s, **kw):
+    """A phrase made in Python (it has numbers or prices in it): Italian as written, or its English version."""
+    out = MAP.get(s, s) if LANG == 'en' else s
+    for k, v in kw.items():
+        out = out.replace('{' + k + '}', str(v))
+    return out
+
+
+CAT_IT = json.loads(read('data/catalog.json'))
+SVC_IT = json.loads(read('data/services.json'))
+CAT_EN = json.loads(read('data/catalog.en.json'))
+SVC_EN = json.loads(read('data/services.en.json'))
 INDEX = read('index.html')
-PRODUCTS = CAT['products']
-BYID = {p['id']: p for p in PRODUCTS}
-CATLABEL = {c['id']: c['label'] for c in CAT['cats']}
-GROUP = {g['id']: g for g in SVC['groups']}
-SERVICES = SVC['services']
+CAT = SVC = PRODUCTS = BYID = CATLABEL = GROUP = SERVICES = None
+
+
+def merged(base, over):
+    """base with the translated fields of `over` laid on top (dicts merge, everything else is replaced)."""
+    if isinstance(base, dict) and isinstance(over, dict):
+        return {k: merged(base[k], over[k]) if k in over else base[k] for k in base}
+    return over
+
+
+def set_lang(lang):
+    """Points the generator at the Italian data or the English data (the Italian files with the translated fields laid on top)."""
+    global LANG, CAT, SVC, PRODUCTS, BYID, CATLABEL, GROUP, SERVICES
+    LANG = lang
+    CAT, SVC = CAT_IT, SVC_IT
+    if lang == 'en':
+        CAT = dict(CAT_IT, coupons=merged(CAT_IT['coupons'], CAT_EN['coupons']),
+                   cats=[dict(c, label=CAT_EN['cats'][c['id']]) for c in CAT_IT['cats']],
+                   products=[merged(p, CAT_EN['products'][p['id']]) for p in CAT_IT['products']])
+        SVC = dict(SVC_IT, note=SVC_EN['note'],
+                   groups=[merged(g, SVC_EN['groups'][g['id']]) for g in SVC_IT['groups']],
+                   services=[merged(x, SVC_EN['services'][x['slug']]) for x in SVC_IT['services']])
+    PRODUCTS = CAT['products']
+    BYID = {p['id']: p for p in PRODUCTS}
+    CATLABEL = {c['id']: c['label'] for c in CAT['cats']}
+    GROUP = {g['id']: g for g in SVC['groups']}
+    SERVICES = SVC['services']
+
+
+set_lang('it')
 TRANSPARENT = 'data:image/gif;base64,R0lGODlhAQABAAAAACH5BAEKAAEALAAAAAABAAEAAAICTAEAOw=='
 
 
@@ -67,8 +123,8 @@ def default_variant(p):
 
 def price_text(p):
     if p.get('variants'):
-        return 'da ' + eur(p['variants'][0]['price'])
-    return eur(p['price']) + (' /mese' if p.get('recurring') else '')
+        return tr('da {price}', price=eur(p['variants'][0]['price']))
+    return tr('{price} /mese', price=eur(p['price'])) if p.get('recurring') else eur(p['price'])
 
 
 def unit_price(p):
@@ -95,14 +151,55 @@ def mini(p):
 
 
 # ---------------------------------------------------------------- page shell
-def page(title, desc, body_class, main, scripts, og=None, jsonld=None, preload_catalog=True):
+LEFT = []   # Italian text found on English pages without a translation (reported by --check)
+
+
+def switch_link(alt):
+    """The language link of the header: on an Italian page it leads to the English twin, and the other way round."""
+    if LANG == 'it':
+        return f'<a class="lang-sw" id="langSw" href="{alt}" hreflang="en" lang="en" aria-label="Read this site in English">EN</a>'
+    return f'<a class="lang-sw" id="langSw" href="{alt}" hreflang="it" lang="it" aria-label="Leggi il sito in italiano">IT</a>'
+
+
+def set_switch(html, alt):
+    out, n = re.subn(r'<a class="lang-sw"[^>]*>.*?</a>', lambda m: switch_link(alt), html, count=1, flags=re.S)
+    if n != 1:
+        raise SystemExit('the header has no language link (<a class="lang-sw">)')
+    return out
+
+
+def alternates(urls):
+    return (f'<link rel="alternate" hreflang="it" href="{SITE}{urls["it"]}">\n'
+            f'<link rel="alternate" hreflang="en" href="{SITE}{urls["en"]}">\n'
+            f'<link rel="alternate" hreflang="x-default" href="{SITE}{urls["it"]}">')
+
+
+def finish(html, urls):
+    """Last step of every page: on the English ones, translate it, point its links at /en/, load the dictionary."""
+    if LANG == 'en':
+        html, left = i18n.translate_html(html, MAP)
+        LEFT.extend(left)
+        html = i18n.localize_links(html)
+        html = html.replace('<html lang="it">', '<html lang="en">', 1)
+        html = html.replace('<script defer src="/js/vendor/anime.umd.min.js"></script>',
+                            '<script defer src="/js/en.js"></script>\n<script defer src="/js/vendor/anime.umd.min.js"></script>', 1)
+        html = html.replace('<link rel="preload" as="fetch" href="/data/catalog.json" crossorigin="anonymous">',
+                            '<link rel="preload" as="fetch" href="/data/catalog.json" crossorigin="anonymous">\n'
+                            '<link rel="preload" as="fetch" href="/data/catalog.en.json" crossorigin="anonymous">', 1)
+    return set_switch(html, urls['en' if LANG == 'it' else 'it'])
+
+
+U = lambda h: i18n.localize_href(h) if LANG == 'en' else h
+
+
+def page(title, desc, body_class, main, scripts, urls, og=None, jsonld=None, preload_catalog=True):
     ld = ''
     if jsonld:
         ld = '\n<script type="application/ld+json">' + json.dumps(jsonld, ensure_ascii=False).replace('</', '<\\/') + '</script>'
     og_img = f'\n<meta property="og:image" content="{og}">' if og else ''
     pre = '\n<link rel="preload" as="fetch" href="/data/catalog.json" crossorigin="anonymous">' if preload_catalog else ''
     js = '\n'.join(f'<script defer src="/js/{s}"></script>' for s in ['vendor/anime.umd.min.js'] + scripts)
-    return f'''<!DOCTYPE html>
+    html = f'''<!DOCTYPE html>
 <html lang="it">
 <head>
 <meta charset="utf-8">
@@ -112,6 +209,7 @@ def page(title, desc, body_class, main, scripts, og=None, jsonld=None, preload_c
 <meta name="robots" content="noindex">
 <meta name="darta-demo" content="1">
 <meta name="theme-color" content="#0b0b0a">
+{alternates(urls)}
 <meta property="og:title" content="{esc(title)}">
 <meta property="og:description" content="{esc(desc)}">{og_img}
 <link rel="icon" href="/img/logo.png">
@@ -138,6 +236,7 @@ def page(title, desc, body_class, main, scripts, og=None, jsonld=None, preload_c
 </body>
 </html>
 '''
+    return finish(html, urls)
 
 
 def crumbs(*items):
@@ -151,12 +250,14 @@ def crumbs(*items):
 # ---------------------------------------------------------------- shop
 def card(p, i):
     quick = not p.get('variants')
-    badge = f'<span class="pcard-badge">Risparmi {eur(kit_saving(p))}</span>' if kit_saving(p) > 0 else ''
-    label = f'{p["name"]}, {price_text(p)}. Apri la pagina del prodotto'
+    badge = f'<span class="pcard-badge">{esc(tr("Risparmi {amount}", amount=eur(kit_saving(p))))}</span>' if kit_saving(p) > 0 else ''
+    label = tr('{name}, {price}. Apri la pagina del prodotto', name=p['name'], price=price_text(p))
+    add_aria = esc(tr('Aggiungi {name} al carrello', name=p['name']))
+    choose_aria = esc(tr("Scegli l'importo: {name}", name=p['name']))
     if quick:
-        buy = (f'<button class="pcard-add" type="button" data-add="{p["id"]}" aria-label="Aggiungi {esc(p["name"])} al carrello">{icon("s-plus")}</button>')
+        buy = f'<button class="pcard-add" type="button" data-add="{p["id"]}" aria-label="{add_aria}">{icon("s-plus")}</button>'
     else:
-        buy = (f'<a class="pcard-add" href="/prodotti/{p["slug"]}" aria-label="Scegli l\'importo: {esc(p["name"])}">{icon("s-arrow")}</a>')
+        buy = f'<a class="pcard-add" href="/prodotti/{p["slug"]}" aria-label="{choose_aria}">{icon("s-arrow")}</a>'
     feature = ' feature' if p.get('items') else ''
     return f'''<article class="pcard rv shot{feature}" data-id="{p["id"]}" data-cat="{p["cat"]}" style="--i:{i % 4}">
   <a class="pcard-media" href="/prodotti/{p["slug"]}" aria-label="{esc(label)}">
@@ -196,7 +297,7 @@ def shop_page():
       </div>
       <div class="shop-bar">
         <div class="filters" id="filters" role="group" aria-label="Filtra per categoria">{filters}</div>
-        <p class="count num" id="shopCount" aria-live="polite">{len(PRODUCTS)} prodotti</p>
+        <p class="count num" id="shopCount" aria-live="polite">{esc(tr("{n} prodotti", n=len(PRODUCTS)))}</p>
       </div>
       <div class="shelf" id="shelf">
 {cards}
@@ -206,22 +307,23 @@ def shop_page():
   </section>
 </main>'''
     ld = {'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': [
-        {'@type': 'ListItem', 'position': i + 1, 'url': f'/prodotti/{p["slug"]}', 'name': p['name']} for i, p in enumerate(PRODUCTS)]}
+        {'@type': 'ListItem', 'position': i + 1, 'url': U(f'/prodotti/{p["slug"]}'), 'name': p['name']} for i, p in enumerate(PRODUCTS)]}
     return page('Shop | Darta Barber Studio, Pescara',
                 "Lo shop di Darta Barber Studio: wax powder, argilla, pomata, olio barba, sea salt spray, kit e gift card. Ritiro gratis in salone o spedizione in Italia.",
-                'page-shop', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'shop.js', 'main.js'], og=thumb(PRODUCTS[0]), jsonld=ld)
+                'page-shop', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'shop.js', 'main.js'], {'it': '/shop', 'en': '/en/shop'},
+                og=thumb(PRODUCTS[0]), jsonld=ld)
 
 
 # ---------------------------------------------------------------- product pages
 def product_page(p):
     v = default_variant(p)
     is_try = p['kind'] in ('jar', 'dropper', 'spray', 'powder')
-    badge = f'<span class="pcard-badge pdp-badge">Risparmi {eur(kit_saving(p))}</span>' if kit_saving(p) > 0 else ''
+    badge = f'<span class="pcard-badge pdp-badge">{esc(tr("Risparmi {amount}", amount=eur(kit_saving(p))))}</span>' if kit_saving(p) > 0 else ''
     variants = ''
     if p.get('variants'):
         chips = ''.join(f'<label><input type="radio" name="pv" value="{x["id"]}" data-price="{x["price"]}"{" checked" if x is v else ""}><span>{esc(x["label"])}</span></label>' for x in p['variants'])
         variants = f'<fieldset class="fld" id="ppVars"><legend>Importo</legend><div class="chips">{chips}</div></fieldset>'
-    specs = ''.join(f'<div class="spec"><dt>{esc(k)}</dt><dd><span class="pips" role="img" aria-label="{n} su 5">' + ''.join(f'<i class="{"on" if j < n else ""}"></i>' for j in range(5)) + '</span></dd></div>' for k, n in p.get('specs', []))
+    specs = ''.join(f'<div class="spec"><dt>{esc(k)}</dt><dd><span class="pips" role="img" aria-label="{esc(tr("{n} su 5", n=n))}">' + ''.join(f'<i class="{"on" if j < n else ""}"></i>' for j in range(5)) + '</span></dd></div>' for k, n in p.get('specs', []))
     use = ''.join(f'<li>{esc(t)}</li>' for t in p.get('use', []))
     contains = ''
     if p.get('items'):
@@ -229,8 +331,8 @@ def product_page(p):
     more = ''.join(mini(x) for x in related_products(p))
     try_btn = f'<button type="button" class="pdp-try" id="ppTry" hidden>{icon("i-play")}<span id="ppTryTxt">Apri</span></button>' if is_try else ''
     unit = unit_price(p)
-    add_label = f'Aggiungi <span class="opt">al carrello</span> · {eur(unit)}'
-    price = eur(unit) + (' /mese' if p.get('recurring') else '')
+    add_label = f'{esc(tr("Aggiungi"))} <span class="opt">{esc(tr("al carrello"))}</span> · {eur(unit)}'
+    price = tr('{price} /mese', price=eur(unit)) if p.get('recurring') else eur(unit)
     main = f'''<main id="top" class="pp" data-slug="{p["slug"]}">
   <div class="wrap">
     {crumbs(('Shop', '/shop'), (p['name'], None))}
@@ -273,9 +375,10 @@ def product_page(p):
 </main>'''
     ld = {'@context': 'https://schema.org', '@type': 'Product', 'name': p['name'], 'description': p['desc'], 'image': thumb(p),
           'brand': {'@type': 'Brand', 'name': 'Darta Barber Studio'},
-          'offers': {'@type': 'Offer', 'priceCurrency': 'EUR', 'price': f'{unit / 100:.2f}', 'availability': 'https://schema.org/InStock', 'url': f'/prodotti/{p["slug"]}'}}
+          'offers': {'@type': 'Offer', 'priceCurrency': 'EUR', 'price': f'{unit / 100:.2f}', 'availability': 'https://schema.org/InStock', 'url': U(f'/prodotti/{p["slug"]}')}}
     return page(f'{p["name"]} | Shop Darta Barber Studio', f'{p["name"]}: {p["short"]} {p["desc"]}'[:300], 'page-product', main,
-                ['core.js', 'store.js', 'pay.js', 'product-gl.js', 'cart.js', 'motion.js', 'product.js', 'main.js'], og=thumb(p), jsonld=ld)
+                ['core.js', 'store.js', 'pay.js', 'product-gl.js', 'cart.js', 'motion.js', 'product.js', 'main.js'],
+                {'it': f'/prodotti/{p["slug"]}', 'en': f'/en/products/{p["slug"]}'}, og=thumb(p), jsonld=ld)
 
 
 # ---------------------------------------------------------------- order confirmation (Stripe sends the customer back here)
@@ -300,12 +403,12 @@ def order_page():
   </section>
 </main>'''
     return page('Il tuo ordine | Darta Barber Studio', 'Conferma del tuo ordine su Darta Barber Studio.', 'page-order', main,
-                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'order.js', 'main.js'], preload_catalog=False)
+                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'order.js', 'main.js'], {'it': '/ordine', 'en': '/en/order'}, preload_catalog=False)
 
 
 # ---------------------------------------------------------------- services
 def svc_price(s):
-    return ('da ' if s.get('from') else '') + eur(s['price'])
+    return tr('da {price}', price=eur(s['price'])) if s.get('from') else eur(s['price'])
 
 
 def svc_row(s, tag='a'):
@@ -336,10 +439,11 @@ def services_page():
   </section>
 </main>'''
     ld = {'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': [
-        {'@type': 'ListItem', 'position': i + 1, 'url': f'/servizi/{s["slug"]}', 'name': s['name']} for i, s in enumerate(SERVICES)]}
+        {'@type': 'ListItem', 'position': i + 1, 'url': U(f'/servizi/{s["slug"]}'), 'name': s['name']} for i, s in enumerate(SERVICES)]}
     return page('Servizi e listino | Darta Barber Studio, Pescara',
                 'Servizi di Darta Barber Studio: taglio uomo, skin fade, barba a lama, rasatura tradizionale, combo. Prezzi e durate, prenota dall\'app.',
-                'page-services', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'main.js'], jsonld=ld, preload_catalog=False)
+                'page-services', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'main.js'], {'it': '/servizi', 'en': '/en/services'},
+                jsonld=ld, preload_catalog=False)
 
 
 def service_page(s):
@@ -375,35 +479,117 @@ def service_page(s):
           'provider': {'@type': 'HairSalon', 'name': 'Darta Barber Studio',
                        'address': {'@type': 'PostalAddress', 'streetAddress': 'Via Piero Gobetti 184', 'postalCode': '65129', 'addressLocality': 'Pescara', 'addressCountry': 'IT'}},
           'offers': {'@type': 'Offer', 'priceCurrency': 'EUR', 'price': f'{s["price"] / 100:.2f}'}}
-    return page(f'{s["name"]} | Servizi Darta Barber Studio', f'{s["name"]}, {s["time"]}, {svc_price(s)}. {s["desc"]}'[:300], 'page-service', main,
-                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'main.js'], jsonld=ld, preload_catalog=False)
+    return page(tr('{name} | Servizi Darta Barber Studio', name=s['name']), f'{s["name"]}, {s["time"]}, {svc_price(s)}. {s["desc"]}'[:300], 'page-service', main,
+                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'main.js'], {'it': f'/servizi/{s["slug"]}', 'en': f'/en/services/{s["slug"]}'},
+                jsonld=ld, preload_catalog=False)
 
 
-# ---------------------------------------------------------------- home teaser (kept in sync with the data)
-def update_home_groups():
+# ---------------------------------------------------------------- home page
+def groups_html():
+    """The service-group teaser of the home page, kept in sync with the data."""
     items = ''
     for g in SVC['groups']:
-        ss = [s for s in SERVICES if s['group'] == g['id']]
-        lowest = min(s['price'] for s in ss)
-        items += f'<li><a href="/servizi#{g["id"]}"><b>{esc(g["label"])}</b><span>{len(ss)} serviz{"i" if len(ss) != 1 else "io"} · da {eur(lowest)}</span></a></li>'
-    new = f'<!--gen:svc-groups--><ul class="svc-groups rv">{items}</ul><!--/gen:svc-groups-->'
-    out = re.sub(r'<!--gen:svc-groups-->.*?<!--/gen:svc-groups-->', lambda m: new, INDEX, flags=re.S)
-    if out != INDEX:
-        write('index.html', out)
-        print('updated  index.html (service groups)')
+        ss = [x for x in SERVICES if x['group'] == g['id']]
+        lowest = min(x['price'] for x in ss)
+        count = tr('{n} servizi · da {price}' if len(ss) != 1 else '{n} servizio · da {price}', n=len(ss), price=eur(lowest))
+        items += f'<li><a href="/servizi#{g["id"]}"><b>{esc(g["label"])}</b><span>{esc(count)}</span></a></li>'
+    return f'<!--gen:svc-groups--><ul class="svc-groups rv">{items}</ul><!--/gen:svc-groups-->'
+
+
+GROUPS_RE = r'<!--gen:svc-groups-->.*?<!--/gen:svc-groups-->'
+
+
+def home_page():
+    """index.html (Italian, hand written) or its English twin, translated from it."""
+    html = re.sub(GROUPS_RE, lambda m: groups_html(), INDEX, flags=re.S)
+    return html if LANG == 'it' else finish(html, {'it': '/', 'en': '/en/'})
+
+
+# ---------------------------------------------------------------- the dictionary for the scripts
+def js_sources():
+    d = os.path.join(ROOT, 'js')
+    return {f: read('js/' + f) for f in sorted(os.listdir(d)) if f.endswith('.js') and f != 'en.js'}
+
+
+CALL = re.compile(r"""\b(?:tr|D\.t)\(\s*(['"])((?:\\.|(?!\1).)*)\1""")
+
+
+def unquote(lit):
+    return lit.replace("\\'", "'").replace('\\"', '"').replace('\\\\', '\\')
+
+
+def js_keys():
+    """(phrases the scripts ask for with tr('...'), phrases of the dictionary that a script mentions as a plain string)."""
+    called, mentioned = set(), set()
+    for src in js_sources().values():
+        called.update(unquote(m.group(2)) for m in CALL.finditer(src))
+        for k in MAP:
+            if '<' not in k and any(q + k + q in src for q in ("'", '"')):
+                mentioned.add(k)
+    return called, mentioned
+
+
+def en_js():
+    called, mentioned = js_keys()
+    missing = sorted(k for k in called if k not in MAP)
+    if missing:
+        LEFT.extend('script asks for a phrase missing from data/en.json: ' + k for k in missing)
+    keys = sorted(called | mentioned)
+    body = json.dumps({k: MAP[k] for k in keys if k in MAP}, ensure_ascii=False, indent=0, separators=(',', ':')).replace('</', '<\\/')
+    return ('/* Italian -> English phrases for the English pages. GENERATED by tools/build-pages.py from data/en.json: do not edit. */\n'
+            'window.DARTA_EN=' + body + ';\n')
+
+
+# ---------------------------------------------------------------- everything
+def build_all():
+    """{path: content} of every generated file, Italian pages first, then the English ones."""
+    out = {}
+    set_lang('it')
+    out['index.html'] = home_page()
+    out['shop.html'] = shop_page()
+    out['servizi.html'] = services_page()
+    out['ordine.html'] = order_page()
+    for p in PRODUCTS:
+        out[f'prodotti/{p["slug"]}.html'] = product_page(p)
+    for x in SERVICES:
+        out[f'servizi/{x["slug"]}.html'] = service_page(x)
+    set_lang('en')
+    out['en/index.html'] = home_page()
+    out['en/shop.html'] = shop_page()
+    out['en/services.html'] = services_page()
+    out['en/order.html'] = order_page()
+    for p in PRODUCTS:
+        out[f'en/products/{p["slug"]}.html'] = product_page(p)
+    for x in SERVICES:
+        out[f'en/services/{x["slug"]}.html'] = service_page(x)
+    out['js/en.js'] = en_js()
+    set_lang('it')
+    return out
+
+
+def report_left():
+    uniq = sorted(set(LEFT))
+    for t in uniq:
+        print('  untranslated:', t[:140])
+    return len(uniq)
 
 
 def main():
-    write('shop.html', shop_page()); print('wrote    shop.html')
-    write('servizi.html', services_page()); print('wrote    servizi.html')
-    write('ordine.html', order_page()); print('wrote    ordine.html')
-    for p in PRODUCTS:
-        write(f'prodotti/{p["slug"]}.html', product_page(p))
-    print(f'wrote    prodotti/ ({len(PRODUCTS)} pages)')
-    for s in SERVICES:
-        write(f'servizi/{s["slug"]}.html', service_page(s))
-    print(f'wrote    servizi/ ({len(SERVICES)} pages)')
-    update_home_groups()
+    global INDEX
+    check = '--check' in sys.argv
+    out = build_all()
+    if check:
+        n = report_left()
+        if n:
+            raise SystemExit(f'{n} Italian phrase(s) left on the English pages (add them to data/en.json)')
+        print('ok: the English pages have no untranslated Italian,', len(out), 'files would be written')
+        return
+    n = report_left()
+    for path, content in out.items():
+        write(path, content)
+    print('wrote   ', len(out), 'files (Italian pages, /en/ pages, js/en.js)')
+    if n:
+        print(f'WARNING: {n} Italian phrase(s) on the English pages have no translation (python3 tools/build-pages.py --check)')
 
 
 if __name__ == '__main__':
