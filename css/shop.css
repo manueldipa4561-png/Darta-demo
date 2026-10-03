@@ -294,3 +294,7 @@ dialog.co.out{animation:pdpOut .17s ease-in forwards}
 }
 
 .sh-top .x{margin-left:auto}
+/* checkout in live mode: Stripe collects the details, so our own fields step aside */
+.co-live .fld,.co-live .co-ship{display:none}
+.co-live .co-mode{margin-bottom:.25rem!important}
+.sheet p.err{color:var(--err)}
