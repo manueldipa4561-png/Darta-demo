@@ -1,0 +1,118 @@
+{
+  "note": "Prices, durations and descriptions are examples for the demo and are to be confirmed with the salon.",
+  "groups": {
+    "capelli": {
+      "label": "Hair",
+      "lead": "From the classic cut to a skin fade."
+    },
+    "barba": {
+      "label": "Beard",
+      "lead": "Shape, edges and blade treatments."
+    },
+    "combo": {
+      "label": "Combos",
+      "lead": "Several services in one sitting."
+    }
+  },
+  "services": {
+    "taglio-uomo": {
+      "name": "Men's haircut",
+      "time": "30 min",
+      "tag": "The classic, tailored.",
+      "desc": "You talk shape and length with the barber, then it's clippers and scissors where needed. Edges finished and a final style: you walk out ready.",
+      "steps": [
+        "Choose shape and length with the barber.",
+        "Cut with clippers and scissors.",
+        "Edges finished and final styling."
+      ]
+    },
+    "skin-fade": {
+      "name": "Skin fade",
+      "time": "40 min",
+      "tag": "A clean skin fade.",
+      "desc": "The fade that drops all the way to the skin: smooth and gradual, no harsh lines. You decide the length on top together. It looks great with a defined beard.",
+      "steps": [
+        "Decide the height of the fade and the length on top.",
+        "Skin fade with clippers and razor.",
+        "Edges finished and styling."
+      ]
+    },
+    "taglio-e-styling": {
+      "name": "Haircut & styling",
+      "time": "45 min",
+      "tag": "A haircut plus a blow-dry.",
+      "desc": "The full haircut with extra time for styling: drying, product and a finish designed around how you wear your hair every day, so you know how to redo it at home.",
+      "steps": [
+        "Consultation on cut and finish.",
+        "Haircut.",
+        "Drying and styling with the right products."
+      ]
+    },
+    "taglio-bambino": {
+      "name": "Kids' haircut",
+      "time": "Up to age 12, 30 min",
+      "tag": "For the little ones.",
+      "desc": "A quick, stress-free haircut for children up to 12, with the same care we give adults.",
+      "steps": [
+        "Pick the cut together with mum or dad.",
+        "Cut with clippers and scissors.",
+        "A final tidy and off they go."
+      ]
+    },
+    "regolazione-barba": {
+      "name": "Beard trim",
+      "time": "20 min",
+      "tag": "Shape and edges.",
+      "desc": "To keep the beard tidy between treatments: shape, length and the lines on cheeks and neck.",
+      "steps": [
+        "Choose shape and length.",
+        "Trim with clippers and scissors.",
+        "Sharp lines on cheeks and neck."
+      ]
+    },
+    "barba-panno-caldo-e-lama": {
+      "name": "Hot towel beard & blade finish",
+      "time": "30 min",
+      "tag": "The complete treatment.",
+      "desc": "A hot towel to soften, shaping, a blade finish and an oil to end. The most complete beard treatment.",
+      "steps": [
+        "Hot towel to open and soften.",
+        "Shaping and blade finish.",
+        "Oil and final touch."
+      ]
+    },
+    "rasatura-tradizionale": {
+      "name": "Traditional shave",
+      "time": "30 min",
+      "tag": "Lather, hot towel and blade.",
+      "desc": "The old-school shave: lather, hot towel and a straight razor for a smooth result, with moisturised skin at the end.",
+      "steps": [
+        "Hot towel and lather.",
+        "Freehand blade shave.",
+        "Towel and moisturiser to finish."
+      ]
+    },
+    "taglio-e-barba": {
+      "name": "Haircut & beard",
+      "time": "60 min",
+      "tag": "The complete package.",
+      "desc": "Haircut and beard in the same sitting, with a single appointment: hair and beard planned together for a cohesive look.",
+      "steps": [
+        "Consultation on hair and beard.",
+        "Haircut and beard shaping.",
+        "Edges and final styling."
+      ]
+    },
+    "platino-e-taglio": {
+      "name": "Platinum & cut",
+      "time": "By consultation, 120 min",
+      "tag": "Bleaching by consultation.",
+      "desc": "Full bleach for platinum hair and a cut that shows it off. It starts with a consultation: time and cost depend on your starting hair.",
+      "steps": [
+        "Consultation on your starting base.",
+        "Bleaching and toning.",
+        "Cut and styling."
+      ]
+    }
+  }
+}

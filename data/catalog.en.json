@@ -1,0 +1,210 @@
+{
+  "coupons": {
+    "BENVENUTO10": {
+      "label": "Welcome code (10% off products)"
+    }
+  },
+  "cats": {
+    "tutti": "All",
+    "capelli": "Hair",
+    "barba": "Beard",
+    "kit": "Kits",
+    "regali": "Gifts",
+    "club": "Club"
+  },
+  "products": {
+    "wax": {
+      "name": "Wax Powder",
+      "tag": "Volumising powder",
+      "size": "20 g",
+      "short": "Volume and texture, without the weight.",
+      "desc": "The powder Thomas uses to add volume at the root and texture all over, with a natural matte finish. It goes on dry, restyles whenever you like and washes out with normal shampoo.",
+      "use": [
+        "Unscrew the cap.",
+        "Shake a little powder onto dry roots.",
+        "Work it in with your fingers for volume."
+      ],
+      "specs": [
+        [
+          "Volume",
+          5
+        ],
+        [
+          "Hold",
+          3
+        ]
+      ]
+    },
+    "clay": {
+      "name": "Matte Clay",
+      "tag": "Matte clay",
+      "size": "100 ml",
+      "short": "Strong hold, matte finish.",
+      "desc": "The clay Thomas uses for texture and volume without shine. Work it into dry hair or hair that has just been blow-dried, and it holds all day.",
+      "use": [
+        "Warm a small amount between your palms.",
+        "Work it in from the nape towards the front.",
+        "Restyle whenever you like: it never hardens."
+      ],
+      "specs": [
+        [
+          "Hold",
+          4
+        ],
+        [
+          "Shine",
+          1
+        ]
+      ]
+    },
+    "pomata": {
+      "name": "Pomata Shine",
+      "tag": "Shiny pomade",
+      "size": "100 ml",
+      "short": "Razor parting and a clean shine.",
+      "desc": "Water-based pomade for side parts, a sharp parting and a glossy finish. It washes out with normal shampoo and leaves no residue.",
+      "use": [
+        "Apply to damp hair with your fingers.",
+        "Comb from the parting outwards.",
+        "Set it with the hairdryer for a drier shine."
+      ],
+      "specs": [
+        [
+          "Hold",
+          3
+        ],
+        [
+          "Shine",
+          5
+        ]
+      ]
+    },
+    "olio": {
+      "name": "Olio Barba",
+      "tag": "Beard oil",
+      "size": "30 ml",
+      "short": "Soft, tidy, scented.",
+      "desc": "A few drops soften the beard, tame stray hairs and give a natural finish. Notes of wood and amber.",
+      "use": [
+        "Pour 3-4 drops into your palm.",
+        "Warm it up and spread from root to tip.",
+        "Comb to define the shape."
+      ],
+      "specs": [
+        [
+          "Softness",
+          5
+        ],
+        [
+          "Scent",
+          3
+        ]
+      ]
+    },
+    "sale": {
+      "name": "Sea Salt Spray",
+      "tag": "Texturising spray",
+      "size": "150 ml",
+      "short": "Beach volume and texture.",
+      "desc": "The pre-styler that gives fine hair body and short cuts texture. It dries in seconds without stiffening.",
+      "use": [
+        "Spray onto damp hair.",
+        "Blow-dry, tousling as you go.",
+        "Finish with Matte Clay if you want more hold."
+      ],
+      "specs": [
+        [
+          "Volume",
+          4
+        ],
+        [
+          "Hold",
+          2
+        ]
+      ]
+    },
+    "kit": {
+      "name": "Fade Kit",
+      "tag": "Clay, Sea Salt, Oil",
+      "size": "3 products",
+      "short": "The whole fade routine at home, for less.",
+      "desc": "Matte Clay, Sea Salt Spray and Olio Barba in one order. The set Thomas recommends to anyone leaving the chair with a fresh fade.",
+      "use": [
+        "Sea Salt on damp hair.",
+        "Matte Clay for texture and hold.",
+        "Olio Barba to finish."
+      ],
+      "specs": [
+        [
+          "Hold",
+          4
+        ],
+        [
+          "Shine",
+          1
+        ]
+      ]
+    },
+    "gift": {
+      "name": "Gift Card",
+      "tag": "Give a haircut",
+      "size": "Digital",
+      "variants": [
+        {
+          "id": "25",
+          "label": "€25",
+          "price": 2500
+        },
+        {
+          "id": "50",
+          "label": "€50",
+          "price": 5000
+        },
+        {
+          "id": "100",
+          "label": "€100",
+          "price": 10000
+        }
+      ],
+      "short": "For a haircut, a beard trim or a product.",
+      "desc": "It arrives by email right after the order, ready to forward. Valid for every service and product at the studio, for 12 months.",
+      "use": [
+        "Choose the amount.",
+        "You get it by email within minutes.",
+        "The recipient books in the app and shows it at the till."
+      ],
+      "specs": [
+        [
+          "Validity",
+          5
+        ],
+        [
+          "Ease of use",
+          5
+        ]
+      ]
+    },
+    "club": {
+      "name": "Fade Membership",
+      "tag": "2 haircuts a month",
+      "size": "Monthly",
+      "short": "A fresh fade, at a fixed price.",
+      "desc": "Two haircuts a month for €36 instead of €50. It starts with your first booking and you can cancel whenever you like.",
+      "use": [
+        "Start the membership.",
+        "Book your two haircuts in the app.",
+        "Cancel at the studio, no penalties."
+      ],
+      "specs": [
+        [
+          "Savings",
+          4
+        ],
+        [
+          "Flexibility",
+          5
+        ]
+      ]
+    }
+  }
+}
