@@ -204,8 +204,8 @@ section{position:relative}
 
 .info-grid{display:grid;gap:3rem}
 .status{display:inline-flex;align-items:center;gap:.6rem;margin:1.25rem 0 2rem;font-weight:600}
-.status i{width:10px;height:10px;border-radius:50%;background:var(--dim)}
-.status.open i{background:var(--accent);box-shadow:0 0 0 5px rgba(108,192,184,.16)}
+.status i{width:10px;height:10px;border-radius:50%;background:#ff5a4d;box-shadow:0 0 0 5px rgba(255,90,77,.16);transition:background .5s,box-shadow .5s}
+.status.open i{background:#3ddc84;box-shadow:0 0 0 5px rgba(61,220,132,.18)}
 .hours{list-style:none}
 .hours li{display:flex;justify-content:space-between;padding:.9rem 0;border-bottom:1px solid var(--line);color:var(--muted)}
 .hours li.today{color:var(--text);font-weight:600}
