@@ -250,17 +250,3 @@ dialog[open]{animation:up .45s var(--ease)}
   .rv,.ln>span.rv{opacity:1;transform:none}
   html{scroll-behavior:auto}
 }
-
-/* bridge, one deploy only: the previous markup kept the cuts and the closing call to action inside #stage */
-#stage .cuts{list-style:none;position:relative;z-index:3}
-#stage .cut figcaption strong{display:block;font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(2.2rem,9vw,4.4rem);line-height:.9;margin-bottom:.35rem}
-#stage .cut figcaption span{color:var(--muted)}
-#stage .end-copy{display:none}
-html:not(.gl) #stage .cuts{display:grid;grid-auto-flow:column;grid-auto-columns:min(78vw,380px);gap:14px;overflow-x:auto;scroll-snap-type:x mandatory;padding:var(--sec) var(--g) 0;scroll-padding:0 var(--g);scrollbar-width:none}
-html:not(.gl) #stage .cut{scroll-snap-align:start}
-html:not(.gl) #stage .cut img{aspect-ratio:4/5;width:100%;object-fit:cover;border-radius:var(--r);margin-bottom:1rem}
-html:not(.gl) #stage .cut figcaption strong{font-size:2rem}
-.gl #stage .cuts{position:absolute;inset:auto 0 0;pointer-events:none;height:0}
-.gl #stage .cut{position:absolute;left:0;right:0;bottom:0;padding:0 var(--g) calc(env(safe-area-inset-bottom) + 104px);opacity:0}
-.gl #stage .cut img{display:none}
-.gl #stage .end-copy{display:none}
