@@ -1,0 +1,22 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1">
+<title>Render product images</title>
+<meta name="robots" content="noindex">
+<link rel="stylesheet" href="/css/styles.css">
+<link rel="stylesheet" href="/css/pages.css">
+</head>
+<body class="tool">
+<main class="wrap">
+  <h1 class="d h2">Render images</h1>
+  <p class="lead">Draws every product with the real 3D renderer and saves two pictures each into <code>img/p/</code>. Needs the local dev server (it accepts the saves); otherwise download the files by hand from the links below.</p>
+  <p id="log" role="status">Starting...</p>
+  <ul id="out" class="tool-out"></ul>
+</main>
+<script defer src="/js/core.js"></script>
+<script defer src="/js/product-gl.js"></script>
+<script defer src="/tools/render-images.js"></script>
+</body>
+</html>
