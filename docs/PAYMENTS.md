@@ -13,7 +13,7 @@ Stripe  --redirect-->  /ordine?s=cs_...  -->  Edge Function darta-order  -->  th
 
 - The browser sends only product ids, variants, quantities, coupon and pickup/shipping. **Prices are recomputed on the server** from `data/catalog.json`, and the session is refused if Stripe's total differs from ours.
 - Card data never touches this site or our functions. Apple Pay and Google Pay appear on Stripe's page by themselves when the customer's device supports them.
-- Gift card and Abbonamento Fade are **not payable online yet** (they need a code and a recurring subscription). The checkout tells the customer to buy them in the salon.
+- (2026-10-11: the shop no longer lists Gift Card, Abbonamento Fade, Fade Kit or Wax Powder; the old catalog is kept as `tests/fixtures/catalog.json` so the digital and kit rules stay tested.) Gift card and Abbonamento Fade are **not payable online yet** (they need a code and a recurring subscription). The checkout tells the customer to buy them in the salon.
 - Source: `supabase/functions/*` (Deno/TypeScript), table `public.darta_orders` in `supabase/migrations/`. Tests: `node --test tests/*.test.mjs` (Node 24).
 
 ## Turning it on (about 15 minutes, once the Stripe account exists)
