@@ -17,7 +17,7 @@ const session = (over = {}) => ({
   shipping_details: { name: 'Mario Rossi', address: { line1: 'Via Roma 1', postal_code: '65100', city: 'Pescara', state: 'PE', country: 'IT' } },
   line_items: { data: [
     { description: 'Wax Powder', quantity: 2, amount_total: 4000 },
-    { description: 'Olio Barba', quantity: 1, amount_total: 1400 },
+    { description: 'Beard Oil', quantity: 1, amount_total: 1400 },
   ] },
   ...over,
 });
@@ -32,7 +32,7 @@ test('maps a paid session to an order row', () => {
   assert.equal(o.amount_discount, 540);
   assert.equal(o.amount_shipping, 490);
   assert.equal(o.coupon, 'BENVENUTO10');
-  assert.deepEqual(o.items, [{ name: 'Wax Powder', q: 2, total: 4000 }, { name: 'Olio Barba', q: 1, total: 1400 }]);
+  assert.deepEqual(o.items, [{ name: 'Wax Powder', q: 2, total: 4000 }, { name: 'Beard Oil', q: 1, total: 1400 }]);
   assert.equal(o.customer_email, 'mario@example.com');
   assert.equal(o.shipping_address.city, 'Pescara');
   assert.equal(o.paid_at, new Date(1_800_000_000 * 1000).toISOString());

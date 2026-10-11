@@ -34,7 +34,7 @@ test('the Italian site is untouched: t() returns its own text, euros are written
   assert.equal(D.t('Prenota'), 'Prenota');
   assert.equal(D.eur(1600), '16€');
   assert.equal(D.eur(490), '4,90€');
-  assert.equal(D.url.product({ slug: 'wax-powder' }), '/prodotti/wax-powder');
+  assert.equal(D.url.product({ slug: 'hair-pomade' }), '/prodotti/hair-pomade');
   assert.deepEqual([D.path.shop, D.path.services, D.path.order, D.hash.cart], ['/shop', '/servizi', '/ordine', '#carrello']);
 });
 
@@ -55,7 +55,7 @@ test('English money and links', () => {
   assert.equal(D.eur(1600), '€16');
   assert.equal(D.eur(490), '€4.90');
   assert.equal(D.eur(123456), '€1,234.56');
-  assert.equal(D.url.product({ slug: 'wax-powder' }), '/en/products/wax-powder');
+  assert.equal(D.url.product({ slug: 'hair-pomade' }), '/en/products/hair-pomade');
   assert.equal(D.url.service({ slug: 'skin-fade' }), '/en/services/skin-fade');
   assert.deepEqual([D.path.home, D.path.shop, D.path.services, D.path.order, D.hash.cart], ['/en/', '/en/shop', '/en/services', '/en/order', '#cart']);
 });
@@ -119,7 +119,7 @@ test('every internal link of every page leads to a page that exists, in the same
 test('each page links to its twin in the other language, and says so with hreflang', () => {
   const pairs = [['index.html', 'en/index.html', '/', '/en/'], ['shop.html', 'en/shop.html', '/shop', '/en/shop'],
     ['servizi.html', 'en/services.html', '/servizi', '/en/services'], ['ordine.html', 'en/order.html', '/ordine', '/en/order'],
-    ['prodotti/wax-powder.html', 'en/products/wax-powder.html', '/prodotti/wax-powder', '/en/products/wax-powder'],
+    ['prodotti/hair-pomade.html', 'en/products/hair-pomade.html', '/prodotti/hair-pomade', '/en/products/hair-pomade'],
     ['servizi/skin-fade.html', 'en/services/skin-fade.html', '/servizi/skin-fade', '/en/services/skin-fade']];
   for (const [itFile, enFile, itUrl, enUrl] of pairs) {
     const it = read(itFile), en = read(enFile);
@@ -137,11 +137,11 @@ test('each page links to its twin in the other language, and says so with hrefla
 });
 
 test('English product and service pages use the translated copy', () => {
-  const wax = read('en/products/wax-powder.html');
-  assert.match(wax, /Volumising powder/);
-  assert.match(wax, /How to use/);
-  assert.match(wax, /Add <span class="opt">to cart<\/span> · €20/);
-  assert.ok(!/Polvere|Aggiungi|carrello/.test(wax.replace(/<script[\s\S]*?<\/script>/g, '')));
+  const pomade = read('en/products/hair-pomade.html');
+  assert.match(pomade, /Hold and a tidy finish|The Darta pomade to shape/);
+  assert.match(pomade, /How to use/);
+  assert.match(pomade, /Add <span class="opt">to cart<\/span> · €15/);
+  assert.ok(!/Pomata|Aggiungi|carrello/.test(pomade.replace(/<script[\s\S]*?<\/script>/g, '')));
   const fade = read('en/services/skin-fade.html');
   assert.match(fade, /Book this service/);
   assert.match(fade, /data-service="Skin fade"/);

@@ -4,7 +4,7 @@ import assert from 'node:assert/strict';
 import { readFileSync } from 'node:fs';
 import { parseCart, quote, translateCatalog } from '../supabase/functions/darta-checkout/pricing.ts';
 
-const catalog = JSON.parse(readFileSync(new URL('../data/catalog.json', import.meta.url), 'utf8'));
+const catalog = JSON.parse(readFileSync(new URL('./fixtures/catalog.json', import.meta.url), 'utf8'));
 const cart = (lines, extra = {}) => ({ lines, coupon: '', mode: 'pickup', ...extra });
 const price = (c) => {
   const parsed = parseCart(c);
@@ -21,9 +21,9 @@ test('pickup total is the sum of unit prices and has no shipping', () => {
 });
 
 test('shipping adds the flat fee under the free-shipping threshold', () => {
-  const r = price(cart([{ id: 'clay', v: '', q: 1 }], { mode: 'ship' }));
+  const r = price(cart([{ id: 'pomata', v: '', q: 1 }], { mode: 'ship' }));
   assert.equal(r.value.shipping, 490);
-  assert.equal(r.value.total, 1600 + 490);
+  assert.equal(r.value.total, 1500 + 490);
 });
 
 test('shipping is free exactly at the threshold', () => {
@@ -113,7 +113,7 @@ test('server totals match the browser cart code for the same carts', async () =>
   await S.load();
   const carts = [
     cart([{ id: 'wax', v: '', q: 1 }]),
-    cart([{ id: 'clay', v: '', q: 3 }, { id: 'sale', v: '', q: 2 }], { mode: 'ship' }),
+    cart([{ id: 'pomata', v: '', q: 3 }, { id: 'sale', v: '', q: 2 }], { mode: 'ship' }),
     cart([{ id: 'kit', v: '', q: 1 }, { id: 'olio', v: '', q: 1 }], { mode: 'ship', coupon: 'BENVENUTO10' }),
     cart([{ id: 'pomata', v: '', q: 2 }, { id: 'wax', v: '', q: 1 }], { mode: 'ship', coupon: 'BENVENUTO10' }),
     cart([{ id: 'kit', v: '', q: 2 }], { coupon: 'BENVENUTO10' }),
@@ -141,16 +141,16 @@ test('language: Italian by default, English when asked, nothing else', () => {
 });
 
 test('English names and labels are taken from the translation file; prices never are', () => {
-  const en = JSON.parse(readFileSync(new URL('../data/catalog.en.json', import.meta.url), 'utf8'));
+  const en = JSON.parse(readFileSync(new URL('./fixtures/catalog.en.json', import.meta.url), 'utf8'));
   en.products.wax.price = 1;                                    // a price in the translation file must be ignored
   en.products.gift.variants = [{ id: '25', label: '€25', price: 1 }, { id: '50', label: '€50', price: 1 }, { id: '100', label: '€100', price: 1 }];
   const cat = translateCatalog(catalog, en);
-  assert.equal(cat.products.find((p) => p.id === 'olio').name, 'Olio Barba');
+  assert.equal(cat.products.find((p) => p.id === 'club').name, 'Fade Membership');
   assert.equal(cat.products.find((p) => p.id === 'wax').price, 2000);
   assert.deepEqual(cat.products.find((p) => p.id === 'gift').variants.map((v) => [v.label, v.price]), [['€25', 2500], ['€50', 5000], ['€100', 10000]]);
   assert.equal(cat.coupons.BENVENUTO10.label, 'Welcome code (10% off products)');
   const q = quote(cat, parseCart(cart([{ id: 'olio', v: '', q: 2 }, { id: 'wax', v: '', q: 1 }], { lang: 'en' })).value);
-  assert.deepEqual(q.value.items.map((i) => i.name), ['Olio Barba', 'Wax Powder']);
+  assert.deepEqual(q.value.items.map((i) => i.name), ['Beard Oil', 'Wax Powder']);
   assert.equal(q.value.total, 2 * 1400 + 2000);
   assert.equal(translateCatalog(catalog, {}).products[0].name, catalog.products[0].name);   // no translation: unchanged
 });

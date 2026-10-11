@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 import { handleCheckout, newOrderNo } from '../supabase/functions/darta-checkout/handler.ts';
 import { StripeError } from '../supabase/functions/darta-checkout/stripe-api.ts';
 
-const catalog = JSON.parse(readFileSync(new URL('../data/catalog.json', import.meta.url), 'utf8'));
+const catalog = JSON.parse(readFileSync(new URL('./fixtures/catalog.json', import.meta.url), 'utf8'));
 const SITE = 'https://shop.example';
 const ENV = { STRIPE_SECRET_KEY: 'sk_test_123', STRIPE_WEBHOOK_SECRET: 'whsec_123', SITE_URL: SITE };
 

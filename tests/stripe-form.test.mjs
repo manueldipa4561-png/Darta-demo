@@ -6,7 +6,7 @@ import { sessionParams, couponParams } from '../supabase/functions/darta-checkou
 import { encodeForm } from '../supabase/functions/darta-checkout/stripe-api.ts';
 import { parseCart, quote } from '../supabase/functions/darta-checkout/pricing.ts';
 
-const catalog = JSON.parse(readFileSync(new URL('../data/catalog.json', import.meta.url), 'utf8'));
+const catalog = JSON.parse(readFileSync(new URL('./fixtures/catalog.json', import.meta.url), 'utf8'));
 const pairs = (obj) => [...new URLSearchParams(encodeForm(obj)).entries()];
 const get = (obj, k) => new URLSearchParams(encodeForm(obj)).get(k);
 const build = (cartIn) => {
@@ -55,7 +55,7 @@ test('urls come from the configured site, and the session id placeholder stays l
 });
 
 test('shipping orders collect an Italian address and add the shipping rate', () => {
-  const q = build({ lines: [{ id: 'clay', v: '', q: 1 }], coupon: '', mode: 'ship' });
+  const q = build({ lines: [{ id: 'pomata', v: '', q: 1 }], coupon: '', mode: 'ship' });
   const params = sessionParams(q, ctx);
   assert.equal(get(params, 'shipping_address_collection[allowed_countries][0]'), 'IT');
   assert.equal(get(params, 'shipping_options[0][shipping_rate_data][fixed_amount][amount]'), '490');
@@ -101,7 +101,7 @@ test('English checkout: Stripe locale, English return links, English texts', () 
   assert.equal(pick.cancel_url, 'https://shop.example/en/shop#cart');
   assert.match(pick.custom_text.submit.message, /Free pickup at the studio/);
   assert.equal(pick.metadata.lang, 'en');
-  const ship = sessionParams(build({ lines: [{ id: 'clay', v: '', q: 1 }], coupon: '', mode: 'ship', lang: 'en' }), ctx);
+  const ship = sessionParams(build({ lines: [{ id: 'pomata', v: '', q: 1 }], coupon: '', mode: 'ship', lang: 'en' }), ctx);
   assert.equal(ship.shipping_options[0].shipping_rate_data.display_name, 'Standard shipping');
   assert.match(ship.custom_text.submit.message, /pack your order/);
   const free = sessionParams(en('ship'), ctx);
