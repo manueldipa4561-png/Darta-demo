@@ -1,0 +1,407 @@
+{
+  "currency": "EUR",
+  "shipping": {
+    "flat": 490,
+    "freeFrom": 4000
+  },
+  "coupons": {
+    "BENVENUTO10": {
+      "pct": 10,
+      "label": "Benvenuto, 10% sui prodotti"
+    }
+  },
+  "cats": [
+    {
+      "id": "tutti",
+      "label": "Tutti"
+    },
+    {
+      "id": "capelli",
+      "label": "Capelli"
+    },
+    {
+      "id": "barba",
+      "label": "Barba"
+    },
+    {
+      "id": "kit",
+      "label": "Kit"
+    },
+    {
+      "id": "regali",
+      "label": "Regali"
+    },
+    {
+      "id": "club",
+      "label": "Club"
+    }
+  ],
+  "products": [
+    {
+      "id": "wax",
+      "slug": "wax-powder",
+      "no": "01",
+      "name": "Wax Powder",
+      "tag": "Polvere volumizzante",
+      "cat": "capelli",
+      "kind": "powder",
+      "size": "20 g",
+      "price": 2000,
+      "short": "Volume e texture, senza peso.",
+      "desc": "La polvere che Thomas usa per dare volume alla radice e texture a tutta la capigliatura, con un finish opaco e naturale. Si applica a secco, si rimodella quando vuoi e si toglie con un normale shampoo.",
+      "use": [
+        "Svita il tappo.",
+        "Scuoti poche volte la polvere sulle radici asciutte.",
+        "Massaggia con le dita e dai volume."
+      ],
+      "specs": [
+        [
+          "Volume",
+          5
+        ],
+        [
+          "Tenuta",
+          3
+        ]
+      ],
+      "look": {
+        "body": "#0b0b0c",
+        "cap": "#cfd3d6",
+        "ink": "#f4f1ea",
+        "accent": "#dfe6ec"
+      },
+      "label": {
+        "no": "N°01",
+        "name": "Wax Powder",
+        "sub": "Volumizzante",
+        "vol": "20 G"
+      }
+    },
+    {
+      "id": "pomata",
+      "slug": "hair-pomade",
+      "no": "02",
+      "name": "Hair Pomade",
+      "tag": "Pomata per capelli",
+      "cat": "capelli",
+      "kind": "tin",
+      "size": "100 ml",
+      "price": 1500,
+      "short": "Tenuta e finish ordinato.",
+      "desc": "La pomata Darta per modellare e definire il taglio. Si lavora con le mani e si pettina.",
+      "use": [
+        "Preleva una piccola quantità.",
+        "Scalda tra i palmi e distribuisci sui capelli.",
+        "Pettina per definire la forma."
+      ],
+      "specs": [
+        [
+          "Tenuta",
+          4
+        ],
+        [
+          "Lucido",
+          3
+        ]
+      ],
+      "look": {
+        "body": "#e9ddd8",
+        "lid": "#f2f1ee",
+        "accent": "#6cc0b8"
+      },
+      "label": {
+        "title": [
+          "HAIR",
+          "POMADE"
+        ],
+        "vol": "100 ml · FL. oz. 3.38",
+        "no": "N°02"
+      }
+    },
+    {
+      "id": "olio",
+      "slug": "beard-oil",
+      "no": "03",
+      "name": "Beard Oil",
+      "tag": "Siero barba nutriente",
+      "cat": "barba",
+      "kind": "oilbottle",
+      "size": "30 ml",
+      "price": 1400,
+      "short": "Barba morbida e curata.",
+      "desc": "Siero nutriente per la barba: poche pompate per ammorbidirla e dare un finish ordinato.",
+      "use": [
+        "Premi il dosatore 2-3 volte nel palmo.",
+        "Scalda e distribuisci dalla radice alla punta.",
+        "Pettina per definire la forma."
+      ],
+      "specs": [
+        [
+          "Morbidezza",
+          5
+        ],
+        [
+          "Profumo",
+          3
+        ]
+      ],
+      "look": {
+        "glass": "#c9791b",
+        "accent": "#6cc0b8"
+      },
+      "label": {
+        "title": [
+          "BEARD OIL"
+        ],
+        "sub": [
+          "Siero Barba",
+          "Nutriente"
+        ],
+        "no": "N°03"
+      }
+    },
+    {
+      "id": "sale",
+      "slug": "eco-spray",
+      "no": "04",
+      "name": "Eco Spray",
+      "tag": "Spray con aloe vera e tè verde",
+      "cat": "capelli",
+      "kind": "can",
+      "size": "300 ml",
+      "price": 1300,
+      "short": "Aloe vera e tè verde, 300 ml.",
+      "desc": "Lo spray Darta con aloe vera e tè verde, nel formato da 300 ml.",
+      "use": [
+        "Vaporizza a distanza sui capelli.",
+        "Pettina o modella come preferisci."
+      ],
+      "specs": [
+        [
+          "Volume",
+          3
+        ],
+        [
+          "Tenuta",
+          3
+        ]
+      ],
+      "look": {
+        "accent": "#6cc0b8"
+      },
+      "label": {
+        "title": [
+          "ECO SPRAY"
+        ],
+        "sub": [
+          "con aloe vera",
+          "e te verde"
+        ],
+        "vol": "300 ml",
+        "no": "N°04"
+      }
+    },
+    {
+      "id": "curlman",
+      "slug": "curl-man",
+      "no": "05",
+      "name": "Curl Man",
+      "tag": "Fluido ricci",
+      "cat": "capelli",
+      "kind": "tube",
+      "size": "150 ml",
+      "price": 1500,
+      "short": "Ricci definiti e morbidi.",
+      "desc": "Il fluido Darta per ricci: definisce i ricci e li mantiene morbidi.",
+      "use": [
+        "Applica sui capelli umidi.",
+        "Distribuisci dalle lunghezze alle punte.",
+        "Lascia asciugare all'aria o con il diffusore."
+      ],
+      "specs": [
+        [
+          "Definizione",
+          4
+        ],
+        [
+          "Morbidezza",
+          4
+        ]
+      ],
+      "look": {
+        "accent": "#6cc0b8"
+      },
+      "label": {
+        "title": [
+          "CURL MAN"
+        ],
+        "sub": [
+          "fluido ricci"
+        ],
+        "no": "N°05"
+      }
+    },
+    {
+      "id": "curlcontrol",
+      "slug": "curl-control",
+      "no": "06",
+      "name": "Curl Control",
+      "tag": "Aloe vera e olio di cocco",
+      "cat": "capelli",
+      "kind": "pumpbottle",
+      "size": "250 ml",
+      "price": 1600,
+      "short": "Ricci sotto controllo.",
+      "desc": "Il prodotto Darta per ricci con aloe vera e olio di cocco, in flacone con dosatore.",
+      "use": [
+        "Eroga una o due pompate nel palmo.",
+        "Distribuisci sui capelli umidi.",
+        "Modella e lascia asciugare."
+      ],
+      "specs": [
+        [
+          "Controllo",
+          4
+        ],
+        [
+          "Idratazione",
+          4
+        ]
+      ],
+      "look": {
+        "accent": "#6cc0b8"
+      },
+      "label": {
+        "title": [
+          "CURL",
+          "CONTROL"
+        ],
+        "sub": [
+          "Aloe Vera e",
+          "Olio Di Cocco"
+        ],
+        "no": "N°06"
+      }
+    },
+    {
+      "id": "kit",
+      "slug": "kit-fade",
+      "no": "07",
+      "name": "Kit Fade",
+      "tag": "Pomade, Eco Spray, Beard Oil",
+      "cat": "kit",
+      "kind": "kit",
+      "size": "3 prodotti",
+      "price": 3900,
+      "items": [
+        "pomata",
+        "sale",
+        "olio"
+      ],
+      "short": "Tutto il fade di casa, risparmiando.",
+      "desc": "Hair Pomade, Eco Spray e Beard Oil nello stesso ordine. Il set che Thomas consiglia a chi esce dalla poltrona con un fade nuovo.",
+      "use": [
+        "Eco Spray sui capelli.",
+        "Hair Pomade per modellare e dare tenuta.",
+        "Beard Oil per rifinire."
+      ],
+      "specs": [
+        [
+          "Tenuta",
+          4
+        ],
+        [
+          "Lucido",
+          1
+        ]
+      ],
+      "look": {
+        "accent": "#6cc0b8"
+      }
+    },
+    {
+      "id": "gift",
+      "slug": "gift-card",
+      "no": "08",
+      "name": "Gift Card",
+      "tag": "Regala un taglio",
+      "cat": "regali",
+      "kind": "card",
+      "size": "Digitale",
+      "price": 5000,
+      "digital": true,
+      "variants": [
+        {
+          "id": "25",
+          "label": "25€",
+          "price": 2500
+        },
+        {
+          "id": "50",
+          "label": "50€",
+          "price": 5000
+        },
+        {
+          "id": "100",
+          "label": "100€",
+          "price": 10000
+        }
+      ],
+      "short": "Per un taglio, una barba o un prodotto.",
+      "desc": "Arriva via email subito dopo l'ordine, pronta da inoltrare. Vale per tutti i servizi e i prodotti del salone, per 12 mesi.",
+      "use": [
+        "Scegli l'importo.",
+        "La ricevi via email in pochi minuti.",
+        "Chi la riceve prenota nell'app e la mostra in cassa."
+      ],
+      "specs": [
+        [
+          "Validità",
+          5
+        ],
+        [
+          "Facilità",
+          5
+        ]
+      ],
+      "look": {
+        "finish": "gift",
+        "accent": "#6cc0b8"
+      }
+    },
+    {
+      "id": "club",
+      "slug": "abbonamento-fade",
+      "no": "09",
+      "name": "Abbonamento Fade",
+      "tag": "2 tagli al mese",
+      "cat": "club",
+      "kind": "card",
+      "size": "Mensile",
+      "price": 3600,
+      "digital": true,
+      "recurring": true,
+      "short": "Il fade sempre fresco, a prezzo fisso.",
+      "desc": "Due tagli al mese a 36€ invece di 50€. Si attiva alla prima prenotazione e si disdice quando vuoi.",
+      "use": [
+        "Attivi l'abbonamento.",
+        "Prenoti i due tagli nell'app.",
+        "Disdici dal salone, senza penali."
+      ],
+      "specs": [
+        [
+          "Risparmio",
+          4
+        ],
+        [
+          "Flessibilità",
+          5
+        ]
+      ],
+      "look": {
+        "finish": "club",
+        "accent": "#6cc0b8"
+      }
+    }
+  ]
+}

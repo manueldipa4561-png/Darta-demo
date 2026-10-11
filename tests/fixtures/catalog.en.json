@@ -1,0 +1,231 @@
+{
+  "coupons": {
+    "BENVENUTO10": {
+      "label": "Welcome code (10% off products)"
+    }
+  },
+  "cats": {
+    "tutti": "All",
+    "capelli": "Hair",
+    "barba": "Beard",
+    "kit": "Kits",
+    "regali": "Gifts",
+    "club": "Club"
+  },
+  "products": {
+    "wax": {
+      "name": "Wax Powder",
+      "tag": "Volumising powder",
+      "size": "20 g",
+      "short": "Volume and texture, without the weight.",
+      "desc": "The powder Thomas uses to add volume at the root and texture all over, with a natural matte finish. It goes on dry, restyles whenever you like and washes out with normal shampoo.",
+      "use": [
+        "Unscrew the cap.",
+        "Shake a little powder onto dry roots.",
+        "Work it in with your fingers for volume."
+      ],
+      "specs": [
+        [
+          "Volume",
+          5
+        ],
+        [
+          "Hold",
+          3
+        ]
+      ]
+    },
+    "pomata": {
+      "name": "Hair Pomade",
+      "tag": "Hair pomade",
+      "size": "100 ml",
+      "short": "Hold and a tidy finish.",
+      "desc": "The Darta pomade to shape and define the cut. Work it in with your hands and comb through.",
+      "use": [
+        "Take a small amount.",
+        "Warm it between your palms and work it through the hair.",
+        "Comb to define the shape."
+      ],
+      "specs": [
+        [
+          "Hold",
+          4
+        ],
+        [
+          "Shine",
+          3
+        ]
+      ]
+    },
+    "olio": {
+      "name": "Beard Oil",
+      "tag": "Nourishing beard serum",
+      "size": "30 ml",
+      "short": "A soft, well-kept beard.",
+      "desc": "A nourishing beard serum: a few pumps to soften the beard and give it a neat finish.",
+      "use": [
+        "Press the pump 2-3 times into your palm.",
+        "Warm it up and spread from root to tip.",
+        "Comb to define the shape."
+      ],
+      "specs": [
+        [
+          "Softness",
+          5
+        ],
+        [
+          "Scent",
+          3
+        ]
+      ]
+    },
+    "sale": {
+      "name": "Eco Spray",
+      "tag": "Spray with aloe vera and green tea",
+      "size": "300 ml",
+      "short": "Aloe vera and green tea, 300 ml.",
+      "desc": "The Darta spray with aloe vera and green tea, in a 300 ml can.",
+      "use": [
+        "Spray evenly from a distance.",
+        "Comb or style as you like."
+      ],
+      "specs": [
+        [
+          "Volume",
+          3
+        ],
+        [
+          "Hold",
+          3
+        ]
+      ]
+    },
+    "kit": {
+      "name": "Fade Kit",
+      "tag": "Pomade, Eco Spray, Beard Oil",
+      "size": "3 products",
+      "short": "The whole fade routine at home, for less.",
+      "desc": "Hair Pomade, Eco Spray and Beard Oil in one order. The set Thomas recommends to anyone leaving the chair with a fresh fade.",
+      "use": [
+        "Eco Spray on your hair.",
+        "Hair Pomade to shape and hold.",
+        "Beard Oil to finish."
+      ],
+      "specs": [
+        [
+          "Hold",
+          4
+        ],
+        [
+          "Shine",
+          1
+        ]
+      ]
+    },
+    "gift": {
+      "name": "Gift Card",
+      "tag": "Give a haircut",
+      "size": "Digital",
+      "variants": [
+        {
+          "id": "25",
+          "label": "€25",
+          "price": 2500
+        },
+        {
+          "id": "50",
+          "label": "€50",
+          "price": 5000
+        },
+        {
+          "id": "100",
+          "label": "€100",
+          "price": 10000
+        }
+      ],
+      "short": "For a haircut, a beard trim or a product.",
+      "desc": "It arrives by email right after the order, ready to forward. Valid for every service and product at the studio, for 12 months.",
+      "use": [
+        "Choose the amount.",
+        "You get it by email within minutes.",
+        "The recipient books in the app and shows it at the till."
+      ],
+      "specs": [
+        [
+          "Validity",
+          5
+        ],
+        [
+          "Ease of use",
+          5
+        ]
+      ]
+    },
+    "club": {
+      "name": "Fade Membership",
+      "tag": "2 haircuts a month",
+      "size": "Monthly",
+      "short": "A fresh fade, at a fixed price.",
+      "desc": "Two haircuts a month for €36 instead of €50. It starts with your first booking and you can cancel whenever you like.",
+      "use": [
+        "Start the membership.",
+        "Book your two haircuts in the app.",
+        "Cancel at the studio, no penalties."
+      ],
+      "specs": [
+        [
+          "Savings",
+          4
+        ],
+        [
+          "Flexibility",
+          5
+        ]
+      ]
+    },
+    "curlman": {
+      "name": "Curl Man",
+      "tag": "Curl fluid",
+      "size": "150 ml",
+      "short": "Defined, soft curls.",
+      "desc": "The Darta fluid for curly hair: it defines the curls and keeps them soft.",
+      "use": [
+        "Apply to damp hair.",
+        "Work it from the lengths to the ends.",
+        "Let it air dry or use a diffuser."
+      ],
+      "specs": [
+        [
+          "Definition",
+          4
+        ],
+        [
+          "Softness",
+          4
+        ]
+      ]
+    },
+    "curlcontrol": {
+      "name": "Curl Control",
+      "tag": "Aloe vera and coconut oil",
+      "size": "250 ml",
+      "short": "Curls under control.",
+      "desc": "The Darta product for curly hair with aloe vera and coconut oil, in a pump bottle.",
+      "use": [
+        "Press the pump once or twice into your palm.",
+        "Work it through damp hair.",
+        "Style and let it dry."
+      ],
+      "specs": [
+        [
+          "Control",
+          4
+        ],
+        [
+          "Hydration",
+          4
+        ]
+      ]
+    }
+  }
+}
