@@ -4,11 +4,11 @@
 Behaves like the Netlify site: the same security headers from netlify.toml (so CSP problems show up while you work), the same clean URLs
 (/shop, /servizi, /prodotti/<name>, /servizi/<name>), no caching. Also accepts POST /__save/img/p/<name>.webp, used only by
 tools/render-images.html to write the rendered product pictures. Never deploy this file's save endpoint: /tools answers 404 on Netlify."""
-import http.server, socketserver, os, re
+import http.server, socketserver, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
 os.chdir(ROOT)
-PORT = 4173
+PORT = int(sys.argv[1]) if len(sys.argv) > 1 else 4173      # python3 tools/serve.py 4174 when 4173 is taken
 toml = open('netlify.toml').read()
 block = re.search(r'for = "/\*"\n  \[headers.values\]\n(.*?)\n\n', toml, re.S).group(1)
 HEADERS = []

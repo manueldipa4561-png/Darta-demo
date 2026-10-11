@@ -274,8 +274,7 @@ def card(p, i):
 </article>'''
 
 
-PERKS = (f'<ul class="perks"><li>{icon("s-store")}Ritiro gratis in salone</li><li>{icon("s-truck")}Spedizione gratis da 40&euro;</li>'
-         f'<li>{icon("s-gift")}Gift card in un minuto</li></ul>')
+PERKS = (f'<ul class="perks"><li>{icon("s-store")}Ritiro gratis in salone</li><li>{icon("s-truck")}Spedizione gratis da 40&euro;</li></ul>')
 
 
 def shop_page():
@@ -309,7 +308,7 @@ def shop_page():
     ld = {'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': [
         {'@type': 'ListItem', 'position': i + 1, 'url': U(f'/prodotti/{p["slug"]}'), 'name': p['name']} for i, p in enumerate(PRODUCTS)]}
     return page('Shop | Darta Barber Studio, Pescara',
-                "Lo shop di Darta Barber Studio: wax powder, argilla, pomata, olio barba, sea salt spray, kit e gift card. Ritiro gratis in salone o spedizione in Italia.",
+                "Lo shop di Darta Barber Studio: hair pomade, beard oil, eco spray, Curl Man e Curl Control. Ritiro gratis in salone o spedizione in Italia.",
                 'page-shop', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'shop.js', 'main.js'], {'it': '/shop', 'en': '/en/shop'},
                 og=thumb(PRODUCTS[0]), jsonld=ld)
 
@@ -317,7 +316,7 @@ def shop_page():
 # ---------------------------------------------------------------- product pages
 def product_page(p):
     v = default_variant(p)
-    is_try = p['kind'] in ('jar', 'dropper', 'spray', 'powder')
+    is_try = p['kind'] in ('tin', 'oilbottle', 'can', 'tube', 'pumpbottle', 'powder')
     badge = f'<span class="pcard-badge pdp-badge">{esc(tr("Risparmi {amount}", amount=eur(kit_saving(p))))}</span>' if kit_saving(p) > 0 else ''
     variants = ''
     if p.get('variants'):
@@ -365,7 +364,7 @@ def product_page(p):
           <button class="btn btn-p add" id="ppAdd" type="button">{icon("s-bag")}<span id="ppAddTxt" aria-live="polite">{add_label}</span></button>
         </div>
         <details class="acc" open><summary>Come si usa</summary><ol>{use}</ol></details>
-        <details class="acc"><summary>Consegna e ritiro</summary><p>Ritiro gratuito in salone, Via Gobetti 184, dal marted&igrave; al sabato dalle 10 alle 19. Spedizione in tutta Italia a 4,90&euro;, gratis sopra i 40&euro;. Gift card e abbonamento arrivano via email.</p></details>
+        <details class="acc"><summary>Consegna e ritiro</summary><p>Ritiro gratuito in salone, Via Gobetti 184, dal marted&igrave; al sabato dalle 10 alle 19. Spedizione in tutta Italia a 4,90&euro;, gratis sopra i 40&euro;.</p></details>
         {contains}
       </div>
     </div>

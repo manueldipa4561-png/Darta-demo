@@ -25,8 +25,8 @@ lunedì martedì mercoledì giovedì venerdì sabato domenica ciao grazie benven
 WORD = re.compile(r"[a-zàèéìòù]+", re.I)
 
 
-# Product names that stay Italian on purpose: they are printed on the packaging, so the English shop uses them as they are.
-KEEP_NAMES = ('Olio Barba', 'Pomata Shine')
+# Product names that stay Italian on purpose (printed on the packaging, so the English shop uses them as they are). None right now.
+KEEP_NAMES = ()
 
 
 def looks_italian(text):
