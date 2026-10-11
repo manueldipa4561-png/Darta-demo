@@ -2,7 +2,7 @@
 
 Demo website concept for **Darta Barber Studio** (Via Gobetti 184, Pescara), designed and developed by [Punto Due Studio](https://puntoduestudio.it).
 
-The site is a booking landing page that doubles as a small **e-commerce**: every product and every service has its own page, products are rendered in 3D, there is a cart, a demo checkout, gift cards and a monthly membership. No framework, no build step, no backend: static files on Netlify.
+The site is a booking landing page that doubles as a small **e-commerce**: every product and every service has its own page, products are rendered in 3D, there is a cart, a demo checkout. The shop sells only the real Darta products (Hair Pomade, Hair Powder Clay, Beard Oil, Eco Spray, Curl Man, Curl Control); the gift card, kit and membership code paths are still in the cart, pricing and tests but no product uses them. No framework, no build step, no backend: static files on Netlify.
 
 ## What is in it
 
@@ -10,7 +10,7 @@ The site is a booking landing page that doubles as a small **e-commerce**: every
 |---|---|
 | Home (`/`) | Raw WebGL dive into the salon sign that dissolves into the shop intro: a dark 3D lineup where a spotlight travels from product to product (scroll-driven), then a link into the shop. Then the Lavori deck, proof, services teaser, story, team (three equal cards), club, hours |
 | Shop (`/shop`) | The whole catalog: category filters, quick add, a picture per product rendered from the real 3D models (static HTML, no 3D needed) |
-| Product pages (`/prodotti/<name>`) | One page per product: live WebGL viewer (drag, arrows, "Svita e scuoti" / "Apri" plays the product's own animation), options (gift card amounts re-render on the card), quantity, add to cart, related products. Old `#prodotto/<name>` links redirect here |
+| Product pages (`/prodotti/<name>`) | One page per product: live WebGL viewer (drag, arrows, "Svita e scuoti" / "Apri" plays the product's own animation), quantity, add to cart, related products. Old `#prodotto/<name>` links redirect here |
 | Services (`/servizi`, `/servizi/<name>`) | The price list as a page, plus one page per service with duration, price, how it goes, products to pair, and a booking button |
 | Cart and checkout | Drawer (`#carrello`) and demo checkout (`#checkout`) work on every page and share the same saved cart. **Demo only: no payment, nothing is sent** |
 | Opening status | The header chip is green when the salon is open and red when closed (Europe/Rome, Tuesday to Saturday 10:00 to 19:00); it updates by itself |
