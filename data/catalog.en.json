@@ -7,44 +7,19 @@
   "cats": {
     "tutti": "All",
     "capelli": "Hair",
-    "barba": "Beard",
-    "kit": "Kits",
-    "regali": "Gifts",
-    "club": "Club"
+    "barba": "Beard"
   },
   "products": {
-    "wax": {
-      "name": "Wax Powder",
-      "tag": "Volumising powder",
-      "size": "20 g",
-      "short": "Volume and texture, without the weight.",
-      "desc": "The powder Thomas uses to add volume at the root and texture all over, with a natural matte finish. It goes on dry, restyles whenever you like and washes out with normal shampoo.",
-      "use": [
-        "Unscrew the cap.",
-        "Shake a little powder onto dry roots.",
-        "Work it in with your fingers for volume."
-      ],
-      "specs": [
-        [
-          "Volume",
-          5
-        ],
-        [
-          "Hold",
-          3
-        ]
-      ]
-    },
-    "clay": {
-      "name": "Matte Clay",
-      "tag": "Matte clay",
+    "pomata": {
+      "name": "Hair Pomade",
+      "tag": "Hair pomade",
       "size": "100 ml",
-      "short": "Strong hold, matte finish.",
-      "desc": "The clay Thomas uses for texture and volume without shine. Work it into dry hair or hair that has just been blow-dried, and it holds all day.",
+      "short": "Hold and a tidy finish.",
+      "desc": "The Darta pomade to shape and define the cut. Work it in with your hands and comb through.",
       "use": [
-        "Warm a small amount between your palms.",
-        "Work it in from the nape towards the front.",
-        "Restyle whenever you like: it never hardens."
+        "Take a small amount.",
+        "Warm it between your palms and work it through the hair.",
+        "Comb to define the shape."
       ],
       "specs": [
         [
@@ -53,40 +28,18 @@
         ],
         [
           "Shine",
-          1
-        ]
-      ]
-    },
-    "pomata": {
-      "name": "Pomata Shine",
-      "tag": "Shiny pomade",
-      "size": "100 ml",
-      "short": "Razor parting and a clean shine.",
-      "desc": "Water-based pomade for side parts, a sharp parting and a glossy finish. It washes out with normal shampoo and leaves no residue.",
-      "use": [
-        "Apply to damp hair with your fingers.",
-        "Comb from the parting outwards.",
-        "Set it with the hairdryer for a drier shine."
-      ],
-      "specs": [
-        [
-          "Hold",
           3
-        ],
-        [
-          "Shine",
-          5
         ]
       ]
     },
     "olio": {
-      "name": "Olio Barba",
-      "tag": "Beard oil",
+      "name": "Beard Oil",
+      "tag": "Nourishing beard serum",
       "size": "30 ml",
-      "short": "Soft, tidy, scented.",
-      "desc": "A few drops soften the beard, tame stray hairs and give a natural finish. Notes of wood and amber.",
+      "short": "A soft, well-kept beard.",
+      "desc": "A nourishing beard serum: a few pumps to soften the beard and give it a neat finish.",
       "use": [
-        "Pour 3-4 drops into your palm.",
+        "Press the pump 2-3 times into your palm.",
         "Warm it up and spread from root to tip.",
         "Comb to define the shape."
       ],
@@ -102,107 +55,89 @@
       ]
     },
     "sale": {
-      "name": "Sea Salt Spray",
-      "tag": "Texturising spray",
-      "size": "150 ml",
-      "short": "Beach volume and texture.",
-      "desc": "The pre-styler that gives fine hair body and short cuts texture. It dries in seconds without stiffening.",
+      "name": "Eco Spray",
+      "tag": "Spray with aloe vera and green tea",
+      "size": "300 ml",
+      "short": "Aloe vera and green tea, 300 ml.",
+      "desc": "The Darta spray with aloe vera and green tea, in a 300 ml can.",
       "use": [
-        "Spray onto damp hair.",
-        "Blow-dry, tousling as you go.",
-        "Finish with Matte Clay if you want more hold."
+        "Spray evenly from a distance.",
+        "Comb or style as you like."
       ],
       "specs": [
         [
           "Volume",
-          4
+          3
         ],
         [
           "Hold",
-          2
+          3
         ]
       ]
     },
-    "kit": {
-      "name": "Fade Kit",
-      "tag": "Clay, Sea Salt, Oil",
-      "size": "3 products",
-      "short": "The whole fade routine at home, for less.",
-      "desc": "Matte Clay, Sea Salt Spray and Olio Barba in one order. The set Thomas recommends to anyone leaving the chair with a fresh fade.",
+    "curlman": {
+      "name": "Curl Man",
+      "tag": "Curl fluid",
+      "size": "150 ml",
+      "short": "Defined, soft curls.",
+      "desc": "The Darta fluid for curly hair: it defines the curls and keeps them soft.",
       "use": [
-        "Sea Salt on damp hair.",
-        "Matte Clay for texture and hold.",
-        "Olio Barba to finish."
+        "Apply to damp hair.",
+        "Work it from the lengths to the ends.",
+        "Let it air dry or use a diffuser."
       ],
       "specs": [
+        [
+          "Definition",
+          4
+        ],
+        [
+          "Softness",
+          4
+        ]
+      ]
+    },
+    "curlcontrol": {
+      "name": "Curl Control",
+      "tag": "Aloe vera and coconut oil",
+      "size": "250 ml",
+      "short": "Curls under control.",
+      "desc": "The Darta product for curly hair with aloe vera and coconut oil, in a pump bottle.",
+      "use": [
+        "Press the pump once or twice into your palm.",
+        "Work it through damp hair.",
+        "Style and let it dry."
+      ],
+      "specs": [
+        [
+          "Control",
+          4
+        ],
+        [
+          "Hydration",
+          4
+        ]
+      ]
+    },
+    "clay": {
+      "name": "Hair Powder Clay",
+      "tag": "Volumising powder",
+      "size": "20 g",
+      "short": "Volume and texture, without the weight.",
+      "desc": "The clay powder Thomas uses to add volume at the root and texture all over, with a natural matte finish. It goes on dry, restyles whenever you like and washes out with normal shampoo.",
+      "use": [
+        "Unscrew the cap.",
+        "Shake a little powder onto dry roots.",
+        "Work it in with your fingers for volume."
+      ],
+      "specs": [
+        [
+          "Volume",
+          5
+        ],
         [
           "Hold",
-          4
-        ],
-        [
-          "Shine",
-          1
-        ]
-      ]
-    },
-    "gift": {
-      "name": "Gift Card",
-      "tag": "Give a haircut",
-      "size": "Digital",
-      "variants": [
-        {
-          "id": "25",
-          "label": "€25",
-          "price": 2500
-        },
-        {
-          "id": "50",
-          "label": "€50",
-          "price": 5000
-        },
-        {
-          "id": "100",
-          "label": "€100",
-          "price": 10000
-        }
-      ],
-      "short": "For a haircut, a beard trim or a product.",
-      "desc": "It arrives by email right after the order, ready to forward. Valid for every service and product at the studio, for 12 months.",
-      "use": [
-        "Choose the amount.",
-        "You get it by email within minutes.",
-        "The recipient books in the app and shows it at the till."
-      ],
-      "specs": [
-        [
-          "Validity",
-          5
-        ],
-        [
-          "Ease of use",
-          5
-        ]
-      ]
-    },
-    "club": {
-      "name": "Fade Membership",
-      "tag": "2 haircuts a month",
-      "size": "Monthly",
-      "short": "A fresh fade, at a fixed price.",
-      "desc": "Two haircuts a month for €36 instead of €50. It starts with your first booking and you can cancel whenever you like.",
-      "use": [
-        "Start the membership.",
-        "Book your two haircuts in the app.",
-        "Cancel at the studio, no penalties."
-      ],
-      "specs": [
-        [
-          "Savings",
-          4
-        ],
-        [
-          "Flexibility",
-          5
+          3
         ]
       ]
     }
