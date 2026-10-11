@@ -129,15 +129,16 @@ function init(){
 
 /* ---------- stops: the scroll parks on every product ---------- */
 // The tour rests on each product (STOP_S into its turn) and on the closing view. While the visitor scrolls, the page may travel at most
-// to the neighbouring stop (so a hard flick cannot skip a product); when the scroll goes quiet it glides on to the stop in the direction
-// the visitor was heading (or stays, for a tiny nudge). `rest` only changes when a stop is really reached, so a glide that the next
-// wheel notch interrupts still ends up going forward.
-const STOP_S=.34,SETTLE_MS=110,FREE_MS=1600,PUSH=.003;                 // PUSH: a nudge of this much (of the journey, ~25px) already moves on
+// to the neighbouring stop (so a hard flick cannot skip a product); when the scroll goes quiet it glides to the next stop in the direction
+// the visitor pushed, or stays for a tiny nudge. `rest` (the stop reached last) is the only state: it changes when a stop is really
+// reached, so an interrupted glide or a one-pixel rounding difference can never send the page back.
+const STOP_S=.34,SETTLE_MS=110,FREE_MS=1600,PUSH=.004,EPS_PX=3,BREAK_MS=800;   // PUSH: a push of this much of the journey (~30px) moves on; BREAK_MS: pushing on without a pause for this long carries you past the stop
 const pOfQ=q=>J.scene+q*(1-J.scene);
 const stopsP=()=>Array.from({length:N+1},(_,j)=>pOfQ(j<N?SPOT[0]+(j+STOP_S)/N*(SPOT[1]-SPOT[0]):OUTRO+.12));   // N products, then the closing view
 const zone=P=>[pOfQ(.14),P[N]+.004];                                  // outside it (the sign dive above, the page below) scrolling is free
-const yOf=p=>{const r=journey.getBoundingClientRect();return scrollY+r.top+p*Math.max(1,r.height-innerHeight)};
-let rest=-1,dir=1,lastY=0,ownY=null,settleT=0,glideRaf=0,gliding=false,freeUntil=0;   // rest: the stop reached last (-1 above the tour, N+1 below it)
+const spanPx=()=>Math.max(1,journey.getBoundingClientRect().height-innerHeight);
+const yOf=p=>scrollY+journey.getBoundingClientRect().top+p*spanPx();
+let rest=-1,settleT=0,glideRaf=0,gliding=false,freeUntil=0,pushT=0;   // rest: the stop reached last (-1 above the tour, N+1 below it); pushT: when the page first hit the next stop's wall
 const nearest=(P,p)=>P.reduce((b,x,j)=>Math.abs(x-p)<Math.abs(P[b]-p)?j:b,0);
 function glide(y1,done){
   const y0=scrollY,d=y1-y0;
@@ -145,7 +146,7 @@ function glide(y1,done){
   gliding=true;const t0=performance.now(),T=Math.min(560,Math.max(260,220+Math.abs(d)*.32));
   const step=now=>{
     const e=Math.min(1,(now-t0)/T);
-    ownY=y0+d*sm(e);scrollTo({top:ownY,behavior:'instant'});            // instant: the page's own smooth scrolling must not stack on top
+    scrollTo({top:y0+d*sm(e),behavior:'instant'});                       // instant: the page's own smooth scrolling must not stack on top
     if(!gliding)return;
     if(e<1)glideRaf=requestAnimationFrame(step);else{gliding=false;done()}
   };
@@ -153,31 +154,29 @@ function glide(y1,done){
 }
 function stopGlide(){if(gliding){gliding=false;cancelAnimationFrame(glideRaf)}}
 function settle(){
-  const p=progress(),P=stopsP(),[a,b]=zone(P);
+  const p=progress(),P=stopsP(),[a,b]=zone(P),e=EPS_PX/spanPx();
+  pushT=0;
   if(gliding||p<a||p>b||performance.now()<freeUntil)return;
   if(rest<0||rest>N){const i=rest<0?0:N;glide(yOf(P[i]),()=>{rest=i});return}   // came in from above or below: park on the first or last stop
-  let i=rest;
-  if(Math.abs(p-P[rest])>=PUSH){
-    let lo=-1;while(lo<N&&P[lo+1]<=p+1e-4)lo++;                        // the last stop at or before the page
-    i=Math.abs(p-P[Math.max(lo,0)])<1e-4&&lo>=0?lo:dir>0?Math.min(N,lo+1):lo;
-  }
+  const d=p-P[rest],i=Math.abs(d)<Math.max(PUSH,e)?rest:d>0?Math.min(N,rest+1):rest-1;
   if(i<0){glide(yOf(a-.015),()=>{rest=-1});return}                     // scrolling up from the first product: leave the tour
   glide(yOf(P[i]),()=>{rest=i});
 }
 function onStopScroll(){
-  const y=scrollY,p=progress(),P=stopsP(),[a,b]=zone(P),free=performance.now()<freeUntil;
-  if(ownY!==null&&Math.abs(y-ownY)<1.5)ownY=null;                        // our own move (glide or clamp), not the visitor's
-  else{if(y>lastY+.5)dir=1;else if(y<lastY-.5)dir=-1}
-  lastY=y;
+  const p=progress(),P=stopsP(),[a,b]=zone(P),e=EPS_PX/spanPx();
   if(p<a||p>b){rest=p<a?-1:N+1;return}
-  if(free){rest=nearest(P,p);return}                                   // a link or anchor jump: let it travel
+  if(performance.now()<freeUntil){rest=nearest(P,p);return}            // a link or anchor jump: let it travel
   const lo=rest<=0?-Infinity:P[rest-1],hi=rest>=N?Infinity:P[rest+1];
-  if(p<lo||p>hi){ownY=yOf(p<lo?lo:hi);scrollTo({top:ownY,behavior:'instant'})}
+  if(p<lo-e||p>hi+e){
+    const now=performance.now();pushT=pushT||now;
+    if(now-pushT>BREAK_MS){rest=p<lo?rest-1:rest+1;pushT=now}          // never stuck: a long unbroken push carries on to the next stop
+    else scrollTo({top:yOf(p<lo?lo:hi),behavior:'instant'});
+  }
   clearTimeout(settleT);settleT=setTimeout(settle,SETTLE_MS);
 }
 function startStops(){
   const p=progress(),P=stopsP(),[a,b]=zone(P);
-  rest=p<a?-1:p>b?N+1:nearest(P,p);lastY=scrollY;
+  rest=p<a?-1:p>b?N+1:nearest(P,p);
   addEventListener('scroll',onStopScroll,{passive:true});
   ['wheel','touchstart','keydown','pointerdown'].forEach(t=>addEventListener(t,stopGlide,{passive:true}));
   addEventListener('click',e=>{if(e.target.closest&&e.target.closest('a[href]'))freeUntil=performance.now()+FREE_MS},true);
