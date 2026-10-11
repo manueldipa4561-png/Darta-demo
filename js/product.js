@@ -25,9 +25,9 @@ function setTry(){
   const can=v.canPlay()&&!D.reduce();
   b.hidden=!can;b.classList.remove('playing');b.disabled=false;
   if(!can)return;
-  const label=p.kind==='powder'?tr('Svita e scuoti'):tr('Apri');
+  const TRY={powder:['Svita e scuoti','Scuoti...'],tube:['Capovolgi','Capovolgo...'],pumpbottle:['Premi','Premo...']},[tryLabel,tryBusy]=TRY[p.kind]||['Apri','Apri...'],label=tr(tryLabel);
   $('#ppTryTxt').textContent=label;
-  v.onPlay=on=>{b.classList.toggle('playing',on);b.disabled=on;if(!on)$('#ppTryTxt').textContent=label};
+  v.onPlay=on=>{b.classList.toggle('playing',on);b.disabled=on;$('#ppTryTxt').textContent=on?tr(tryBusy):label};
 }
 
 async function mountViewer(){
@@ -45,7 +45,7 @@ function bind(){
   $('#ppL').addEventListener('click',()=>GL.viewer.nudge(-.6));
   $('#ppR').addEventListener('click',()=>GL.viewer.nudge(.6));
   const tryBtn=$('#ppTry');
-  if(tryBtn)tryBtn.addEventListener('click',()=>{if(GL.viewer.play())$('#ppTryTxt').textContent=p.kind==='powder'?tr('Scuoti...'):tr('Apri...')});
+  if(tryBtn)tryBtn.addEventListener('click',()=>GL.viewer.play());
   $('#ppAdd').addEventListener('click',()=>{
     S.add(p.id,vid,qty);
     D.cart.fly(stage,$('#ppAdd'),$('#ppFallback').src);

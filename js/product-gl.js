@@ -77,6 +77,29 @@ function slab(w,h,t,r,cs=10){
   return {front:face(t/2,1,false),back:face(-t/2,-1,true),side};
 }
 
+// Squeeze tube: round at the cap end, pressed flat and sealed at the other (the cross-section is an ellipse that flattens with height)
+function tubeGeo(){
+  const seg=72,M=44,y0=.32,L=1.74,R=.37,sm=t=>t*t*(3-2*t);
+  const sec=s=>{const t=sm(cl((s-.12)/.88,0,1));return [R*(1+.07*t),R*(1-.94*t)]};   // [x radius, z radius]
+  const vtx=[],idx=[],e=.5/M;
+  for(let i=0;i<=M;i++){
+    const s=i/M,[rx,rz]=sec(s),a=sec(Math.max(0,s-e)),b=sec(Math.min(1,s+e)),dy=(Math.min(1,s+e)-Math.max(0,s-e))*L;
+    const dx=(b[0]-a[0])/dy,dz=(b[1]-a[1])/dy;
+    for(let j=0;j<=seg;j++){
+      const th=(j/seg-.5)*TAU,sn=Math.sin(th),cs=Math.cos(th),x=rx*sn,z=rz*cs;
+      const nx=x/(rx*rx),nz=z/(rz*rz),ny=-(x*x*dx/(rx*rx*rx)+z*z*dz/(rz*rz*rz)),l=Math.hypot(nx,ny,nz)||1;
+      vtx.push(x,y0+s*L,z,nx/l,ny/l,nz/l,j/seg,s);
+    }
+  }
+  for(let i=0;i<M;i++)for(let j=0;j<seg;j++){const a=i*(seg+1)+j,b=a+1,c=a+seg+1,d=c+1;idx.push(a,b,c,b,d,c)}
+  return {vtx,idx};
+}
+// Unit disc facing up with planar UVs (texture upright for a viewer in front): the printed lid of the pomade tin
+const DISC=(()=>{const seg=72,vtx=[0,0,0,0,1,0,.5,.5],idx=[];
+  for(let j=0;j<=seg;j++){const a=j/seg*TAU,c=Math.cos(a),n=Math.sin(a);vtx.push(c,0,n,0,1,0,.5+c*.5,.5-n*.5)}
+  for(let j=0;j<seg;j++)idx.push(0,j+1,j+2);
+  return {vtx,idx}})();
+
 const QUAD={vtx:[-.5,0,-.5,0,1,0,0,0, .5,0,-.5,0,1,0,1,0, .5,0,.5,0,1,0,1,1, -.5,0,.5,0,1,0,0,1],idx:[0,2,1,0,3,2]};
 
 /* ---------- shaders ---------- */
@@ -91,9 +114,10 @@ precision mediump float;
 #endif
 varying vec3 vW;varying vec3 vN;varying vec2 vU;varying vec3 vL;
 uniform vec3 uCam,uBase,uRim,uShCol;
-uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uShMode,uDim,uTime,uHasT,uShA,uAmb;
+uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uShMode,uDim,uTime,uHasT,uShA,uAmb,uMatte;
 uniform vec4 uDecal;
 uniform sampler2D uT;
+vec3 gRim;   // the teal rim light, toned down on printed matte panels (uMatte) so a brown label does not read grey-green
 vec3 studio(vec3 R,float rough){
   float s=mix(.04,.5,rough);
   vec3 c=mix(vec3(.012,.014,.015),vec3(.085,.098,.104),smoothstep(-.2,.9,R.y));
@@ -102,9 +126,9 @@ vec3 studio(vec3 R,float rough){
   vec3 st=normalize(vec3(.88,.12,.30));
   c+=vec3(.86,.98,1.05)*1.25*smoothstep(.93-s*.7,.988,dot(R,st))*smoothstep(-.8,.0,R.y)*smoothstep(.97,.55,R.y);
   vec3 rm=normalize(vec3(.42,.22,-.88));
-  c+=uRim*1.9*smoothstep(.85-s,.97,dot(R,rm));
+  c+=gRim*1.9*smoothstep(.85-s,.97,dot(R,rm));
   vec3 lf=normalize(vec3(-.9,.05,-.35));
-  c+=uRim*.55*smoothstep(.9-s,.99,dot(R,lf));
+  c+=gRim*.55*smoothstep(.9-s,.99,dot(R,lf));
   c+=vec3(.55)*smoothstep(.86-s,1.,R.y)*.55;
   c+=vec3(uAmb)*mix(.55,1.,smoothstep(-.6,.9,R.y));
   return c;
@@ -126,6 +150,7 @@ void main(){
     vec4 t=texture2D(uT,vec2(uv.x,1.-uv.y));
     base=mix(base,pow(t.rgb,vec3(2.2)),t.a*inside);mask=t.a*inside;
   }
+  gRim=uRim*(1.-.9*uMatte*mask);
   float ndv=max(dot(N,V),0.);
   vec3 R=reflect(-V,N);
   float rough=mix(uRough,.82,mask);
@@ -139,6 +164,7 @@ void main(){
     spec+=rb*uHolo*(.18+.55*pow(1.-ndv,.6))*(1.-mask*.85);
   }
   if(uGlass>.5){
+    if(front<.5&&uLiquid>0.)discard;   // the far wall of a filled bottle sits behind the oil and the label: drawn on top it would paint over them
     float filled=step(vU.y,uLiquid);
     vec3 core=base*(.25+1.35*pow(ndv,1.4))*mix(.55,1.,filled);
     float a=mix(.4,.97,filled)*(.82+.18*(1.-ndv));
@@ -151,7 +177,7 @@ void main(){
   vec3 Ld=normalize(vec3(-.5,.7,.6));
   float dl=max(dot(N,Ld),0.);
   vec3 dif=base*(1.-metal)*(vec3(.075,.085,.09)+dl*vec3(.95,.92,.86)*.78+studio(N,1.)*.22);
-  vec3 col=dif+spec+uRim*pow(1.-ndv,3.)*.22;
+  vec3 col=dif+spec+gRim*pow(1.-ndv,3.)*.22;
   col=aces(col*1.05);
   gl_FragColor=vec4(pow(col,vec3(1./2.2))*uDim,1.);
 }`;
@@ -175,32 +201,53 @@ const fontOK=()=>{
 const MONO='ui-monospace,"SF Mono",Menlo,Consolas,monospace';
 function fit(ctx,text,font,maxW,startPx){let px=startPx;do{ctx.font=font.replace('{px}',px);px-=2}while(ctx.measureText(text).width>maxW&&px>16);return px+2}
 
-function drawLabel(p){ // 1024x512, wrapped on jars/bottles
-  const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d'),L=p.look||{};
-  const ink=L.ink||'#efe9df',acc=L.accent||'#6cc0b8';
-  x.fillStyle=L.label||'#0f0f0e';x.fillRect(0,0,1024,512);
-  const g=x.createLinearGradient(0,0,0,512);g.addColorStop(0,'rgba(255,255,255,.06)');g.addColorStop(1,'rgba(0,0,0,.18)');x.fillStyle=g;x.fillRect(0,0,1024,512);
-  x.strokeStyle=acc;x.lineWidth=5;x.strokeRect(26,26,972,460);
-  // centred layout: stays readable as the label wraps away from the camera
-  x.textBaseline='alphabetic';x.textAlign='center';
-  x.fillStyle=acc;x.font='italic 800 112px "Barlow Condensed"';x.fillText('DARTA',512,128);
-  x.fillStyle=ink;x.globalAlpha=.62;x.font=`500 24px ${MONO}`;x.fillText('BARBER STUDIO  -  '+(p.label.no||''),512,170);x.globalAlpha=1;
-  x.fillStyle=ink;
-  const name=(p.label.name||p.name).toUpperCase();
-  const px=fit(x,name,'800 {px}px "Barlow Condensed"',640,184);x.font=`800 ${px}px "Barlow Condensed"`;x.fillText(name,512,338);
-  x.fillStyle=acc;x.font='600 34px Barlow';x.fillText((p.label.sub||'').toUpperCase(),512,394);
-  x.fillStyle=ink;x.globalAlpha=.55;x.fillRect(332,422,360,3);x.globalAlpha=.85;x.font=`500 26px ${MONO}`;x.fillText((p.label.vol||'')+'  -  PESCARA',512,466);x.globalAlpha=1;
-  return c;
-}
 const SERIF='"Bodoni 72","Didot","Bodoni MT","Playfair Display",Georgia,"Times New Roman",serif';
 function drawPowderLabel(p){ // 1024x1024, printed straight onto the black bottle: transparent canvas, ink only
   const c=document.createElement('canvas');c.width=1024;c.height=1024;const x=c.getContext('2d'),L=p.look||{};
   x.fillStyle=L.ink||'#f4f1ea';x.textAlign='center';x.textBaseline='alphabetic';
-  const px=fit(x,'POWDER','600 {px}px '+SERIF,700,230);x.font=`600 ${px}px ${SERIF}`;
-  const y1=48+px*.74;x.fillText('WAX',512,y1);x.fillText('POWDER',512,y1+px*.88);
-  if(LOGO.naturalWidth){x.globalAlpha=.96;x.drawImage(LOGO,150,y1+px*.88+30,724,724*LOGO.naturalHeight/LOGO.naturalWidth);x.globalAlpha=1}
+  const t=(p.label&&p.label.title)||['WAX','POWDER'],px=Math.min(...t.map(w=>fit(x,w,'600 {px}px '+SERIF,700,230)));x.font=`600 ${px}px ${SERIF}`;
+  const y1=48+px*.74;t.forEach((w,i)=>x.fillText(w,512,y1+i*px*.88));
+  const y2=y1+(t.length-1)*px*.88;
+  if(LOGO.naturalWidth){x.globalAlpha=.96;x.drawImage(LOGO,150,y2+30,724,724*LOGO.naturalHeight/LOGO.naturalWidth);x.globalAlpha=1}
   x.textAlign='left';x.font=`700 70px ${SERIF}`;x.fillText((p.label&&p.label.sub)||'Volumizzante',140,930);
   return c;
+}
+/* Real Darta packaging. Each pack gets a print drawn at its true proportions: w, h are in model units, every other size too
+   (title/sub are font heights, y is a fraction of the panel height). Black packs print ink only (glossy black shows through). */
+const PRINT={
+  tin:{w:.98,h:.98,ppu:1000,disc:true,fill:['#4a2d20','#170e0a'],title:{y:.125,size:.112,max:.5,gap:.8},logo:{y:.59,w:.7},vol:{y:.955,size:.028}},
+  oilbottle:{w:1.76,h:1.06,ppu:1160,fill:'#0b0a09',title:{y:.13,size:.105,max:.5},logo:{y:.47,w:.52},sub:{y:.86,size:.062,gap:1.28}},
+  can:{w:.66,h:1.22,ppu:1400,title:{y:.1,size:.13,max:.6},logo:{y:.47,w:.6},sub:{y:.8,size:.07,gap:1.25},vol:{y:.96,size:.07}},
+  tube:{w:.6,h:1.04,ppu:1500,fill:'#08080a',title:{y:.13,size:.1,max:.5},logo:{y:.5,w:.52},sub:{y:.9,size:.085}},
+  pumpbottle:{w:2.33,h:1.04,ppu:880,fill:'#0b0908',title:{y:.14,size:.11,max:.5,gap:.92},logo:{y:.56,w:.52},sub:{y:.86,size:.062,gap:1.28},back:true}
+};
+function drawPrint(q,which){
+  const P=PRINT[q.kind],L=q.label||{},ppu=P.ppu,W=Math.round(P.w*ppu),H=Math.round(P.h*ppu),u=v=>v*ppu;
+  const c=document.createElement('canvas');c.width=W;c.height=H;const x=c.getContext('2d'),ink=(q.look&&q.look.ink)||'#f4f1ea',cx=W/2;
+  if(P.disc){let f=P.fill;if(Array.isArray(f)){f=x.createLinearGradient(W*.8,H*.1,W*.2,H*.9);f.addColorStop(0,P.fill[0]);f.addColorStop(1,P.fill[1])}   // a lit chocolate-brown label
+    x.fillStyle=f;x.beginPath();x.arc(W/2,H/2,W/2-2,0,TAU);x.fill()}
+  else if(P.fill){x.fillStyle=P.fill;x.fillRect(0,0,W,H)}
+  x.fillStyle=ink;x.textAlign='center';x.textBaseline='alphabetic';
+  const T=P.title,lines=L.title||[];
+  if(T&&lines.length){
+    const px=Math.min(u(T.size),...lines.map(t=>fit(x,t,`600 {px}px ${SERIF}`,u(T.max),u(T.size))));
+    x.font=`600 ${px}px ${SERIF}`;lines.forEach((t,i)=>x.fillText(t,cx,H*T.y+px*.74+i*px*(T.gap||.9)));
+  }
+  if(P.logo&&LOGO.naturalWidth){const w=u(P.logo.w),h=w*LOGO.naturalHeight/LOGO.naturalWidth;x.globalAlpha=.97;x.drawImage(LOGO,cx-w/2,H*P.logo.y-h/2,w,h);x.globalAlpha=1}
+  const sub=[].concat(L.sub||[]);
+  if(P.sub&&sub.length){x.font=`500 ${u(P.sub.size)}px Barlow`;sub.forEach((t,i)=>x.fillText(t,cx,H*P.sub.y+i*u(P.sub.size)*(P.sub.gap||1.2)))}
+  if(P.vol&&L.vol){x.font=`500 ${u(P.vol.size)}px Barlow`;x.globalAlpha=.9;x.fillText(L.vol,cx,H*P.vol.y);x.globalAlpha=1}
+  if(P.back){ // the back of the bottle (centred on the seam of the wrap): a barcode and grey bars standing in for the small print
+    const bar=(x0,y0,w,h,a)=>{x.globalAlpha=a;x.fillRect(x0,y0,w,h)},cw=u(.34);
+    for(const ox of [0,W]){
+      for(let i=0;i<5;i++)bar(ox-cw/2,H*.2+i*u(.045),cw*(.9-.12*(i%3)),u(.012),.5);
+      for(let i=0,px=ox-u(.16);i<40;i++){const w=u(.004)*(1+((i*7)%3));bar(px,H*.62,w,u(.16),.9);px+=w+u(.004)*(1+((i*5)%2))}
+    }
+    x.globalAlpha=1;
+  }
+  // WebGL1 only mipmaps power-of-two textures: resample the panel (the UVs are normalised, so the stretch is invisible)
+  const pot=n=>Math.min(2048,2**Math.round(Math.log2(n))),o=document.createElement('canvas');o.width=pot(W);o.height=pot(H);
+  const ox=o.getContext('2d');ox.imageSmoothingQuality='high';ox.drawImage(c,0,0,o.width,o.height);return o;
 }
 function drawCard(p,side,amount){ // 1024x512, mapped on a 1.58:1 card
   const c=document.createElement('canvas');c.width=1024;c.height=512;const x=c.getContext('2d'),L=p.look||{};
@@ -238,16 +285,27 @@ function drawCard(p,side,amount){ // 1024x512, mapped on a 1.58:1 card
 
 /* ---------- product models ---------- */
 const PROF={
-  jarBody:[[0,0],[.40,0],[.465,.012],[.495,.045],[.50,.09],[.50,.43],[.49,.455],[0,.455]],
-  jarLid:[[0,.45],[.505,.45],[.53,.46],[.535,.475],[.535,.585],[.53,.605],[.50,.62],[.40,.626],[0,.626]],
-  bottle:[[0,0],[.24,0],[.30,.02],[.335,.07],[.34,.14],[.34,.55],[.335,.60],[.30,.68],[.20,.74],[.15,.78],[.14,.84],[0,.84]],
-  collar:[[0,.80],[.185,.80],[.195,.82],[.195,.96],[.185,.985],[0,.985]],
-  bulb:[[0,.98],[.115,.98],[.12,1.02],[.115,1.12],[.095,1.22],[.05,1.30],[0,1.33]],
-  spray:[[0,0],[.30,0],[.355,.03],[.37,.08],[.37,.62],[.36,.68],[.30,.76],[.20,.82],[.16,.86],[0,.86]],
-  sCollar:[[0,.84],[.19,.84],[.20,.86],[.20,.94],[.19,.96],[0,.96]],
-  sStem:[[0,.95],[.07,.95],[.07,1.06],[0,1.06]],
-  sHead:[[0,1.05],[.16,1.05],[.17,1.07],[.17,1.16],[.15,1.19],[0,1.19]],
-  nozzle:[[0,0],[.045,0],[.045,.2],[0,.2]],
+  // Hair Pomade: pale round tin, ribbed white lid whose top carries the black label
+  tinBody:[[0,0],[.46,0],[.50,.018],[.51,.06],[.51,.30],[.505,.322],[.47,.33],[.47,.30]],
+  tinFill:[[.47,.30],[0,.30]],
+  tinLid:[[0,.30],[.525,.30],[.545,.315],[.55,.34],[.55,.52],[.54,.545],[.51,.56],[0,.56]],
+  // Beard Oil: clear bottle with amber oil, cream pump under a tall clear overcap
+  oBottle:[[0,0],[.22,0],[.27,.016],[.28,.05],[.28,1.36],[.272,1.41],[.235,1.47],[.19,1.51],[.17,1.54],[.17,1.58],[0,1.58]],
+  oColl:[[0,1.54],[.20,1.54],[.21,1.56],[.21,1.70],[.20,1.72],[0,1.72]],
+  oPump:[[0,1.70],[.16,1.70],[.17,1.74],[.17,1.95],[.15,2.0],[0,2.0]],
+  oCap:[[.225,1.66],[.23,1.68],[.23,2.12],[.215,2.17],[.19,2.2],[0,2.2]],
+  // Eco Spray: gloss black can with a tall gloss cap and the valve underneath
+  cBody:[[0,0],[.27,0],[.325,.02],[.335,.06],[.335,1.42],[.325,1.47],[.29,1.52],[.22,1.56],[0,1.56]],
+  cCap:[[0,1.50],[.345,1.50],[.345,1.53],[.34,2.12],[.32,2.2],[.28,2.24],[0,2.24]],
+  cValve:[[0,1.55],[.09,1.55],[.09,1.64],[.12,1.66],[.12,1.74],[0,1.74]],
+  // Curl Man: the chrome cap the tube stands on (the tube itself is tubeGeo)
+  tCap:[[0,0],[.28,0],[.325,.02],[.34,.06],[.34,.27],[.33,.30],[.30,.32],[0,.32]],
+  // Curl Control: pump bottle with amber shoulder, black pump
+  pBottle:[[0,0],[.29,0],[.35,.02],[.37,.07],[.37,1.20],[.365,1.27],[.33,1.36],[.26,1.44],[.21,1.49],[.20,1.52],[0,1.52]],
+  pColl:[[0,1.48],[.215,1.48],[.225,1.50],[.225,1.66],[.215,1.68],[0,1.68]],
+  pStem:[[0,1.68],[.07,1.68],[.07,1.80],[0,1.80]],
+  pHead:[[0,1.78],[.17,1.78],[.18,1.80],[.18,1.93],[.16,1.98],[0,1.98]],
+  pSpout:[[0,0],[.058,0],[.058,.50],[.052,.53],[0,.54]],
   // Wax Powder, proportions taken from the product film: slim gloss-black bottle, ribbed neck, silver screw cap
   wbBody:[[0,0],[.20,0],[.27,.014],[.30,.06],[.30,.95],[.292,1.0],[.27,1.07],[.22,1.15],[.185,1.21],[.172,1.24],[.172,1.26],
     [.19,1.272],[.20,1.29],[.20,1.305],[.19,1.322],[.172,1.334],[.172,1.35],[.19,1.362],[.20,1.38],[.20,1.395],[.19,1.412],[.172,1.424],[.172,1.44],
@@ -260,9 +318,11 @@ const decal=(profKey,r,y0,y1,ar=2)=>{ // label rectangle (width:height = ar), ce
   return [.5-half,.5+half,(y0-mn)/(mx-mn),(y1-mn)/(mx-mn)];
 };
 const GEO_DEF={ // name -> builder
-  jarBody:()=>lathe(PROF.jarBody),jarLid:()=>lathe(PROF.jarLid),
-  bottle:()=>lathe(PROF.bottle),collar:()=>lathe(PROF.collar,56),bulb:()=>lathe(PROF.bulb,56),
-  spray:()=>lathe(PROF.spray),sCollar:()=>lathe(PROF.sCollar,56),sStem:()=>lathe(PROF.sStem,32),sHead:()=>lathe(PROF.sHead,56),nozzle:()=>lathe(PROF.nozzle,32),
+  tinBody:()=>lathe(PROF.tinBody,72),tinFill:()=>lathe(PROF.tinFill,48),tinLid:()=>lathe(PROF.tinLid,96),disc:()=>DISC,
+  oBottle:()=>lathe(PROF.oBottle,72),oColl:()=>lathe(PROF.oColl,56),oPump:()=>lathe(PROF.oPump,56),oCap:()=>lathe(PROF.oCap,72),
+  cBody:()=>lathe(PROF.cBody,96),cCap:()=>lathe(PROF.cCap,96),cValve:()=>lathe(PROF.cValve,40),
+  tCap:()=>lathe(PROF.tCap,72),tube:tubeGeo,
+  pBottle:()=>lathe(PROF.pBottle,96),pColl:()=>lathe(PROF.pColl,56),pStem:()=>lathe(PROF.pStem,32),pHead:()=>lathe(PROF.pHead,56),pSpout:()=>lathe(PROF.pSpout,32),
   wbBody:()=>lathe(PROF.wbBody,96),wbPowder:()=>lathe(PROF.wbPowder,48),wbCap:()=>lathe(PROF.wbCap,96),
   quad:()=>QUAD
 };
@@ -274,28 +334,38 @@ function build(p,byId){
   const part=(o)=>Object.assign({pos:[0,0,0],rot:[0,0,0],s:1,rough:.6,metal:0,col:[.5,.5,.5]},o);
   const rim=acc;
   switch(p.kind){
-    case 'jar':return {rim,radius:.76,ty:.33,shadows:[{pos:[0,0,0],size:1.7}],parts:[
-      part({g:'jarBody',col:hex(L.body||'#1b1b19'),rough:.58,tex:'lbl',decal:decal('jarBody',.5,.045,.425)}),
-      part({g:'jarLid',col:hex(L.lid||'#c9ccca'),rough:L.lidMetal?.5:.55,metal:L.lidMetal?.9:0,knurl:46,role:'cap'})]};
-    case 'dropper':return {rim,radius:.92,ty:.64,shadows:[{pos:[0,0,0],size:1.5}],parts:[
-      part({g:'bottle',col:hex(L.glass||'#b4570d'),rough:.05,glass:1,liquid:.74,tex:'lbl',decal:decal('bottle',.34,.1,.54)}),
-      part({g:'collar',col:hex('#161615'),rough:.38,metal:.85,knurl:36,role:'cap'}),
-      part({g:'bulb',col:hex('#0e0e0d'),rough:.55,role:'cap'})]};
-    case 'spray':return {rim,radius:.96,ty:.6,shadows:[{pos:[0,0,0],size:1.55}],parts:[
-      part({g:'spray',col:hex(L.body||'#2f6f6a'),rough:.42,tex:'lbl',decal:decal('spray',.37,.1,.56)}),
-      part({g:'sCollar',col:hex('#cfd2d0'),rough:.3,metal:1,knurl:40,role:'cap'}),
-      part({g:'sStem',col:hex('#0e0e0d'),rough:.5,role:'cap'}),
-      part({g:'sHead',col:hex('#101010'),rough:.38,role:'cap'}),
-      part({g:'nozzle',col:hex('#0b0b0b'),rough:.45,pos:[0,1.115,.12],rot:[Math.PI/2,0,0],role:'cap'})]};
+    case 'tin':return {rim,radius:.86,ty:.3,pitch:.34,zoomOpen:.55,tyOpen:.4,shadows:[{pos:[0,0,0],size:1.7}],parts:[
+      part({g:'tinBody',col:hex(L.body||'#e9ddd8'),rough:.55}),
+      part({g:'tinFill',col:hex('#efe7df'),rough:.3}),
+      part({g:'tinLid',col:hex(L.lid||'#f2f1ee'),rough:.5,knurl:64,role:'cap'}),
+      part({g:'disc',col:hex(L.lid||'#f2f1ee'),rough:.6,pos:[0,.5612,0],s:.505,tex:'top',matte:1,role:'cap'})]};
+    case 'oilbottle':return {rim,radius:1.28,ty:1.1,zoomOpen:.3,tyOpen:.3,pose:'oil',shadows:[{pos:[0,0,0],size:1.3}],parts:[
+      part({g:'oBottle',col:hex(L.glass||'#c9791b'),rough:.05,glass:1,liquid:.86,tex:'lbl',decal:[0,1,.076,.747]}),
+      part({g:'oColl',col:hex('#efe6c6'),rough:.35,knurl:36}),
+      part({g:'oPump',col:hex('#f4eccc'),rough:.3,role:'pump'}),
+      part({g:'oCap',col:hex('#c4bdf0'),rough:.04,glass:1,liquid:0,role:'cap'})]};
+    case 'can':return {rim,radius:1.3,ty:1.12,zoomOpen:.35,tyOpen:.55,pose:'can',shadows:[{pos:[0,0,0],size:1.5}],parts:[
+      part({g:'cBody',col:hex('#09090a'),rough:.12,tex:'lbl',decal:[.343,.657,.115,.897]}),
+      part({g:'cValve',col:hex('#0c0c0c'),rough:.5,role:'pump'}),
+      part({g:'cCap',col:hex('#070708'),rough:.08,role:'cap'})]};
+    case 'tube':return {rim,radius:1.32,ty:1.03,zoomOpen:.3,tyOpen:.3,pose:'tube',shadows:[{pos:[0,0,0],size:1.6}],parts:[
+      part({g:'tCap',col:hex('#d4d8dc'),rough:.28,metal:1,amb:.45,role:'cap'}),
+      part({g:'tube',col:hex('#08080a'),rough:.1,tex:'lbl',decal:[.34,.66,.1,.7]})]};
+    case 'pumpbottle':return {rim,radius:1.2,ty:1.02,pose:'pump',shadows:[{pos:[0,0,0],size:1.6}],parts:[
+      part({g:'pBottle',col:hex('#6e2a10'),rough:.2,tex:'lbl',decal:[0,1,.118,.80]}),
+      part({g:'pColl',col:hex('#0b0b0b'),rough:.35,knurl:44}),
+      part({g:'pStem',col:hex('#0a0a0a'),rough:.45,role:'pump'}),
+      part({g:'pHead',col:hex('#0a0a0b'),rough:.28,role:'pump'}),
+      part({g:'pSpout',col:hex('#0a0a0b'),rough:.28,pos:[-.08,1.9,0],rot:[0,0,Math.PI/2],role:'pump'})]};
     case 'powder':return {rim,radius:1.0,ty:.84,zoomOpen:.85,tyOpen:.45,shadows:[{pos:[0,0,0],size:1.5}],pose:'powder',parts:[
       part({g:'wbBody',col:hex(L.body||'#0b0b0c'),rough:.1,tex:'lbl',decal:decal('wbBody',.30,.30,.94,1),role:'body'}),
       part({g:'wbPowder',col:[.86,.85,.82],rough:.96,role:'body'}),
       part({g:'wbCap',col:hex(L.cap||'#cfd3d6'),rough:.3,metal:1,amb:.4,pos:[0,1.205,0],role:'cap'})]};
     case 'kit':{
-      const out={rim,radius:1.2,ty:.44,shadows:[],parts:[]};
+      const out={rim,radius:1.7,ty:.95,zoomOpen:.25,tyOpen:.5,shadows:[],parts:[]};
       (p.items||[]).forEach((id,i)=>{
         const q=byId[id];if(!q||q.kind==='kit')return;   // a kit never contains kits (no recursion)
-        const sub=build(q,byId),dx=[-.64,.0,.66][i]??0,dz=[.22,-.3,.22][i]??0,sc=[.9,.84,.92][i]??.85;
+        const sub=build(q,byId),dx=[-.9,.05,.78][i]??0,dz=[.2,-.3,.2][i]??0,sc=[.92,.8,.82][i]??.85;
         sub.parts.forEach(pt=>out.parts.push(Object.assign({},pt,{pos:[pt.pos[0]*sc+dx,pt.pos[1]*sc,pt.pos[2]*sc+dz],s:pt.s*sc,tex:pt.tex?id+':'+pt.tex:undefined,texOf:q})));
         out.shadows.push({pos:[dx,0,dz],size:1.45*sc});
       });
@@ -331,11 +401,37 @@ function powderPose(t,time=0){
     zoom:ss(seg(t,.05,.26))*(1-ss(seg(t,.88,.99))),
     shadow:{x:ox*.9,size:1.5+.5*ta-.3*Math.max(0,oy),a:Math.max(.3,.85-.9*Math.max(0,oy))}};
 }
-function genericPose(t,time=0){ // jars, dropper, spray: the lid or head unscrews, floats up and comes back
+function genericPose(t,time=0){ // tin, can: the lid or cap unscrews, floats up and comes back
   const open=ss(seg(t,.12,.42))*(1-ss(seg(t,.62,.92))),bob=Math.sin(time*1.7)*.02;
-  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.85*open,0),m4.Ry(-TAU*2*open)),mouth:null,zoom:0,shadow:null};
+  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.85*open,0),m4.Ry(-TAU*2*open)),mouth:null,zoom:open,shadow:null};
 }
-const POSES={powder:powderPose};
+/* Beard Oil: the clear overcap unscrews and floats away, the pump is pressed once, the cap comes back */
+function oilPose(t,time=0){
+  const open=ss(seg(t,.08,.34))*(1-ss(seg(t,.70,.92))),bob=Math.sin(time*1.7)*.02,press=ss(seg(t,.42,.50))*(1-ss(seg(t,.50,.60)));
+  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.75*open,0),m4.Ry(-TAU*1.5*open)),pump:m4.T(0,bob-.12*press,0),mouth:null,zoom:open,shadow:null};
+}
+/* Curl Control: the pump head is pressed twice */
+function pumpPose(t,time=0){
+  const bob=Math.sin(time*1.7)*.02,a=ss(seg(t,.10,.20))*(1-ss(seg(t,.22,.32))),b=ss(seg(t,.46,.56))*(1-ss(seg(t,.58,.68))),press=Math.max(a,b);
+  const m=m4.T(0,bob,0);
+  return {body:m,cap:m,pump:m4.T(0,bob-.17*press,0),mouth:null,zoom:0,shadow:null};
+}
+/* Curl Man: the tube turns upside down on the spot, the chrome cap unscrews and floats up along the tube's axis, then everything goes back */
+const TB={CY:1.03,CAP:[0,.16,0]};
+function tubePose(t,time=0){
+  const bob=Math.sin(time*1.7)*.02,flip=ss(seg(t,.04,.26))*(1-ss(seg(t,.82,.97))),open=ss(seg(t,.30,.50))*(1-ss(seg(t,.60,.78)));
+  const body=m4.mul(m4.T(0,bob,0),m4.mul(m4.T(0,TB.CY,0),m4.mul(m4.Rz(Math.PI*flip),m4.T(0,-TB.CY,0))));
+  const C=TB.CAP,local=m4.mul(m4.T(0,-.8*open,0),m4.mul(m4.T(C[0],C[1],C[2]),m4.mul(m4.Ry(-TAU*2*open),m4.T(-C[0],-C[1],-C[2]))));
+  return {body,cap:m4.mul(body,local),mouth:null,zoom:open,shadow:null};
+}
+/* Eco Spray: the cap unscrews and floats off, the button goes down and a cloud of mist leaves the nozzle, the cap comes back */
+const CAN={MOUTH:[.1,1.73,.08],DIR:[.75,.15,.64]};
+function canPose(t,time=0){
+  const open=ss(seg(t,.06,.28))*(1-ss(seg(t,.76,.94))),bob=Math.sin(time*1.7)*.02,press=ss(seg(t,.40,.45))*(1-ss(seg(t,.63,.68)));
+  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.85*open,0),m4.Ry(-TAU*2*open)),pump:m4.T(0,bob-.06*press,0),
+    mouth:{p:[CAN.MOUTH[0],CAN.MOUTH[1]+bob,CAN.MOUTH[2]],d:CAN.DIR},zoom:open,shadow:null};
+}
+const POSES={powder:powderPose,oil:oilPose,pump:pumpPose,tube:tubePose,can:canPose};
 
 /* ---------- powder: stateless particle field (position = f(age)), so it scrubs like everything else ---------- */
 const FX={N:5200,M:110,T:9,E0:.5,E1:.8,K:1.5,G:.95,FLOOR:-1.55,ready:false};
@@ -357,6 +453,21 @@ function fxInit(){
   }
 }
 // fills out (7 floats per live point: x y z size alpha shade pad); mist first, then grains. Returns [mistCount, grainCount]
+// Eco Spray mist: soft puffs thrown from the nozzle between t .40 and .64, spreading and fading (stateless, like the powder)
+const MIST={N:210,E0:.40,E1:.64,T:7,K:2.2};
+function mistFill(t,out){
+  const fade=1-seg(t,.9,.99);let k=0;
+  for(let i=0;i<MIST.N;i++){
+    const age=(t-(MIST.E0+(MIST.E1-MIST.E0)*hash(i,21)))*MIST.T;
+    if(age<=0||age>2.4||fade<=0)continue;
+    const e=(1-Math.exp(-MIST.K*age))/MIST.K,sp=1.1+hash(i,22)*1.5,d=CAN.DIR;
+    out[k++]=CAN.MOUTH[0]+(d[0]+(hash(i,23)-.5)*.5)*sp*e;
+    out[k++]=CAN.MOUTH[1]+(d[1]+(hash(i,24)-.5)*.3)*sp*e+age*.05;
+    out[k++]=CAN.MOUTH[2]+(d[2]+(hash(i,25)-.5)*.5)*sp*e;
+    out[k++]=.35+age*.45;out[k++]=Math.min(1,age/.1)*(1-seg(age,1.2,2.4))*fade*.11;out[k++]=hash(i,26);out[k++]=0;
+  }
+  return [k/7,0];
+}
 function fxFill(t,out,q=1){
   fxInit();
   const {N,M,T,K,G,FLOOR}=FX,fade=1-seg(t,.88,.98),lim=M+Math.floor(N*q);let k=0,nm=0;   // q<1 (phones): fewer grains, same cloud
@@ -394,7 +505,7 @@ function init(){
     if(!gl)return false;
     const pr=link(gl,VS,FS,['aP','aN','aU']),pp=link(gl,PVS,PFS,['aP','aA']);
     gl.useProgram(pr);R.gl=gl;R.prog=pr;R.pp=pp;R.geo=nul();R.tex=nul();R.specs=nul();R.dead=false;
-    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uShMode','uShCol','uDim','uShA','uAmb','uTime','uHasT','uDecal','uT'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
+    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uShMode','uShCol','uDim','uShA','uAmb','uMatte','uTime','uHasT','uDecal','uT'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
     ['uVP','uScale','uMaxPt','uCol','uShade','uSoft'].forEach(k=>R.PU[k]=gl.getUniformLocation(pp,k));
     R.pbuf=gl.createBuffer();R.maxPt=gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1]||64;
     ['aP','aN','aU'].forEach((k,i)=>{R.A[k]=i;gl.enableVertexAttribArray(i)});
@@ -432,7 +543,8 @@ function partTex(pt,p,amount){
   if(!pt.tex)return null;
   const q=pt.texOf||p;
   if(q.kind==='card'){return texFor(`${q.id}:${amount||0}:${pt.tex}`,()=>drawCard(q,pt.tex,amount))}
-  return texFor(`${q.id}:lbl`,()=>q.kind==='powder'?drawPowderLabel(q):drawLabel(q));
+  if(PRINT[q.kind])return texFor(`${q.id}:${pt.tex}`,()=>drawPrint(q,pt.tex));
+  return texFor(`${q.id}:lbl`,()=>drawPowderLabel(q));
 }
 function specFor(p){
   const key=p.id;
@@ -446,7 +558,7 @@ function bindGeo(g){
 }
 const TINT={light:{col:[.98,.98,.97],shade:[.4,.44,.49]},dark:{col:[.96,.95,.92],shade:[.66,.68,.68]}};
 function drawFx(fx,VP,fov){
-  const gl=R.gl,P=R.PU,arr=R.parr,[nm,ng]=fxFill(fx.t,arr,fx.q),tint=TINT[fx.tint]||TINT.light;
+  const gl=R.gl,P=R.PU,arr=R.parr,[nm,ng]=fx.mist?mistFill(fx.t,arr):fxFill(fx.t,arr,fx.q),tint=TINT[fx.tint]||TINT.light;
   if(nm+ng<=0)return;
   gl.useProgram(R.pp);
   gl.bindBuffer(gl.ARRAY_BUFFER,R.pbuf);gl.bufferData(gl.ARRAY_BUFFER,arr.subarray(0,(nm+ng)*7),gl.DYNAMIC_DRAW);
@@ -466,11 +578,11 @@ function drawParts(p,spec,base,P,amount,dim){
     const g=geo(pt.g);bindGeo(g);
     const rm=m4.mul(m4.Ry(pt.rot[1]),m4.mul(m4.Rx(pt.rot[0]),m4.Rz(pt.rot[2])));
     let M=m4.mul(m4.T(pt.pos[0],pt.pos[1],pt.pos[2]),m4.mul(rm,m4.S(pt.s)));
-    if(P)M=m4.mul(pt.role==='cap'?P.cap:P.body,M);       // animated groups move as one piece
+    if(P)M=m4.mul(pt.role==='cap'?P.cap:pt.role==='pump'?(P.pump||P.body):P.body,M);       // animated groups move as one piece
     M=m4.mul(base,M);
     gl.uniformMatrix4fv(U.uM,false,M);
     gl.uniform3fv(U.uBase,pt.col);gl.uniform1f(U.uRough,pt.rough);gl.uniform1f(U.uMetal,pt.metal);
-    gl.uniform1f(U.uAmb,pt.amb||0);gl.uniform1f(U.uKnurl,pt.knurl||0);gl.uniform1f(U.uGlass,pt.glass?1:0);gl.uniform1f(U.uLiquid,pt.liquid||0);gl.uniform1f(U.uHolo,pt.holo||0);
+    gl.uniform1f(U.uAmb,pt.amb||0);gl.uniform1f(U.uMatte,pt.matte||0);gl.uniform1f(U.uKnurl,pt.knurl||0);gl.uniform1f(U.uGlass,pt.glass?1:0);gl.uniform1f(U.uLiquid,pt.liquid||0);gl.uniform1f(U.uHolo,pt.holo||0);
     const t=partTex(pt,p,amount);
     if(t){gl.bindTexture(gl.TEXTURE_2D,t);gl.uniform1f(U.uHasT,pt.tf||1);const d=pt.decal||[0,1,0,1];gl.uniform4fv(U.uDecal,d)}
     else gl.uniform1f(U.uHasT,0);
@@ -503,12 +615,13 @@ function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null}={})
   gl.uniform1f(U.uShA,1);gl.depthMask(true);gl.uniform1f(U.uShadow,0);
   drawParts(p,spec,m4.Ry(yaw),P,amount,1);
   if(fx&&P&&P.mouth){ // the powder is drawn in the world frame, yawed with the product
-    drawFx(fx,m4.mul(VP,m4.Ry(yaw)),fov);
+    drawFx(spec.pose==='can'?Object.assign({mist:true},fx):fx,m4.mul(VP,m4.Ry(yaw)),fov);
   }
 }
 
 // A row of products in one frame (the home shop intro). items: [{p, x, y, z, yaw, s, dim, glow, lift}]; cam: {x, y, dist, pitch}.
 // dim is the spotlight brightness, glow the strength of the light pool on the floor, lift how far the product floats (shadow fades with it).
+// tilt (rad) leans a flat product back toward the viewer so its top shows, resting on its rim; tiltC is [radius, half height] in model units.
 function scene(items,{time=0,cam={},glowCol=[.42,.75,.72]}={}){
   const gl=R.gl,w=R.canvas.width,h=R.canvas.height,U=R.U;
   gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
@@ -516,7 +629,12 @@ function scene(items,{time=0,cam={},glowCol=[.42,.75,.72]}={}){
   const eye=[cx,cy+Math.sin(pt)*dist,Math.cos(pt)*dist];
   gl.useProgram(R.prog);
   gl.uniformMatrix4fv(U.uVP,false,m4.mul(m4.persp(fov,asp,.1,120),m4.look(eye,[cx,cy,0],[0,1,0])));gl.uniform3fv(U.uCam,eye);gl.uniform1f(U.uTime,time);
-  const place=it=>m4.mul(m4.T(it.x,it.y||0,it.z||0),m4.mul(m4.Ry(it.yaw||0),m4.S(it.s||1)));
+  const place=it=>{
+    const s=it.s||1,y=it.y||0;
+    if(!it.tilt)return m4.mul(m4.T(it.x,y,it.z||0),m4.mul(m4.Ry(it.yaw||0),m4.S(s)));
+    const [r,hh]=it.tiltC||[.5,.3],a=it.tilt,rest=(r*Math.sin(a)+hh*Math.cos(a))*s;   // rest: how high the centre sits so the lowest edge touches the counter
+    return m4.mul(m4.T(it.x,y+rest,it.z||0),m4.mul(m4.Ry(it.yaw||0),m4.mul(m4.Rx(a),m4.mul(m4.T(0,-hh*s,0),m4.S(s)))));
+  };
   // light pools and contact shadows first (no depth write; products draw over them)
   gl.depthMask(false);gl.uniform1f(U.uShadow,1);gl.uniform1f(U.uHasT,0);bindGeo(geo('quad'));
   items.forEach(it=>{
@@ -599,11 +717,11 @@ const Viewer={
       this.loop();
     });
   },
-  canPlay(){return !!this.p&&specFor(this.p).parts.some(q=>q.role==='cap')},
+  canPlay(){return !!this.p&&specFor(this.p).parts.some(q=>q.role==='cap'||q.role==='pump')},
   play(){
     if(!this.canPlay()||this.anim||this.reduce)return false;
-    const long=specFor(this.p).pose==='powder';
-    this.yaw=long?-.12:this.yaw;this.vy=0;this.anim={t0:performance.now(),dur:long?9500:4200};this.dirty=true;this.onPlay&&this.onPlay(true);return true;
+    const pose=specFor(this.p).pose,long=pose==='powder';
+    this.yaw=long?-.12:this.yaw;this.vy=0;this.anim={t0:performance.now(),dur:{powder:9500,tube:6800,oil:5400,can:6200}[pose]||4200};this.dirty=true;this.onPlay&&this.onPlay(true);return true;
   },
   setAmount(a){this.amount=a;this.dirty=true},
   nudge(d){this.yaw+=d;this.vy=0;this.idleAt=performance.now();this.dirty=true},
