@@ -1,4 +1,4 @@
-/* Darta shop page: category filters, quick add to cart, the second picture on hover, pointer spotlight.
+/* Darta shop page: category filters, quick add to cart, the product's loop video on hover (on touch screens only after a tap), pointer spotlight.
    The cards themselves are static HTML written by tools/build-pages.py, so the page paints with no script and no 3D. */
 (()=>{
 'use strict';
@@ -13,16 +13,32 @@ function setFilter(cat){
     onComplete:()=>shown.forEach(c=>{c.style.removeProperty('transform');c.style.removeProperty('opacity')})});   // leave hover styles in charge
 }
 
+/* the loop (img/v/<slug>.mp4, made by tools/encode-loops.py) is only downloaded when it is first played; saving data or reduced motion: never */
+const lite=()=>D.reduce()||(navigator.connection&&navigator.connection.saveData);
+function loopOf(card){
+  const v=$('.pcard-vid',card);
+  if(!v||lite())return null;
+  let off=0;
+  return {
+    play(){clearTimeout(off);if(!v.src&&v.dataset.src)v.src=v.dataset.src;v.play().then(()=>card.classList.add('playing')).catch(()=>{})},
+    stop(){card.classList.remove('playing');clearTimeout(off);off=setTimeout(()=>{v.pause();v.currentTime=0},500)}   // fade out first, then rewind
+  };
+}
+
+let active=null;                                                           // the card playing on a touch screen: one at a time
 function bindCard(card){
-  const media=$('.pcard-media',card),b=$('.pcard-img.b',card),add=$('[data-add]',card);
-  if(matchMedia('(hover:hover)').matches){
-    // the second picture is only fetched when someone hovers (phones never download it)
-    card.addEventListener('pointerenter',()=>{if(b.dataset.src){b.onload=()=>b.classList.add('ready');b.src=b.dataset.src;delete b.dataset.src}},{once:true});
-    if(!D.reduce()){
-      media.addEventListener('pointermove',e=>{const r=media.getBoundingClientRect(),x=(e.clientX-r.left)/r.width,y=(e.clientY-r.top)/r.height;
-        media.style.setProperty('--mx',x*100+'%');media.style.setProperty('--my',y*100+'%');media.style.setProperty('--tx',((x-.5)*8).toFixed(2)+'deg');media.style.setProperty('--ty',((.5-y)*8).toFixed(2)+'deg')});
-      media.addEventListener('pointerleave',()=>{media.style.removeProperty('--tx');media.style.removeProperty('--ty')});
+  const media=$('.pcard-media',card),add=$('[data-add]',card),loop=loopOf(card);
+  if(loop){
+    if(matchMedia('(hover:hover)').matches){
+      card.addEventListener('pointerenter',loop.play);card.addEventListener('pointerleave',loop.stop);
+      card.addEventListener('focusin',loop.play);card.addEventListener('focusout',loop.stop);
+    }else{                                                                 // touch: nothing loads or moves until a tap; the first tap plays, a tap while it plays opens the product
+      media.addEventListener('click',e=>{if(!card.classList.contains('playing')){e.preventDefault();if(active&&active!==loop)active.stop();active=loop;loop.play()}});
+      new IntersectionObserver(([e])=>{if(!e.isIntersecting)loop.stop()},{threshold:.2}).observe(media);   // off screen: stop (battery)
     }
+  }
+  if(matchMedia('(hover:hover)').matches&&!D.reduce()){
+    media.addEventListener('pointermove',e=>{const r=media.getBoundingClientRect();media.style.setProperty('--mx',((e.clientX-r.left)/r.width*100).toFixed(1)+'%');media.style.setProperty('--my',((e.clientY-r.top)/r.height*100).toFixed(1)+'%')});
   }
   if(add)add.addEventListener('click',()=>{
     const p=S.byId[add.dataset.add];if(!p)return;

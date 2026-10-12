@@ -18,6 +18,25 @@ function syncBuy(){
   $('#ppMinus').disabled=qty<=1;$('#ppPlus').disabled=qty>=9;
 }
 
+/* captions that follow the animation: one step lights up at a time ([from, to, caption] on the animation's own 0..1 timeline) */
+const STEPS={
+  powder:[[0,.34,'Svita'],[.34,.82,'Scuoti'],[.82,1,'Dai volume']],
+  can:[[0,.36,'Apri'],[.36,.72,'Spruzza'],[.72,1,'Richiudi']],
+  oil:[[0,.40,'Apri'],[.40,.66,'Premi'],[.66,1,'Richiudi']],
+  pump:[[0,.38,'Premi'],[.38,1,'Ancora una volta']],
+  tube:[[0,.30,'Capovolgi'],[.30,.50,'Svita'],[.50,.80,'Spremi'],[.80,1,'Richiudi']],
+  tin:[[0,.45,'Svita'],[.45,.72,'Prendi una noce'],[.72,1,'Richiudi']]
+};
+function setSteps(v){
+  const old=$('#ppSteps');if(old)old.remove();
+  const list=STEPS[GL.specFor(p).pose||p.kind];
+  if(!list){v.onTick=null;return}
+  const ol=el('ol',{class:'pdp-steps',id:'ppSteps','aria-hidden':'true'},list.map(([,,txt],i)=>el('li',null,el('b',{text:String(i+1).padStart(2,'0')}),tr(txt))));
+  stage.appendChild(ol);
+  let cur=-2;
+  v.onTick=t=>{const i=list.findIndex(([a,b])=>t>=a&&t<b);if(i!==cur){cur=i;[...ol.children].forEach((li,j)=>li.classList.toggle('on',j===i))}};
+}
+
 /* the product's own animation (same timeline as the scroll scenes) */
 function setTry(){
   const b=$('#ppTry'),v=GL.viewer;
@@ -27,7 +46,8 @@ function setTry(){
   if(!can)return;
   const TRY={powder:['Svita e scuoti','Scuoti...'],tube:['Capovolgi','Capovolgo...'],pumpbottle:['Premi','Premo...']},[tryLabel,tryBusy]=TRY[p.kind]||['Apri','Apri...'],label=tr(tryLabel);
   $('#ppTryTxt').textContent=label;
-  v.onPlay=on=>{b.classList.toggle('playing',on);b.disabled=on;$('#ppTryTxt').textContent=on?tr(tryBusy):label};
+  setSteps(v);
+  v.onPlay=on=>{b.classList.toggle('playing',on);stage.classList.toggle('playing',on);b.disabled=on;$('#ppTryTxt').textContent=on?tr(tryBusy):label};
 }
 
 async function mountViewer(){
@@ -36,6 +56,13 @@ async function mountViewer(){
   GL.setCatalog(S.catalog.products);
   const ok=await GL.viewer.start(host,p,{amount:+vid||0});
   if(ok){stage.classList.add('live');stage.classList.toggle('still',D.reduce());setTry()}
+}
+
+/* phones: the picture stays a picture until the visitor taps it (no WebGL, no textures, no battery spent); then the 3D viewer starts and plays the animation */
+function armStage(){
+  const b=el('button',{type:'button',class:'pdp-start'},el('span',{class:'pdp-start-ico','aria-hidden':'true'}),tr('Guarda in 3D'));
+  b.addEventListener('click',async()=>{b.disabled=true;await mountViewer();b.remove();if(stage.classList.contains('live'))GL.viewer.play()});
+  stage.appendChild(b);
 }
 
 function bind(){
@@ -63,7 +90,8 @@ D.product={
     if(!p)return;
     vid=defVid(p);
     const checked=$('input[name=pv]:checked');if(checked)vid=checked.value;
-    bind();syncBuy();mountViewer();
+    bind();syncBuy();
+    if(D.lite()&&!D.reduce()&&GL.supported())armStage();else mountViewer();
   }
 };
 })();

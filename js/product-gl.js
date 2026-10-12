@@ -22,6 +22,7 @@ const m4={
     return new Float32Array([x[0],y[0],z[0],0,x[1],y[1],z[1],0,x[2],y[2],z[2],0,-v3.dot(x,e),-v3.dot(y,e),-v3.dot(z,e),1])},
   T:(x,y,z)=>new Float32Array([1,0,0,0,0,1,0,0,0,0,1,0,x,y,z,1]),
   S:s=>new Float32Array([s,0,0,0,0,s,0,0,0,0,s,0,0,0,0,1]),
+  Sv:(x,y,z)=>new Float32Array([x,0,0,0,0,y,0,0,0,0,z,0,0,0,0,1]),
   Rx(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([1,0,0,0,0,c,s,0,0,-s,c,0,0,0,0,1])},
   Ry(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,0,-s,0,0,1,0,0,s,0,c,0,0,0,0,1])},
   Rz(a){const c=Math.cos(a),s=Math.sin(a);return new Float32Array([c,s,0,0,-s,c,0,0,0,0,1,0,0,0,0,1])}
@@ -336,10 +337,10 @@ function build(p,byId){
   switch(p.kind){
     case 'tin':return {rim,radius:.86,ty:.3,pitch:.34,zoomOpen:.55,tyOpen:.4,shadows:[{pos:[0,0,0],size:1.7}],parts:[
       part({g:'tinBody',col:hex(L.body||'#e9ddd8'),rough:.55}),
-      part({g:'tinFill',col:hex('#efe7df'),rough:.3}),
+      part({g:'tinFill',col:hex('#cdb892'),rough:.2}),
       part({g:'tinLid',col:hex(L.lid||'#f2f1ee'),rough:.5,knurl:64,role:'cap'}),
       part({g:'disc',col:hex(L.lid||'#f2f1ee'),rough:.6,pos:[0,.5612,0],s:.505,tex:'top',matte:1,role:'cap'})]};
-    case 'oilbottle':return {rim,radius:1.28,ty:1.1,zoomOpen:.3,tyOpen:.3,pose:'oil',shadows:[{pos:[0,0,0],size:1.3}],parts:[
+    case 'oilbottle':return {rim,radius:1.28,ty:1.1,zoomOpen:.5,tyOpen:.55,pose:'oil',shadows:[{pos:[0,0,0],size:1.3}],parts:[
       part({g:'oBottle',col:hex(L.glass||'#c9791b'),rough:.05,glass:1,liquid:.86,tex:'lbl',decal:[0,1,.076,.747]}),
       part({g:'oColl',col:hex('#efe6c6'),rough:.35,knurl:36}),
       part({g:'oPump',col:hex('#f4eccc'),rough:.3,role:'pump'}),
@@ -351,13 +352,13 @@ function build(p,byId){
     case 'tube':return {rim,radius:1.32,ty:1.03,zoomOpen:.3,tyOpen:.3,pose:'tube',shadows:[{pos:[0,0,0],size:1.6}],parts:[
       part({g:'tCap',col:hex('#d4d8dc'),rough:.28,metal:1,amb:.45,role:'cap'}),
       part({g:'tube',col:hex('#08080a'),rough:.1,tex:'lbl',decal:[.34,.66,.1,.7]})]};
-    case 'pumpbottle':return {rim,radius:1.2,ty:1.02,pose:'pump',shadows:[{pos:[0,0,0],size:1.6}],parts:[
+    case 'pumpbottle':return {rim,radius:1.2,ty:1.02,zoomOpen:.3,tyOpen:.1,pose:'pump',shadows:[{pos:[0,0,0],size:1.6}],parts:[
       part({g:'pBottle',col:hex('#6e2a10'),rough:.2,tex:'lbl',decal:[0,1,.118,.80]}),
       part({g:'pColl',col:hex('#0b0b0b'),rough:.35,knurl:44}),
       part({g:'pStem',col:hex('#0a0a0a'),rough:.45,role:'pump'}),
       part({g:'pHead',col:hex('#0a0a0b'),rough:.28,role:'pump'}),
       part({g:'pSpout',col:hex('#0a0a0b'),rough:.28,pos:[-.08,1.9,0],rot:[0,0,Math.PI/2],role:'pump'})]};
-    case 'powder':return {rim,radius:1.0,ty:.84,zoomOpen:.85,tyOpen:.45,shadows:[{pos:[0,0,0],size:1.5}],pose:'powder',parts:[
+    case 'powder':return {rim,radius:1.0,ty:.84,zoomOpen:1.4,tyOpen:.05,shadows:[{pos:[0,0,0],size:1.5}],pose:'powder',parts:[
       part({g:'wbBody',col:hex(L.body||'#0b0b0c'),rough:.1,tex:'lbl',decal:decal('wbBody',.30,.30,.94,1),role:'body'}),
       part({g:'wbPowder',col:[.86,.85,.82],rough:.96,role:'body'}),
       part({g:'wbCap',col:hex(L.cap||'#cfd3d6'),rough:.3,metal:1,amb:.4,pos:[0,1.205,0],role:'cap'})]};
@@ -383,112 +384,77 @@ function build(p,byId){
 
 /* ---------- poses: pure functions of progress t (0..1), so scrolling can scrub them in both directions ---------- */
 const ss=t=>t*t*(3-2*t),seg=(t,a,b)=>cl((t-a)/(b-a),0,1);
+/* real-world motion: things speed up and slow down, they do not glide at a constant pace */
+const eo=t=>1-(1-t)*(1-t)*(1-t);                                   // ease-out: a lift slows as it arrives in the hand
+const io=t=>t<.5?4*t*t*t:1-Math.pow(-2*t+2,3)/2;                   // ease-in-out
+const spr=t=>t<=0?0:t>=1?1:1-Math.exp(-7*t)*Math.cos(10*t);       // a wrist flick: overshoots a little, then settles
+const rel=v=>Math.exp(-5*v)*Math.cos(v*TAU*1.1);                   // a spring returning after a release: dips past rest once
+const push=(t,a,b,c,d)=>t<=a||t>=d?0:t<b?eo((t-a)/(b-a)):t<c?1:rel((t-c)/(d-c));   // a button: quick push a..b, held to c, springs back c..d
+// a screw cap, o = how open it is (0..1): the first third is the thread (it turns and rises a little), then it lifts off and slows to a stop
+const screw=(o,turns,H,th=.1)=>{const u=Math.min(1,o/.3),f=Math.max(0,(o-.3)/.7);return {spin:-TAU*turns*u,lift:th*u+(H-th)*eo(f)}};
 const xf=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2]+M[12],M[1]*v[0]+M[5]*v[1]+M[9]*v[2]+M[13],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]+M[14]];
 const xd=(M,v)=>[M[0]*v[0]+M[4]*v[1]+M[8]*v[2],M[1]*v[0]+M[5]*v[1]+M[9]*v[2],M[2]*v[0]+M[6]*v[1]+M[10]*v[2]];
 const PW={PIV:.83,CAPC:[0,1.435,0],MOUTH:[0,1.56,0]};
 /* Wax Powder: SVITA (cap unscrews and floats off) -> tilt -> SCUOTI (shake, powder pours) -> DAI VOLUME (bottle rights itself, cap screws back on) */
 function powderPose(t,time=0){
   const bob=Math.sin(time*1.7)*.02;
-  const up=ss(seg(t,.06,.30)),drift=ss(seg(t,.26,.44)),tilt=ss(seg(t,.34,.52)),back=ss(seg(t,.80,.92)),capBack=ss(seg(t,.82,.97));
-  const sk=seg(t,.52,.80),shake=Math.sin(sk*TAU*6)*Math.sin(sk*Math.PI)*.11;
+  const up=ss(seg(t,.06,.30)),drift=ss(seg(t,.26,.44)),tilt=spr(seg(t,.34,.50)),back=io(seg(t,.80,.92)),capBack=ss(seg(t,.82,.97));
+  const sk=seg(t,.52,.80),shake=Math.sin(sk*TAU*6)*Math.min(1,sk*8,(1-sk)*8)*.11;   // a hand shake: starts and stops quickly, about 3 swings a second
   const ta=tilt*(1-back),ang=2.18*ta+shake;
-  const ox=.5*ta,oy=.34*ta+bob*(1-ta);
-  const body=m4.mul(m4.T(ox,oy,0),m4.mul(m4.T(0,PW.PIV,0),m4.mul(m4.Rz(ang),m4.T(0,-PW.PIV,0))));
+  const wob=Math.sin(sk*TAU*6+1.2)*Math.sin(sk*Math.PI),settle=Math.sin(seg(t,.88,1)*TAU*1.5)*(1-seg(t,.88,1))*.03;   // wobble across the shake, a small bounce when it lands
+  const ox=.4*ta+.05*wob,oy=.34*ta+bob*(1-ta)+settle;
+  const body=m4.mul(m4.T(ox,oy,0),m4.mul(m4.T(0,PW.PIV,0),m4.mul(m4.Rz(ang),m4.mul(m4.Rx(.12*wob),m4.T(0,-PW.PIV,0)))));
   const qa=up*(1-capBack),qd=drift*(1-capBack),C=PW.CAPC;
-  const spin=-TAU*3*qa,lift=.9*qa,tum=Math.sin(time*.9)*.25*qd;
+  const {spin,lift}=screw(qa,3,.9),tum=Math.sin(t*9)*.25*qd*Math.exp(-3*seg(t,.30,.80));   // the cap sways like a pendulum and calms down
   const cap=m4.mul(m4.T(.95*qd,lift+.35*qd+bob*(1-qa),.25*qd),m4.mul(m4.T(C[0],C[1],C[2]),m4.mul(m4.Rz(-.55*qd),m4.mul(m4.Rx(.5*qd+tum),m4.mul(m4.Ry(spin),m4.T(-C[0],-C[1],-C[2]))))));
-  return {body,cap,mouth:{p:xf(body,PW.MOUTH),d:xd(body,[0,1,0])},
+  return {body,cap,mouth:{p:xf(body,PW.MOUTH),d:xd(body,[0,1,0])},pan:-.6*ta,
     zoom:ss(seg(t,.05,.26))*(1-ss(seg(t,.88,.99))),
     shadow:{x:ox*.9,size:1.5+.5*ta-.3*Math.max(0,oy),a:Math.max(.3,.85-.9*Math.max(0,oy))}};
 }
 function genericPose(t,time=0){ // tin, can: the lid or cap unscrews, floats up and comes back
-  const open=ss(seg(t,.12,.42))*(1-ss(seg(t,.62,.92))),bob=Math.sin(time*1.7)*.02;
-  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.85*open,0),m4.Ry(-TAU*2*open)),mouth:null,zoom:open,shadow:null};
+  const open=ss(seg(t,.10,.38))*(1-ss(seg(t,.62,.90))),bob=Math.sin(time*1.7)*.02,c=screw(open,2,.85);
+  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+c.lift,0),m4.Ry(c.spin)),mouth:null,zoom:open,shadow:null};
 }
 /* Beard Oil: the clear overcap unscrews and floats away, the pump is pressed once, the cap comes back */
 function oilPose(t,time=0){
-  const open=ss(seg(t,.08,.34))*(1-ss(seg(t,.70,.92))),bob=Math.sin(time*1.7)*.02,press=ss(seg(t,.42,.50))*(1-ss(seg(t,.50,.60)));
-  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.75*open,0),m4.Ry(-TAU*1.5*open)),pump:m4.T(0,bob-.12*press,0),mouth:null,zoom:open,shadow:null};
+  const open=ss(seg(t,.06,.30))*(1-ss(seg(t,.70,.90))),bob=Math.sin(time*1.7)*.02,press=push(t,.42,.45,.52,.62),c=screw(open,1.5,.75);
+  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+c.lift,0),m4.Ry(c.spin)),pump:m4.T(0,bob-.12*press,0),
+    mouth:{p:[.09,2.0+bob-.12*press,.09],d:[.55,.35,.55]},zoom:open,shadow:null};
 }
 /* Curl Control: the pump head is pressed twice */
 function pumpPose(t,time=0){
-  const bob=Math.sin(time*1.7)*.02,a=ss(seg(t,.10,.20))*(1-ss(seg(t,.22,.32))),b=ss(seg(t,.46,.56))*(1-ss(seg(t,.58,.68))),press=Math.max(a,b);
+  const bob=Math.sin(time*1.7)*.02,press=push(t,.10,.13,.17,.27)+push(t,.46,.49,.53,.63);   // two presses: a quick push, a spring that comes back
   const m=m4.T(0,bob,0);
-  return {body:m,cap:m,pump:m4.T(0,bob-.17*press,0),mouth:null,zoom:0,shadow:null};
+  return {body:m,cap:m,pump:m4.T(0,bob-.17*press,0),mouth:{p:[-.62,1.9+bob-.17*press,0],d:[-1,.1,.12]},
+    pan:-.5*ss(seg(t,.05,.2))*(1-ss(seg(t,.68,.82))),zoom:ss(seg(t,.05,.2))*(1-ss(seg(t,.68,.82))),shadow:null};
 }
 /* Curl Man: the tube turns upside down on the spot, the chrome cap unscrews and floats up along the tube's axis, then everything goes back */
 const TB={CY:1.03,CAP:[0,.16,0]};
 function tubePose(t,time=0){
-  const bob=Math.sin(time*1.7)*.02,flip=ss(seg(t,.04,.26))*(1-ss(seg(t,.82,.97))),open=ss(seg(t,.30,.50))*(1-ss(seg(t,.60,.78)));
-  const body=m4.mul(m4.T(0,bob,0),m4.mul(m4.T(0,TB.CY,0),m4.mul(m4.Rz(Math.PI*flip),m4.T(0,-TB.CY,0))));
-  const C=TB.CAP,local=m4.mul(m4.T(0,-.8*open,0),m4.mul(m4.T(C[0],C[1],C[2]),m4.mul(m4.Ry(-TAU*2*open),m4.T(-C[0],-C[1],-C[2]))));
-  return {body,cap:m4.mul(body,local),mouth:null,zoom:open,shadow:null};
+  const bob=Math.sin(time*1.7)*.02,flip=spr(seg(t,.04,.24))*(1-io(seg(t,.80,.95))),open=ss(seg(t,.30,.50))*(1-ss(seg(t,.60,.78)));
+  const sq=push(t,.50,.53,.60,.66);                                  // a squeeze: the tube pinches in as the cream comes out
+  const rigid=m4.mul(m4.T(0,bob,0),m4.mul(m4.T(0,TB.CY,0),m4.mul(m4.Rz(Math.PI*flip),m4.T(0,-TB.CY,0))));
+  const c=screw(open,2,1),C=TB.CAP,local=m4.mul(m4.T(-.7*c.lift,-.6*c.lift,0),m4.mul(m4.T(C[0],C[1],C[2]),m4.mul(m4.Ry(c.spin),m4.T(-C[0],-C[1],-C[2]))));
+  return {body:m4.mul(rigid,m4.Sv(1+.06*sq,1,1-.12*sq)),cap:m4.mul(rigid,local),mouth:{p:xf(rigid,[0,.34,0]),d:xd(rigid,[0,-1,0])},zoom:open,shadow:null};
 }
 /* Eco Spray: the cap unscrews and floats off, the button goes down and a cloud of mist leaves the nozzle, the cap comes back */
 const CAN={MOUTH:[.1,1.73,.08],DIR:[.75,.15,.64]};
 function canPose(t,time=0){
-  const open=ss(seg(t,.06,.28))*(1-ss(seg(t,.76,.94))),bob=Math.sin(time*1.7)*.02,press=ss(seg(t,.40,.45))*(1-ss(seg(t,.63,.68)));
-  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+.85*open,0),m4.Ry(-TAU*2*open)),pump:m4.T(0,bob-.06*press,0),
-    mouth:{p:[CAN.MOUTH[0],CAN.MOUTH[1]+bob,CAN.MOUTH[2]],d:CAN.DIR},zoom:open,shadow:null};
+  const open=ss(seg(t,.06,.28))*(1-ss(seg(t,.76,.94))),bob=Math.sin(time*1.7)*.02,press=push(t,.40,.43,.63,.73),c=screw(open,2,.85);   // the button stays down while it sprays
+  return {body:m4.T(0,bob,0),cap:m4.mul(m4.T(0,bob+c.lift,0),m4.Ry(c.spin)),pump:m4.T(0,bob-.06*press,0),
+    mouth:{p:[CAN.MOUTH[0],CAN.MOUTH[1]+bob,CAN.MOUTH[2]],d:CAN.DIR},pan:.32*ss(seg(t,.3,.45))*(1-ss(seg(t,.7,.85))),zoom:open,shadow:null};
 }
 const POSES={powder:powderPose,oil:oilPose,pump:pumpPose,tube:tubePose,can:canPose};
+const PLAY_MS={powder:6200,tube:5000,oil:4400,can:4200,pump:3600,tin:3800};   // how long each animation takes
 
-/* ---------- powder: stateless particle field (position = f(age)), so it scrubs like everything else ---------- */
-const FX={N:5200,M:110,T:9,E0:.5,E1:.8,K:1.5,G:.95,FLOOR:-1.55,ready:false};
-const hash=(i,k)=>{const x=Math.sin(i*127.1+k*311.7)*43758.5453;return x-Math.floor(x)};
-function fxInit(){
-  if(FX.ready)return;FX.ready=true;
-  const n=FX.N+FX.M;
-  FX.o=new Float32Array(n*3);FX.v=new Float32Array(n*3);FX.te=new Float32Array(n);FX.life=new Float32Array(n);FX.sz=new Float32Array(n);FX.sh=new Float32Array(n);FX.fy=new Float32Array(n);
-  for(let i=0;i<n;i++){
-    const mist=i<FX.M;
-    const te=FX.E0+(FX.E1-FX.E0)*Math.pow(hash(i,1),.85);
-    const m=powderPose(te).mouth,sp=mist?.62:.46,ang=hash(i,2)*TAU,rr=Math.sqrt(hash(i,3))*sp;
-    const ux=-m.d[1],uy=m.d[0];
-    const speed=(mist?.6:.9)+Math.pow(hash(i,4),1.5)*(mist?1.2:2.8);
-    FX.o.set([m.p[0],m.p[1],m.p[2]],i*3);
-    FX.v.set([(m.d[0]+ux*Math.cos(ang)*rr)*speed,(m.d[1]+uy*Math.cos(ang)*rr)*speed,Math.sin(ang)*rr*speed],i*3);
-    FX.te[i]=te;FX.life[i]=(mist?3.6:2.6)+hash(i,5)*1.2;
-    FX.sz[i]=mist?.6+hash(i,6)*.7:.016+hash(i,6)*.034;FX.sh[i]=hash(i,7);FX.fy[i]=hash(i,8)*.28;
-  }
-}
-// fills out (7 floats per live point: x y z size alpha shade pad); mist first, then grains. Returns [mistCount, grainCount]
-// Eco Spray mist: soft puffs thrown from the nozzle between t .40 and .64, spreading and fading (stateless, like the powder)
-const MIST={N:210,E0:.40,E1:.64,T:7,K:2.2};
-function mistFill(t,out){
-  const fade=1-seg(t,.9,.99);let k=0;
-  for(let i=0;i<MIST.N;i++){
-    const age=(t-(MIST.E0+(MIST.E1-MIST.E0)*hash(i,21)))*MIST.T;
-    if(age<=0||age>2.4||fade<=0)continue;
-    const e=(1-Math.exp(-MIST.K*age))/MIST.K,sp=1.1+hash(i,22)*1.5,d=CAN.DIR;
-    out[k++]=CAN.MOUTH[0]+(d[0]+(hash(i,23)-.5)*.5)*sp*e;
-    out[k++]=CAN.MOUTH[1]+(d[1]+(hash(i,24)-.5)*.3)*sp*e+age*.05;
-    out[k++]=CAN.MOUTH[2]+(d[2]+(hash(i,25)-.5)*.5)*sp*e;
-    out[k++]=.35+age*.45;out[k++]=Math.min(1,age/.1)*(1-seg(age,1.2,2.4))*fade*.11;out[k++]=hash(i,26);out[k++]=0;
-  }
-  return [k/7,0];
-}
-function fxFill(t,out,q=1){
-  fxInit();
-  const {N,M,T,K,G,FLOOR}=FX,fade=1-seg(t,.88,.98),lim=M+Math.floor(N*q);let k=0,nm=0;   // q<1 (phones): fewer grains, same cloud
-  for(let i=0;i<lim;i++){
-    const age=(t-FX.te[i])*T;
-    if(age<=0||fade<=0||age>FX.life[i])continue;
-    const mist=i<M,e=1-Math.exp(-K*age),f=(age-e/K)*G/K,w=Math.sin(age*3+FX.sh[i]*6)*.015*e;
-    let y=FX.o[i*3+1]+FX.v[i*3+1]*e/K-f;const fl=FLOOR+FX.fy[i];
-    const settled=y<fl;if(settled)y=fl;
-    const life=FX.life[i],a=Math.min(1,age/.12)*(1-seg(age,life*.62,life))*fade*(settled?.9:1);
-    out[k++]=FX.o[i*3]+FX.v[i*3]*e/K+w;out[k++]=y;out[k++]=FX.o[i*3+2]+FX.v[i*3+2]*e/K;
-    out[k++]=mist?FX.sz[i]*(1+age*.5):FX.sz[i];out[k++]=mist?a*.15:a*.95;out[k++]=FX.sh[i];out[k++]=0;
-    if(mist)nm++;
-  }
-  return [nm,k/7-nm];
-}
+/* ---------- effects: product-fx.js adds the motion graphics that play with each pose (built lazily from the poses) ---------- */
+let EFF=null;
+const effects=()=>EFF||(EFF=D.fx?D.fx.build(POSES):{});
 
 /* ---------- renderer ---------- */
 const nul=()=>Object.create(null);
 function createGL(hooks={}){
-const R={gl:null,canvas:null,prog:null,pp:null,U:{},A:{},PU:{},geo:nul(),tex:nul(),specs:nul(),dead:false,aniso:null,pbuf:null,parr:new Float32Array(7*(FX.N+FX.M))};
+const R={gl:null,canvas:null,prog:null,pp:null,U:{},A:{},PU:{},geo:nul(),tex:nul(),specs:nul(),dead:false,aniso:null,pbuf:null,parr:null};
 let catalogById=nul();
 
 function compile(gl,type,src){const s=gl.createShader(type);gl.shaderSource(s,src);gl.compileShader(s);if(!gl.getShaderParameter(s,gl.COMPILE_STATUS))throw new Error(gl.getShaderInfoLog(s));return s}
@@ -556,19 +522,24 @@ function bindGeo(g){
   const gl=R.gl;gl.bindBuffer(gl.ARRAY_BUFFER,g.vb);gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,g.ib);
   gl.vertexAttribPointer(R.A.aP,3,gl.FLOAT,false,32,0);gl.vertexAttribPointer(R.A.aN,3,gl.FLOAT,false,32,12);gl.vertexAttribPointer(R.A.aU,2,gl.FLOAT,false,32,24);
 }
-const TINT={light:{col:[.98,.98,.97],shade:[.4,.44,.49]},dark:{col:[.96,.95,.92],shade:[.66,.68,.68]}};
-function drawFx(fx,VP,fov){
-  const gl=R.gl,P=R.PU,arr=R.parr,[nm,ng]=fx.mist?mistFill(fx.t,arr):fxFill(fx.t,arr,fx.q),tint=TINT[fx.tint]||TINT.light;
-  if(nm+ng<=0)return;
+// draws the layers an effect returned (point sprites, see product-fx.js): layers share one buffer, in order
+function drawFx(layers,VP,fov){
+  const gl=R.gl,P=R.PU,arr=R.parr,total=layers.reduce((a,l)=>a+l.n,0);
+  if(total<=0)return;
   gl.useProgram(R.pp);
-  gl.bindBuffer(gl.ARRAY_BUFFER,R.pbuf);gl.bufferData(gl.ARRAY_BUFFER,arr.subarray(0,(nm+ng)*7),gl.DYNAMIC_DRAW);
+  gl.bindBuffer(gl.ARRAY_BUFFER,R.pbuf);gl.bufferData(gl.ARRAY_BUFFER,arr.subarray(0,total*7),gl.DYNAMIC_DRAW);
   gl.vertexAttribPointer(0,3,gl.FLOAT,false,28,0);gl.vertexAttribPointer(1,4,gl.FLOAT,false,28,12);
   gl.uniformMatrix4fv(P.uVP,false,VP);gl.uniform1f(P.uScale,R.canvas.height/(2*Math.tan(fov/2)));gl.uniform1f(P.uMaxPt,R.maxPt);
-  gl.uniform3fv(P.uCol,tint.col);gl.uniform3fv(P.uShade,tint.shade);
   gl.depthMask(false);
-  if(nm){gl.uniform1f(P.uSoft,0);gl.drawArrays(gl.POINTS,0,nm)}
-  if(ng){gl.uniform1f(P.uSoft,.55);gl.drawArrays(gl.POINTS,nm,ng)}
-  gl.depthMask(true);gl.useProgram(R.prog);
+  let off=0;
+  for(const l of layers){
+    if(l.n>0){
+      gl.blendFunc(gl.ONE,l.add?gl.ONE:gl.ONE_MINUS_SRC_ALPHA);
+      gl.uniform3fv(P.uCol,l.col);gl.uniform3fv(P.uShade,l.shade);gl.uniform1f(P.uSoft,l.soft);
+      gl.drawArrays(gl.POINTS,off,l.n);off+=l.n;
+    }
+  }
+  gl.blendFunc(gl.ONE,gl.ONE_MINUS_SRC_ALPHA);gl.depthMask(true);gl.useProgram(R.prog);
 }
 // draws every part of one product: base = where it stands (placement + yaw), P = optional animated groups, dim = spotlight brightness
 function drawParts(p,spec,base,P,amount,dim){
@@ -599,8 +570,8 @@ function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null}={})
   const asp=w/h,fov=.5,fitD=spec.radius/Math.sin(fov/2)/Math.min(1,asp);
   const zo=cam&&cam.zo!=null?cam.zo:(spec.zoomOpen||0),dist=(cam&&cam.dist!=null?cam.dist:fitD)*(1+(P?P.zoom:0)*zo),ty=(cam&&cam.ty!=null?cam.ty:spec.ty)+(P?P.zoom:0)*(spec.tyOpen||0);
   const pt=pitch+(spec.pitch||0);
-  const eye=[0,ty+Math.sin(pt)*dist,Math.cos(pt)*dist];
-  const VP=m4.mul(m4.persp(fov,asp,.1,80),m4.look(eye,[0,ty,0],[0,1,0]));
+  const px=((P&&P.pan)||0)*Math.min(1,asp),eye=[px,ty+Math.sin(pt)*dist,Math.cos(pt)*dist];   // pan: the camera slides sideways to keep the spray or the powder in frame
+  const VP=m4.mul(m4.persp(fov,asp,.1,80),m4.look(eye,[px,ty,0],[0,1,0]));
   gl.useProgram(R.prog);
   gl.uniformMatrix4fv(U.uVP,false,VP);gl.uniform3fv(U.uCam,eye);gl.uniform3fv(U.uRim,spec.rim);gl.uniform1f(U.uTime,time);
   // floor shadows (no depth write; objects draw over them)
@@ -614,8 +585,10 @@ function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null}={})
   });
   gl.uniform1f(U.uShA,1);gl.depthMask(true);gl.uniform1f(U.uShadow,0);
   drawParts(p,spec,m4.Ry(yaw),P,amount,1);
-  if(fx&&P&&P.mouth){ // the powder is drawn in the world frame, yawed with the product
-    drawFx(spec.pose==='can'?Object.assign({mist:true},fx):fx,m4.mul(VP,m4.Ry(yaw)),fov);
+  const fn=fx&&P&&effects()[spec.pose||p.kind];   // the effect is drawn in the world frame, yawed with the product
+  if(fn){
+    if(!R.parr)R.parr=new Float32Array(7*D.fx.MAX);
+    drawFx(fn(fx.t,P,R.parr,fx.q),m4.mul(VP,m4.Ry(yaw)),fov);
   }
 }
 
@@ -666,7 +639,7 @@ async function snapshot(p,opts={}){
 
 /* ---------- public: live viewer ---------- */
 const Viewer={
-  p:null,host:null,yaw:-.5,pitch:.2,vy:0,vp:0,drag:null,raf:0,idleAt:0,amount:0,ro:null,anim:null,onPlay:null,
+  p:null,host:null,yaw:-.5,pitch:.2,vy:0,vp:0,drag:null,raf:0,idleAt:0,amount:0,ro:null,anim:null,onPlay:null,onTick:null,
   async start(host,p,opts={}){
     if(!init())return false;
     await fontOK();
@@ -683,7 +656,7 @@ const Viewer={
   },
   size(){
     if(!this.host)return;
-    const dpr=Math.min(devicePixelRatio||1,2),w=Math.max(2,Math.round(this.host.clientWidth*dpr)),h=Math.max(2,Math.round(this.host.clientHeight*dpr));
+    const dpr=Math.min(devicePixelRatio||1,D.lite&&D.lite()?1.5:2),w=Math.max(2,Math.round(this.host.clientWidth*dpr)),h=Math.max(2,Math.round(this.host.clientHeight*dpr));
     setSize(w,h);this.dirty=true;
   },
   bind(){
@@ -707,7 +680,7 @@ const Viewer={
       if(this.anim){ // the product's own animation: lid unscrews / powder pours (same timeline as the scroll film)
         const e=(t-this.anim.t0)/this.anim.dur;
         if(e>=1){this.anim=null;this.idleAt=t;this.dirty=true;this.onPlay&&this.onPlay(false)}
-        else{pose={t:e};fx={t:e,tint:'dark'};this.dirty=true;this.idleAt=t}
+        else{pose={t:e};fx={t:e,q:D.lite&&D.lite()?.45:1};this.dirty=true;this.idleAt=t;this.onTick&&this.onTick(e)}
       }
       if(!this.drag&&!pose){
         if(Math.abs(this.vy)>.0004){this.yaw+=this.vy;this.vy*=.94;this.dirty=true}
@@ -720,8 +693,8 @@ const Viewer={
   canPlay(){return !!this.p&&specFor(this.p).parts.some(q=>q.role==='cap'||q.role==='pump')},
   play(){
     if(!this.canPlay()||this.anim||this.reduce)return false;
-    const pose=specFor(this.p).pose,long=pose==='powder';
-    this.yaw=long?-.12:this.yaw;this.vy=0;this.anim={t0:performance.now(),dur:{powder:9500,tube:6800,oil:5400,can:6200}[pose]||4200};this.dirty=true;this.onPlay&&this.onPlay(true);return true;
+    const kind=specFor(this.p).pose||this.p.kind;
+    this.yaw=kind==='powder'?-.12:this.yaw;this.vy=0;this.anim={t0:performance.now(),dur:PLAY_MS[kind]||4000};this.dirty=true;this.onPlay&&this.onPlay(true);return true;
   },
   setAmount(a){this.amount=a;this.dirty=true},
   nudge(d){this.yaw+=d;this.vy=0;this.idleAt=performance.now();this.dirty=true},
@@ -738,7 +711,7 @@ const Viewer={
 };
 
 let SUP=null; // probing creates a context: do it once, contexts are a scarce page-wide resource
-return {init,setCatalog,snapshot,viewer:Viewer,frame,scene,specFor,canvas:()=>R.canvas,setSize,dead:()=>R.dead,
+return {init,setCatalog,snapshot,playMs:p=>PLAY_MS[specFor(p).pose||p.kind]||4000,viewer:Viewer,frame,scene,specFor,canvas:()=>R.canvas,setSize,dead:()=>R.dead,
   supported:()=>{if(SUP===null){try{const g=document.createElement('canvas').getContext('webgl');SUP=!!g;const l=g&&g.getExtension('WEBGL_lose_context');if(l)l.loseContext()}catch(e){SUP=false}}return SUP},   // supported(): probe once, then release the probe context
   fontsReady:fontOK};
 }
