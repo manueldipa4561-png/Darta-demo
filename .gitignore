@@ -3,3 +3,4 @@ _src/
 .netlify/
 *.log
 research/
+tools/_frames/

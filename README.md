@@ -44,7 +44,9 @@ After editing either file, regenerate the pages and commit the result:
 python3 tools/build-pages.py       # shop.html, servizi.html, prodotti/*.html, servizi/*.html (+ the service teaser on the home page)
 ```
 
-If a product's look or model changed, re-render its pictures: start the dev server, open `http://127.0.0.1:4173/tools/render-images.html`, and it writes `img/p/<name>-a.webp` / `-b.webp` using the real 3D renderer. The header, footer, cart and checkout of every page are copied from the `<!--shared:...-->` blocks of `index.html`.
+**After editing any script or stylesheet, run `python3 tools/build-pages.py`**: it stamps every `/js/...` and `/css/...` URL in the pages with `?v=<hash of the file>`, and `netlify.toml` caches those files for a year (`immutable`), so a changed file is only picked up through its new stamp (a test checks that no page lacks one). Above the fold the entrance animations are pure CSS (`.hero-copy .rv`, the first section of inner pages, the first shop row in `css/styles.css`), so the first paint never waits for the scripts; keep it that way when you add a hero. The shop posters come in three sizes (`-a`, `-a-sm` 480px for phones, `-a-xs` 240px thumbnails): `render-images.html` writes all three.
+
+If a product's look or model changed, re-render its pictures: start the dev server, open `http://127.0.0.1:4173/tools/render-images.html`, and it writes `img/p/<name>-a.webp` using the real 3D renderer. The shop cards also play a loop of each product's own animation (`img/v/<slug>.mp4`): after a change to a model, a pose or `js/product-fx.js`, open `/tools/render-loops.html` (it sends every frame to the dev server) and run `python3 tools/encode-loops.py` (needs `pip install pillow av`). `look.glow` in `data/catalog.json` is the colour of each product's stage; the card background in `css/shop.css` and `backdrop()` in the encoder must stay in step. The header, footer, cart and checkout of every page are copied from the `<!--shared:...-->` blocks of `index.html`.
 
 ## Structure
 
@@ -65,10 +67,12 @@ data/services.json    services (prices, durations, steps, products to pair)
 data/en.json          Italian phrase -> English phrase (pages and scripts)
 data/catalog.en.json  English copy of the products; data/services.en.json  English copy of the services
 img/p/                product pictures rendered from the 3D models
+img/v/                shop-card loops (mp4) of each product's animation, made by tools/encode-loops.py
 js/core.js            helpers, language (D.lang, D.t), reveal observer, router (#carrello / #cart, #checkout), URL helpers
 js/en.js              GENERATED English dictionary for the scripts, loaded only on /en/ pages
 js/store.js           catalog loading, cart state, totals
-js/product-gl.js      raw WebGL renderer (lathe models, studio lighting, label textures, viewer, scene of several products, poses, powder particles); createGL() makes independent renderers
+js/product-fx.js      the motion graphics of each animation (powder cloud, mist, oil drops, cream curl, pomade glints): stateless particle effects
+js/product-gl.js      raw WebGL renderer (lathe models, studio lighting, label textures, viewer, scene of several products, poses); createGL() makes independent renderers
 js/shop.js            shop page: filters, quick add, hover picture
 js/product.js         product page: 3D viewer, options, quantity, add to cart
 js/cart.js            drawer, checkout (demo or Stripe), fly-to-cart
@@ -85,12 +89,12 @@ js/vendor/            anime.js 4.5.0 (MIT), vendored because the CSP only allows
 docs/                 design, security and payment notes
 supabase/             Edge Functions (darta-checkout, darta-stripe-webhook, darta-order) and the orders migration
 tests/                node --test unit tests for pricing, Stripe requests, webhook signature, handlers and the pay client
-tools/                serve.py (dev server), build-pages.py (page generator, both languages) with i18n.py (translation engine), render-images.* (product pictures), make-wallet-images.py (wallet icon and stamp strips), csp.py (CSP hash)
+tools/                serve.py (dev server), build-pages.py (page generator, both languages) with i18n.py (translation engine), render-images.* (product pictures), render-loops.* and encode-loops.py (the card loops), pose-sheet.* (contact sheets of a pose), make-wallet-images.py (wallet icon and stamp strips), csp.py (CSP hash)
 ```
 
 ## Security and deploy notes
 
-- `netlify.toml` ships a strict CSP (`script-src 'self'` plus one hash). If you edit the inline script in `index.html`, run `python3 tools/csp.py`.
+- `netlify.toml` ships a strict CSP (`script-src 'self'` plus one hash; `media-src 'self'` for the card loops). If you edit the inline script in `index.html`, run `python3 tools/csp.py`.
 - `form-action 'none'`: no form ever submits. `connect-src` allows the one Supabase project that runs the payment functions; the customer reaches Stripe by a plain navigation, so the CSP needs no Stripe origin. The WhatsApp button is a plain link carrying the order summary, without personal data.
 - Browser storage, all functional and free of personal data apart from an optional typed card name: `localStorage` `darta-cart-v1` (product ids, variants, quantities), `localStorage` `darta-card` (loyalty card look, stamps and the name the visitor types on it), `sessionStorage` `darta-seen` (first-visit intro already played). Checkout fields are cleared from the form after the demo order and never stored or sent.
 - Full audit, tooling results and the go-live checklist: [`docs/SECURITY.md`](docs/SECURITY.md). Third-party code: [`docs/THIRD-PARTY.md`](docs/THIRD-PARTY.md).
