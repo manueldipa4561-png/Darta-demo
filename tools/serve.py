@@ -2,8 +2,8 @@
 """Local dev server: python3 tools/serve.py   then open http://127.0.0.1:4173
 
 Behaves like the Netlify site: the same security headers from netlify.toml (so CSP problems show up while you work), the same clean URLs
-(/shop, /servizi, /prodotti/<name>, /servizi/<name>), no caching. Also accepts POST /__save/img/p/<name>.webp, used only by
-tools/render-images.html to write the rendered product pictures. Never deploy this file's save endpoint: /tools answers 404 on Netlify."""
+(/shop, /servizi, /prodotti/<name>, /servizi/<name>), no caching. Also accepts POST /__save/img/p/<name>.webp (tools/render-images.html writes the rendered product pictures)
+and POST /__frames/<slug>/<nnnn>.webp (tools/render-loops.html writes animation frames). Never deploy this file's save endpoint: /tools answers 404 on Netlify."""
 import http.server, socketserver, os, re, sys
 
 ROOT = os.path.dirname(os.path.dirname(os.path.abspath(__file__)))
@@ -17,6 +17,7 @@ for line in block.splitlines():
     if m and m.group(1) != 'Strict-Transport-Security':          # no HSTS / upgrade-insecure-requests on plain http
         HEADERS.append((m.group(1), m.group(2).replace('; upgrade-insecure-requests', '')))
 SAVE_OK = re.compile(r'^img/p/[a-z0-9-]+\.webp$')
+FRAME_OK = re.compile(r'^[a-z0-9-]+/\d{4}\.webp$')      # POST /__frames/<slug>/<nnnn>.webp -> tools/_frames/ (tools/render-loops.html)
 
 
 class H(http.server.SimpleHTTPRequestHandler):
@@ -46,11 +47,16 @@ class H(http.server.SimpleHTTPRequestHandler):
         super().do_HEAD()
 
     def do_POST(self):
-        if not self.path.startswith('/__save/'):
+        if self.path.startswith('/__frames/'):
+            name = 'tools/_frames/' + self.path[len('/__frames/'):]
+            ok = FRAME_OK.match(self.path[len('/__frames/'):])
+        elif self.path.startswith('/__save/'):
+            name = self.path[len('/__save/'):]
+            ok = SAVE_OK.match(name)
+        else:
             self.send_error(404)
             return
-        name = self.path[len('/__save/'):]
-        if not SAVE_OK.match(name):
+        if not ok:
             self.send_error(400)
             return
         data = self.rfile.read(int(self.headers.get('Content-Length', 0)))

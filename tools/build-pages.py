@@ -21,6 +21,7 @@ The header, footer, cart drawer, checkout and booking sheet are copied from the 
 inline pre-paint script is copied byte for byte (the CSP allows exactly one hash). No dependencies, no build step on Netlify:
 the generated files are committed. Edit the data files or index.html, run this, commit the result.
 """
+import hashlib
 import html as H
 import json
 import os
@@ -71,7 +72,8 @@ CAT_IT = json.loads(read('data/catalog.json'))
 SVC_IT = json.loads(read('data/services.json'))
 CAT_EN = json.loads(read('data/catalog.en.json'))
 SVC_EN = json.loads(read('data/services.en.json'))
-INDEX = read('index.html')
+STAMP_RE = re.compile(r'((?:src|href)="/(?:js|css)/[^"?]+)(?:\?v=[0-9a-f]+)?"')      # an asset URL, with or without its ?v= stamp
+INDEX = STAMP_RE.sub(lambda m: m.group(1) + '"', read('index.html'))
 CAT = SVC = PRODUCTS = BYID = CATLABEL = GROUP = SERVICES = None
 
 
@@ -146,7 +148,7 @@ def thumb(p, w='a'):
 
 
 def mini(p):
-    return (f'<a class="mini" href="/prodotti/{p["slug"]}"><img src="{thumb(p)}" alt="" width="96" height="96" loading="lazy" decoding="async">'
+    return (f'<a class="mini" href="/prodotti/{p["slug"]}"><img src="{thumb(p, "a-xs")}" alt="" width="96" height="96" loading="lazy" decoding="async">'
             f'<span><b>{esc(p["name"])}</b><small>{esc(price_text(p))}</small></span></a>')
 
 
@@ -192,7 +194,7 @@ def finish(html, urls):
 U = lambda h: i18n.localize_href(h) if LANG == 'en' else h
 
 
-def page(title, desc, body_class, main, scripts, urls, og=None, jsonld=None, preload_catalog=True):
+def page(title, desc, body_class, main, scripts, urls, og=None, jsonld=None, preload_catalog=True, head_extra=''):
     ld = ''
     if jsonld:
         ld = '\n<script type="application/ld+json">' + json.dumps(jsonld, ensure_ascii=False).replace('</', '<\\/') + '</script>'
@@ -214,7 +216,7 @@ def page(title, desc, body_class, main, scripts, urls, og=None, jsonld=None, pre
 <meta property="og:description" content="{esc(desc)}">{og_img}
 <link rel="icon" href="/img/logo.png">
 <link rel="preload" as="font" type="font/woff2" href="/fonts/BarlowCondensed-800.woff2" crossorigin>
-<link rel="preload" as="font" type="font/woff2" href="/fonts/Barlow-400.woff2" crossorigin>{pre}
+<link rel="preload" as="font" type="font/woff2" href="/fonts/Barlow-400.woff2" crossorigin>{head_extra}{pre}
 {INLINE}
 <link rel="stylesheet" href="/css/styles.css">
 <link rel="stylesheet" href="/css/shop.css">
@@ -248,6 +250,11 @@ def crumbs(*items):
 
 
 # ---------------------------------------------------------------- shop
+def glow(p):
+    """The product's stage colour as 'r,g,b' (catalog look.glow): lights the shop card and the product stage."""
+    return ','.join(str(c) for c in (p.get('look') or {}).get('glow') or (108, 192, 184))
+
+
 def card(p, i):
     quick = not p.get('variants')
     badge = f'<span class="pcard-badge">{esc(tr("Risparmi {amount}", amount=eur(kit_saving(p))))}</span>' if kit_saving(p) > 0 else ''
@@ -255,16 +262,18 @@ def card(p, i):
     add_aria = esc(tr('Aggiungi {name} al carrello', name=p['name']))
     choose_aria = esc(tr("Scegli l'importo: {name}", name=p['name']))
     if quick:
-        buy = f'<button class="pcard-add" type="button" data-add="{p["id"]}" aria-label="{add_aria}">{icon("s-plus")}</button>'
+        buy = f'<button class="pcard-add" type="button" data-add="{p["id"]}" aria-label="{add_aria}">{icon("s-plus")}<span>{esc(tr("Aggiungi"))}</span></button>'
     else:
-        buy = f'<a class="pcard-add" href="/prodotti/{p["slug"]}" aria-label="{choose_aria}">{icon("s-arrow")}</a>'
+        buy = f'<a class="pcard-add" href="/prodotti/{p["slug"]}" aria-label="{choose_aria}">{icon("s-arrow")}<span>{esc(tr("Aggiungi"))}</span></a>'
+    loop = f'\n    <video class="pcard-vid" muted loop playsinline preload="none" tabindex="-1" aria-hidden="true" width="640" height="640" data-src="/img/v/{p["slug"]}.mp4"></video>' if os.path.exists(os.path.join(ROOT, 'img', 'v', p['slug'] + '.mp4')) else ''
     feature = ' feature' if p.get('items') else ''
-    return f'''<article class="pcard rv shot{feature}" data-id="{p["id"]}" data-cat="{p["cat"]}" style="--i:{i % 4}">
+    return f'''<article class="pcard rv shot{feature}" data-id="{p["id"]}" data-cat="{p["cat"]}" style="--i:{i % 3};--glow:{glow(p)}">
   <a class="pcard-media" href="/prodotti/{p["slug"]}" aria-label="{esc(label)}">
     <span class="pcard-no">/{p["no"]}</span>
+    <span class="pcard-cat">{esc(CATLABEL.get(p["cat"], p["cat"]))}</span>
+    <span class="pcard-play" aria-hidden="true">{icon("i-play")}</span>
+    <img class="pcard-img a ready" src="{thumb(p)}" srcset="{thumb(p, 'a-sm')} 480w, {thumb(p)} 640w" sizes="(min-width:900px) 370px, 46vw" alt="" width="640" height="640" {'fetchpriority="high" ' if i < 2 else ''}loading="{'eager' if i < 3 else 'lazy'}" decoding="async">{loop}
     <span class="pcard-glow" aria-hidden="true"></span>
-    <img class="pcard-img a ready" src="{thumb(p)}" alt="" width="640" height="640" loading="{'eager' if i < 2 else 'lazy'}" decoding="async">
-    <img class="pcard-img b" src="{TRANSPARENT}" data-src="{thumb(p, 'b')}" alt="" width="640" height="640" decoding="async">
     {badge}
   </a>
   <div class="pcard-body">
@@ -280,6 +289,8 @@ PERKS = (f'<ul class="perks"><li>{icon("s-store")}Ritiro gratis in salone</li><l
 def shop_page():
     filters = ''.join(f'<button class="fbtn" type="button" data-cat="{c["id"]}" aria-pressed="{"true" if c["id"] == "tutti" else "false"}">{esc(c["label"])}</button>' for c in CAT['cats'])
     cards = '\n'.join(card(p, i) for i, p in enumerate(PRODUCTS))
+    names = ''.join(f'<span>{esc(p["name"])}</span><i aria-hidden="true">&#10022;</i>' for p in PRODUCTS)
+    ticker = f'<div class="ticker" aria-hidden="true"><div class="ticker-track">{names}{names}</div></div>'
     main = f'''<main id="top">
   <section class="sec shop shop-top" aria-labelledby="shopTitle">
     <div class="wrap">
@@ -301,6 +312,7 @@ def shop_page():
       <div class="shelf" id="shelf">
 {cards}
       </div>
+      {ticker}
       <p class="note shop-note">Prodotti, prezzi e descrizioni sono d'esempio per la demo e da confermare con il salone. Nessun pagamento reale.</p>
     </div>
   </section>
@@ -310,7 +322,8 @@ def shop_page():
     return page('Shop | Darta Barber Studio, Pescara',
                 "Lo shop di Darta Barber Studio: hair pomade, beard oil, eco spray, Curl Man e Curl Control. Ritiro gratis in salone o spedizione in Italia.",
                 'page-shop', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'shop.js', 'main.js'], {'it': '/shop', 'en': '/en/shop'},
-                og=thumb(PRODUCTS[0]), jsonld=ld)
+                og=thumb(PRODUCTS[0]), jsonld=ld,
+                head_extra=f'\n<link rel="preload" as="image" href="{thumb(PRODUCTS[0])}" imagesrcset="{thumb(PRODUCTS[0], "a-sm")} 480w, {thumb(PRODUCTS[0])} 640w" imagesizes="(min-width:900px) 370px, 46vw" fetchpriority="high">')
 
 
 # ---------------------------------------------------------------- product pages
@@ -336,7 +349,7 @@ def product_page(p):
   <div class="wrap">
     {crumbs(('Shop', '/shop'), (p['name'], None))}
     <div class="pp-grid">
-      <div class="pdp-stage pp-stage" id="ppStage">
+      <div class="pdp-stage pp-stage" id="ppStage" style="--glow:{glow(p)}">
         <span class="pdp-no">/{p["no"]} · {esc(CATLABEL.get(p["cat"], p["cat"]))}</span>
         <img class="pdp-fallback" id="ppFallback" src="{thumb(p)}" alt="{esc(p["name"])}" width="640" height="640" fetchpriority="high">
         <div class="pdp-host" id="ppHost"></div>
@@ -376,8 +389,9 @@ def product_page(p):
           'brand': {'@type': 'Brand', 'name': 'Darta Barber Studio'},
           'offers': {'@type': 'Offer', 'priceCurrency': 'EUR', 'price': f'{unit / 100:.2f}', 'availability': 'https://schema.org/InStock', 'url': U(f'/prodotti/{p["slug"]}')}}
     return page(f'{p["name"]} | Shop Darta Barber Studio', f'{p["name"]}: {p["short"]} {p["desc"]}'[:300], 'page-product', main,
-                ['core.js', 'store.js', 'pay.js', 'product-gl.js', 'cart.js', 'motion.js', 'product.js', 'main.js'],
-                {'it': f'/prodotti/{p["slug"]}', 'en': f'/en/products/{p["slug"]}'}, og=thumb(p), jsonld=ld)
+                ['core.js', 'store.js', 'pay.js', 'product-fx.js', 'product-gl.js', 'cart.js', 'motion.js', 'product.js', 'main.js'],
+                {'it': f'/prodotti/{p["slug"]}', 'en': f'/en/products/{p["slug"]}'}, og=thumb(p), jsonld=ld,
+                head_extra=f'\n<link rel="preload" as="image" href="{thumb(p)}" fetchpriority="high">')
 
 
 # ---------------------------------------------------------------- order confirmation (Stripe sends the customer back here)
@@ -584,6 +598,16 @@ def main():
         print('ok: the English pages have no untranslated Italian,', len(out), 'files would be written')
         return
     n = report_left()
+    stamp = {}                                                   # /js/x.js -> /js/x.js?v=<hash of the file>: the files can then be cached for a year (netlify.toml)
+
+    def versioned(m):
+        url = m.group(1)[m.group(1).index('/'):]
+        if url not in stamp:
+            body = out.get(url.lstrip('/')) or read(url.lstrip('/'))
+            stamp[url] = hashlib.md5(body.encode('utf-8')).hexdigest()[:8]
+        return f'{m.group(1)}?v={stamp[url]}"'
+    for path in [p for p in out if p.endswith('.html')]:
+        out[path] = STAMP_RE.sub(versioned, out[path])
     for path, content in out.items():
         write(path, content)
     print('wrote   ', len(out), 'files (Italian pages, /en/ pages, js/en.js)')
