@@ -252,6 +252,11 @@ dialog[open]{animation:up .45s var(--ease)}
 .rv.in{opacity:1;transform:none}
 .ln>span.rv{transform:translateY(105%);opacity:1}
 .ln>span.rv.in{transform:none}
+/* above the fold the entrance is pure CSS: the text and the first cards never stay invisible until main.js has run (that delayed the LCP by seconds on a phone) */
+.hero-copy .rv,.page-inner main>section:first-of-type .rv:not(.pcard),.shelf .pcard:nth-child(-n+3){opacity:1;transform:none;animation:rvIn .9s var(--ease) backwards;animation-delay:calc(var(--i,0)*80ms)}
+.hero-copy .ln>span.rv,.page-inner main>section:first-of-type .ln>span.rv{transform:none;animation-name:rvMask;animation-duration:1s}
+@keyframes rvIn{from{opacity:0;transform:translateY(28px)}}
+@keyframes rvMask{from{transform:translateY(105%)}}
 
 @supports (animation-timeline:view()){
   .tl::after{animation:fill linear both;animation-timeline:view();animation-range:entry 40% cover 60%}
