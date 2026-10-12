@@ -55,7 +55,12 @@
       "look": {
         "body": "#e9ddd8",
         "lid": "#f2f1ee",
-        "accent": "#6cc0b8"
+        "accent": "#6cc0b8",
+        "glow": [
+          214,
+          170,
+          120
+        ]
       },
       "label": {
         "title": [
@@ -97,7 +102,12 @@
         "body": "#0b0b0c",
         "cap": "#cfd3d6",
         "ink": "#f4f1ea",
-        "accent": "#dfe6ec"
+        "accent": "#dfe6ec",
+        "glow": [
+          200,
+          196,
+          180
+        ]
       },
       "label": {
         "no": "N°02",
@@ -138,7 +148,12 @@
       ],
       "look": {
         "glass": "#c9791b",
-        "accent": "#6cc0b8"
+        "accent": "#6cc0b8",
+        "glow": [
+          214,
+          140,
+          40
+        ]
       },
       "label": {
         "title": [
@@ -178,7 +193,12 @@
         ]
       ],
       "look": {
-        "accent": "#6cc0b8"
+        "accent": "#6cc0b8",
+        "glow": [
+          90,
+          190,
+          150
+        ]
       },
       "label": {
         "title": [
@@ -220,7 +240,12 @@
         ]
       ],
       "look": {
-        "accent": "#6cc0b8"
+        "accent": "#6cc0b8",
+        "glow": [
+          100,
+          170,
+          190
+        ]
       },
       "label": {
         "title": [
@@ -260,7 +285,12 @@
         ]
       ],
       "look": {
-        "accent": "#6cc0b8"
+        "accent": "#6cc0b8",
+        "glow": [
+          200,
+          95,
+          55
+        ]
       },
       "label": {
         "title": [
