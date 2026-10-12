@@ -131,7 +131,7 @@ test('each page links to its twin in the other language, and says so with hrefla
     }
     assert.match(en, /<html lang="en">/);
     assert.match(it, /<html lang="it">/);
-    assert.match(en, /<script defer src="\/js\/en\.js"><\/script>\n<script defer src="\/js\/vendor\/anime/);   // dictionary before everything else
+    assert.match(en, /<script defer src="\/js\/en\.js(\?v=[0-9a-f]+)?"><\/script>\n<script defer src="\/js\/vendor\/anime/);   // dictionary before everything else
     assert.ok(!it.includes('/js/en.js'), `${itFile} must not load the English dictionary`);
   }
 });
@@ -158,4 +158,19 @@ test('the English dictionary file for the scripts is generated and complete', ()
   assert.ok(Object.keys(generated).length > 60);
   for (const [it, en] of Object.entries(generated)) assert.equal(dict[it], en, it);
   assert.ok(js.length < 20000, 'the dictionary should stay small');
+});
+
+test('every script and stylesheet is stamped with ?v=<hash>, because netlify.toml caches /js and /css for a year', () => {
+  const pages = [];
+  const walk = (dir) => readdirSync(join(root, dir)).forEach((n) => {
+    const rel = dir ? `${dir}/${n}` : n;
+    if (['tools', 'tests', 'docs', 'supabase', 'node_modules', 'js', 'css', 'img', 'fonts', 'data'].includes(rel) || n.startsWith('.')) return;
+    if (statSync(join(root, rel)).isDirectory()) walk(rel); else if (n.endsWith('.html')) pages.push(rel);
+  });
+  walk('');
+  assert.ok(pages.length > 30, `found ${pages.length} pages`);
+  for (const f of pages) {
+    const html = read(f);
+    for (const m of html.matchAll(/(?:src|href)="(\/(?:js|css)\/[^"]+)"/g)) assert.match(m[1], /\?v=[0-9a-f]{8}$/, `${f}: ${m[1]}`);
+  }
 });
