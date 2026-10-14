@@ -27,6 +27,7 @@ import json
 import os
 import re
 import sys
+from urllib.parse import quote
 
 sys.path.insert(0, os.path.dirname(os.path.abspath(__file__)))
 import i18n
@@ -320,13 +321,32 @@ def shop_page():
     ld = {'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': [
         {'@type': 'ListItem', 'position': i + 1, 'url': U(f'/prodotti/{p["slug"]}'), 'name': p['name']} for i, p in enumerate(PRODUCTS)]}
     return page('Shop | Darta Barber Studio, Pescara',
-                "Lo shop di Darta Barber Studio: hair pomade, beard oil, eco spray, Curl Man e Curl Control. Ritiro gratis in salone o spedizione in Italia.",
+                "Lo shop di Darta Barber Studio: pomata per capelli, polvere volumizzante, olio da barba, spray ecologico, fluido e controllo ricci. Ritiro gratis in salone o spedizione in Italia.",
                 'page-shop', main, ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'shop.js', 'main.js'], {'it': '/shop', 'en': '/en/shop'},
                 og=thumb(PRODUCTS[0]), jsonld=ld,
                 head_extra=f'\n<link rel="preload" as="image" href="{thumb(PRODUCTS[0])}" imagesrcset="{thumb(PRODUCTS[0], "a-sm")} 480w, {thumb(PRODUCTS[0])} 640w" imagesizes="(min-width:900px) 370px, 46vw" fetchpriority="high">')
 
 
 # ---------------------------------------------------------------- product pages
+WHATSAPP = '393939031656'   # the studio's mobile, the same number as the tel: link in the footer
+
+
+def ingredients(p):
+    """The Ingredients panel: the key ingredients printed on the front label (catalog `key`), then the full INCI list once the
+    salon sends it (catalog `inci`, as printed on the pack). Until then: a WhatsApp link with the request already written.
+    Never invent an INCI list: it is a legal label and people with allergies rely on it."""
+    key = ''.join(f'<li>{esc(k)}</li>' for k in p.get('key', []))
+    key = f'<p class="inci-h">In evidenza</p><ul class="inci-key">{key}</ul>' if key else ''
+    if p.get('inci'):
+        body = f'<p class="inci">{esc(p["inci"])}</p>'
+    else:
+        msg = tr('Ciao Darta, mi mandate la lista ingredienti (INCI) di {name} {size}?', name=p['name'], size=p['size'])
+        body = ('<p>La lista completa degli ingredienti (INCI) è stampata sulla confezione. Te la mandiamo prima dell\'acquisto: basta un messaggio.</p>'
+                f'<a class="btn btn-g inci-ask" href="https://wa.me/{WHATSAPP}?text={quote(msg)}" target="_blank" rel="noopener">Chiedi gli ingredienti su WhatsApp</a>')
+    return (f'<details class="acc" id="ppInci"><summary>Ingredienti</summary>{key}{body}'
+            f'<p class="inci-alt">Allergie o pelle sensibile? Chiamaci prima di ordinare: <a href="tel:+{WHATSAPP}">+39 393 903 1656</a></p></details>')
+
+
 def product_page(p):
     v = default_variant(p)
     is_try = p['kind'] in ('tin', 'oilbottle', 'can', 'tube', 'pumpbottle', 'powder')
@@ -341,6 +361,12 @@ def product_page(p):
     if p.get('items'):
         contains = '<div class="pp-contains"><h2 class="h3">Nel kit</h2><div class="more">' + ''.join(mini(BYID[i]) for i in p['items']) + '</div></div>'
     more = ''.join(mini(x) for x in related_products(p))
+    spot = ''   # the real product on the studio shelf: a short clip made from the studio's own photos (img/spot/<slug>.mp4, see img/README.md)
+    if os.path.exists(os.path.join(ROOT, 'img', 'spot', p['slug'] + '.mp4')):
+        spot = f'''<section class="pp-spot" aria-labelledby="ppSpotT">
+      <div><p class="kicker">In salone</p><h2 class="d h2" id="ppSpotT">Il prodotto vero.</h2><p class="lead">Lo stesso che trovi sullo scaffale del salone, in Via Gobetti 184.</p></div>
+      <div class="pp-spot-media"><video class="pp-spot-v" id="ppSpot" muted playsinline loop preload="none" width="720" height="960" poster="/img/spot/{p["slug"]}.webp" data-src="/img/spot/{p["slug"]}.mp4" aria-label="{esc(tr("Video: {name} sullo scaffale del salone", name=p["name"]))}"></video></div>
+    </section>'''
     try_btn = f'<button type="button" class="pdp-try" id="ppTry" hidden>{icon("i-play")}<span id="ppTryTxt">Apri</span></button>' if is_try else ''
     unit = unit_price(p)
     add_label = f'{esc(tr("Aggiungi"))} <span class="opt">{esc(tr("al carrello"))}</span> · {eur(unit)}'
@@ -377,10 +403,12 @@ def product_page(p):
           <button class="btn btn-p add" id="ppAdd" type="button">{icon("s-bag")}<span id="ppAddTxt" aria-live="polite">{add_label}</span></button>
         </div>
         <details class="acc" open><summary>Come si usa</summary><ol>{use}</ol></details>
+        {ingredients(p)}
         <details class="acc"><summary>Consegna e ritiro</summary><p>Ritiro gratuito in salone, Via Gobetti 184, dal marted&igrave; al sabato dalle 10 alle 19. Spedizione in tutta Italia a 4,90&euro;, gratis sopra i 40&euro;.</p></details>
         {contains}
       </div>
     </div>
+    {spot}
     <section class="pp-more" aria-labelledby="ppMoreTitle"><h2 class="h3" id="ppMoreTitle">Abbinalo con</h2><div class="more">{more}</div></section>
     <p class="note shop-note">Prodotto, prezzo e descrizione sono d'esempio per la demo e da confermare con il salone. Nessun pagamento reale.</p>
   </div>
