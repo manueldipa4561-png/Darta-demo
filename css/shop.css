@@ -42,13 +42,20 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 @keyframes cuFail{to{visibility:hidden}}
 .cu-p{position:absolute;top:0;bottom:0;width:50.3%;background:var(--bg);transform-origin:top}
 .cu-p:nth-child(1){left:0}.cu-p:nth-child(2){right:0}
-.cu-logo{position:absolute;left:50%;top:50%;width:min(54vw,270px);translate:-50% -56%;opacity:0}
-.cu-line{position:absolute;left:50%;top:calc(50% + 62px);width:min(40vw,210px);height:2px;background:var(--accent);translate:-50% 0;transform-origin:left;transform:scaleX(0)}
+#curtain{--cw:min(64vw,42vh,380px)}   /* loader logo width: the product line-up below it follows */
+.cu-stage{position:absolute;inset:0;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:clamp(14px,3.2vh,30px);padding-bottom:4vh}
+.cu-logo{width:var(--cw);height:auto;opacity:0}
+/* the six real products as line art, drawn by anime.js (js/motion.js) */
+.cu-prods{width:calc(var(--cw)*1.15);height:auto;overflow:visible;opacity:0}   /* shown by js once every stroke is set to undrawn: no flash of the finished drawing */
+.cu-prods path{stroke-linecap:round;stroke-linejoin:round}
+.cu-o{stroke:var(--text);stroke-width:2.2;fill:#141412;fill-opacity:0}
+.cu-d{stroke:var(--accent);stroke-width:1.8}
+.cu-s{stroke:rgba(239,233,223,.28);stroke-width:1.6}
 /* the header logo waits for the loader logo to land on it (CSS failsafe reveals it if JS never runs) */
 .intro .hdr .logo img{opacity:0;animation:cuHome 0s 3.9s forwards}
 @keyframes cuHome{to{opacity:1}}
 .hdr .logo img,.cu-logo{filter:drop-shadow(0 1px 8px rgba(0,0,0,.5))}
-.intro .hero-copy .rv{animation-delay:calc(var(--i,0)*80ms + 1.7s)}
+.intro .hero-copy .rv{animation-delay:calc(var(--i,0)*80ms + 1.9s)}   /* with the panels: js/motion.js opens them at 1.85 s */
 
 /* ===== hero kicker + ticker + manifesto ===== */
 .hero-copy{padding-top:calc(env(safe-area-inset-top) + 96px)}   /* the copy never slides under the header/logo */
@@ -217,6 +224,14 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 .acc[open] summary::after{content:"\2212"}
 .acc ol{padding:0 0 1rem 1.25rem;display:grid;gap:.45rem;color:var(--muted)}
 .acc p{padding-bottom:1rem;color:var(--muted)}
+/* Ingredients panel: key ingredients from the label as chips, then the INCI list or the WhatsApp request */
+.acc .inci-h{padding-bottom:.6rem;font:600 .72rem/1 var(--fb);letter-spacing:.14em;text-transform:uppercase}
+.inci-key{display:flex;flex-wrap:wrap;gap:.45rem;padding-bottom:1rem;list-style:none}
+.inci-key li{border:1px solid var(--line);border-radius:var(--pill);padding:.45rem .85rem;font-size:.9rem;color:var(--text)}
+.acc .inci{font-size:.85rem;line-height:1.6;overflow-wrap:anywhere}
+.inci-ask{margin-bottom:1rem;white-space:normal;text-align:center}   /* the label may wrap on narrow phones */
+.acc .inci-alt{font-size:.88rem}
+.inci-alt a{color:var(--text);text-decoration:underline;text-underline-offset:3px;white-space:nowrap}
 .more{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:10px;margin-top:1rem}
 .mini{display:grid;justify-items:center;gap:.4rem;padding:10px 8px;border:1px solid var(--line);border-radius:12px;text-align:center;background:var(--surface);transition:border-color .2s}
 .mini:hover{border-color:var(--accent)}

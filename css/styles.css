@@ -64,6 +64,11 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 .gl-ready #gl{opacity:1;animation:glIn .8s}   /* the script's inline opacity takes over during the dissolve */
 @keyframes glIn{from{opacity:0}}
 #glShop{pointer-events:none}
+/* sign -> counter: a vertical light wipes across (js/journey.js moves it); the real shelf stands behind the 3D row (js/shopintro.js places it) */
+.wipe{position:absolute;top:0;bottom:0;left:0;width:2px;margin-left:-1px;z-index:2;pointer-events:none;opacity:0;background:#fff4e2;box-shadow:0 0 14px 3px rgba(255,232,196,.7),0 0 72px 22px rgba(255,208,150,.26);will-change:transform,opacity}
+.si-bg{position:absolute;left:0;top:0;width:1000px;height:428.6px;max-width:none;transform-origin:0 0;opacity:0;pointer-events:none;will-change:transform,opacity;
+  -webkit-mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),linear-gradient(transparent,#000 16%,#000 90%,transparent);-webkit-mask-composite:source-in;
+  mask-image:linear-gradient(90deg,transparent,#000 5%,#000 95%,transparent),linear-gradient(transparent,#000 16%,#000 90%,transparent);mask-composite:intersect}
 .hero-img{position:absolute;inset:0;width:100%;height:100svh;object-fit:cover;filter:brightness(.62)}
 .gl-ready .hero-img{opacity:0;transition:opacity .8s}
 #stage::before,#stage::after{content:"";position:absolute;left:0;right:0;pointer-events:none;z-index:2}
