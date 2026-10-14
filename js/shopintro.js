@@ -8,7 +8,7 @@ const D=window.DARTA,{$,$$,el,eur,cl}=D,lite=D.lite||(()=>false),tr=D.t;
 const journey=$('#journey'),sec=$('#shopIntro');
 let canvas=$('#glShop');                          // replaced by the renderer's own canvas once the 3D starts
 if(!journey||!canvas||!sec)return;
-const root=document.documentElement,wordsEl=$('#siWords'),endEl=$('#siEnd'),kicker=$('.si-kicker',sec);
+const root=document.documentElement,wordsEl=$('#siWords'),endEl=$('#siEnd'),kicker=$('.si-kicker',sec),allEl=$('.si-all',sec);
 const J=D.J||{hero:.26,scene:.12};
 const sm=e=>e*e*e*(e*(e*6-15)+10),seg=(t,a,b)=>cl((t-a)/(b-a),0,1),lerp=(a,b,t)=>a+(b-a)*t;
 const TAN=Math.tan(.25);                         // the renderer's field of view is .5 rad
@@ -18,13 +18,19 @@ const LOOK={clay:{s:.82,yaw:-.3},pomata:{s:1.15,yaw:.1,tilt:1.15,c:[.55,.28]},ol
 const GAP=1.95,GAPC=1.5,N=LINEUP.length,X=i=>(i-(N-1)/2)*GAP,XC=i=>(i-(N-1)/2)*GAPC;   // GAPC: the closing view packs the row tighter so all six fit beside the text
 const ARRIVE=.17,SPOT=[.17,.8],OUTRO=.84;        // scene timeline (q, 0..1): arrival, spotlight tour, closing view
 
-let FG=null,prods=[],words=[],live=false,vis=false,raf=0,cur=0,W=2,H=2,lastDraw=0,booted=false;
+let FG=null,prods=[],words=[],live=false,vis=false,raf=0,cur=0,W=2,H=2,cw=1,ch=1,lastDraw=0,lastScroll=0,booted=false,bg=null;
+const IDLE_REST=12000;   // the parked product keeps its idle sway this long after the last scroll, then the scene rests (battery)
 const progress=()=>{const r=journey.getBoundingClientRect();return cl(-r.top/Math.max(1,r.height-innerHeight),0,1)};
 
 /* ---------- captions ---------- */
-function line(txt){ // one <i> per letter so each word can assemble with a stagger
-  const n=el('span',{class:'si-n'});
-  [...txt].forEach((ch,i)=>{const c=el('i',{text:ch===' '?' ':ch});c.style.setProperty('--c',i);n.append(c)});
+function line(txt){ // one <i> per letter so each word can assemble with a stagger; words stay whole, so a long Italian name wraps between words on a phone
+  const n=el('span',{class:'si-n'});let i=0;
+  txt.split(' ').forEach((word,w)=>{
+    if(w)n.append(' ');
+    const wd=el('span',{class:'si-wd'});
+    [...word].forEach(ch=>{const c=el('i',{text:ch});c.style.setProperty('--c',i++);wd.append(c)});
+    n.append(wd);i++;
+  });
   return n;
 }
 function buildWords(){
@@ -35,7 +41,7 @@ function buildWords(){
     const price=p.variants?tr('da {price}',{price:eur(p.variants[0].price)}):eur(p.price);
     const w=el('div',{class:'si-w'},line(p.name),
       el('span',{class:'si-m'},el('b',{text:price}),el('span',{text:p.short}),
-        el('a',{class:'si-go',href:D.url.product(p),tabindex:'-1',text:tr('Scopri')})));
+        el('a',{class:'btn btn-p si-go',href:D.url.product(p),tabindex:'-1',text:tr('Acquista')})));
     wordsEl.append(w);words.push(w);
   });
 }
@@ -67,33 +73,51 @@ function render(p,time){
     const spotlit=lerp(lerp(.34,1,focus),.95,closing);                // the spotlight follows the camera; the closing view lights everything evenly
     return {p:p0,x:lerp(X(j),XC(j),closing),y:(1-arrive)*-.9+focus*.28*(1-closing)+Math.sin(time*1.3+j)*.012,
       yaw:lookJ.yaw+(lookJ.tilt?0:cl(s-j,-1.5,1.5)*.8*(1-closing))+Math.sin(time*.4+j)*.08*focus,s:lookJ.s,tilt:lookJ.tilt,tiltC:lookJ.c,   // each product turns toward you as the spotlight arrives
-      dim:spotlit*arrive,glow:(.1+.5*focus)*arrive,lift:focus*(1-closing)};
+      dim:spotlit*arrive,glow:(.1+.5*focus)*arrive,lift:focus*(1-closing),
+      sw:{a:Math.pow(near,1.5)*.9*arrive*(1-closing),x:cl((X(j)-cam.x)/GAP,-1,1)*1.6}};   // the light slides across each product as the camera glides past it
   });
-  FG.scene(items,{time,cam});
+  FG.scene(items,{time,cam,glowCol:[.95,.78,.55]});                    // warm pools, the colour of the shelf's LED strips
+  placeBg(cam,lerp(.62*sm(seg(a,.15,.9)),.92,closing));                  // lights on as the camera arrives, brighter on the whole counter
   return {q,s,closing};
+}
+// The real shelf (img/counter*.webp, made from the studio's photos) is a wall standing BG.z behind the row. It is drawn by CSS under the
+// transparent 3D canvas, placed with the scene's own camera, so it moves with true parallax. line: where its shelf edge sits (share of
+// the height from the top); that edge is put at the counter's height (y = 0).
+const BG={w:16,z:-2.6,line:.815,ar:2400/1029};
+function placeBg(cam,light){
+  if(!bg)return;
+  const s=Math.sin(cam.pitch),c=Math.cos(cam.pitch),ex=cam.x,ey=cam.y+s*cam.dist,ez=c*cam.dist,A=cw/ch;
+  const pr=(x,y)=>{const vy=y-ey,vz=BG.z-ez,zc=-(vy*s+vz*c),yc=vy*c-vz*s;return [((x-ex)/(zc*TAN*A)*.5+.5)*cw,(.5-yc/(zc*TAN)*.5)*ch]};
+  const h=BG.w/BG.ar,[x0,y0]=pr(-BG.w/2,BG.line*h),[x1,y1]=pr(BG.w/2,-(1-BG.line)*h);
+  bg.style.transform=`translate3d(${x0.toFixed(1)}px,${y0.toFixed(1)}px,0) scale(${((x1-x0)/1000).toFixed(4)},${((y1-y0)/(1000/BG.ar)).toFixed(4)})`;
+  bg.style.opacity=light.toFixed(3);
 }
 function ui(p){
   const q=cl((p-J.scene)/(1-J.scene),0,1),s=seg(q,SPOT[0],SPOT[1])*N;
-  canvas.style.opacity=sm(seg(p,J.scene,J.hero)).toFixed(3);          // fades in underneath the dissolving sign
+  canvas.style.opacity=sm(seg(p,J.scene,J.hero*.5+.012)).toFixed(3);  // ready underneath before the light wipe uncovers it
   const closing=q>OUTRO;
   words.forEach((w,k)=>{
     let on,past;
-    if(k===0){on=q>.025&&q<ARRIVE+.01;past=q>=ARRIVE+.01}        // "Il banco di Thomas."
+    if(k===0){on=q>.09&&q<ARRIVE+.01;past=q>=ARRIVE+.01}         // "Il banco di Thomas.": once the light wipe has passed the words, so they land on the counter, not on the sign
     else{const j=k-1;on=!closing&&s>=j+.06&&s<=j+.62;past=closing||s>j+.62}   // shown while the camera rests on that product, gone while it glides on
     w.classList.toggle('on',on);w.classList.toggle('past',past);
   });
-  kicker.classList.toggle('on',q>.03);
+  kicker.classList.toggle('on',q>.06);
+  allEl&&allEl.classList.toggle('on',q>.06&&!closing);   // shop button for the whole product parade; the closing panel has its own
   endEl.classList.toggle('on',closing);
 }
 function tick(now){
   raf=0;if(!vis||!live)return;
   const target=progress(),moving=cur!==target;
   cur+=(target-cur)*.14;if(Math.abs(target-cur)<.0004)cur=target;
-  if(cur>J.scene*.6&&(moving||now-lastDraw>(lite()?90:40))){render(cur,now/1000);ui(cur);lastDraw=now}
+  const shown=cur>J.scene*.6;
+  if(shown&&(moving||now-lastDraw>(lite()?90:40))){render(cur,now/1000);ui(cur);lastDraw=now}
+  if(!moving&&(!shown||now-lastScroll>IDLE_REST))return;   // nothing to animate on screen: sleep until the next scroll
   raf=requestAnimationFrame(tick);
 }
 function resize(){
   const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,lite()?1.5:2);
+  cw=Math.max(1,r.width);ch=Math.max(1,r.height);
   W=Math.max(2,Math.round(r.width*dpr));H=Math.max(2,Math.round(r.height*dpr));FG.setSize(W,H);
   if(live){render(cur,performance.now()/1000)}
 }
@@ -110,12 +134,15 @@ async function boot(){
     await FG.fontsReady();
     buildWords();
     const c=FG.canvas();c.id='glShop';c.setAttribute('aria-hidden','true');canvas.replaceWith(c);canvas=c;
+    bg=document.createElement('img');bg.className='si-bg';bg.alt='';bg.setAttribute('aria-hidden','true');bg.decoding='async';
+    bg.src=lite()?'/img/counter-m.webp':'/img/counter.webp';c.before(bg);
     sec.classList.add('si-live');live=true;
     new ResizeObserver(()=>{const r=c.getBoundingClientRect();if(r.width)resize()}).observe(c);
     cur=progress();resize();ui(cur);
     startStops();
     new IntersectionObserver(([e])=>{vis=e.isIntersecting;if(vis){cur=progress();if(!raf)raf=requestAnimationFrame(tick)}},{rootMargin:'10% 0px'}).observe(journey);
-    vis=true;if(!raf)raf=requestAnimationFrame(tick);
+    vis=true;lastScroll=performance.now();if(!raf)raf=requestAnimationFrame(tick);
+    addEventListener('scroll',()=>{lastScroll=performance.now();if(vis&&live&&!raf)raf=requestAnimationFrame(tick)},{passive:true});
   }catch(err){console.warn('Darta shop intro unavailable',err);D.heroOff&&D.heroOff()}
 }
 function init(){

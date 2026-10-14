@@ -8,8 +8,9 @@ if(!A||reduce){$('#curtain')&&$('#curtain').remove();root.classList.remove('intr
 
 const fine=matchMedia('(hover:hover) and (pointer:fine)').matches;
 
-/* 1. first-visit curtain: the logo draws in, then travels to the top-left and lands exactly on the header logo
-      while two panels wipe away. The header logo stays hidden until the hand-off, so there is never a double or a pop. */
+/* 1. first-visit curtain: the six real Darta products draw themselves up from a shelf (anime.js line drawing), the signature
+      is written above them, then the products drop away while the logo travels to the top-left, lands exactly on the header
+      logo and two panels wipe away. The header logo stays hidden until the hand-off, so there is never a double or a pop. */
 function curtain(){
   const c=$('#curtain');if(!c)return;
   if(!root.classList.contains('intro')){c.remove();return}
@@ -21,12 +22,20 @@ function curtain(){
   // measure BEFORE any transform runs: where the header logo sits, relative to the centred loader logo
   const a=logo.getBoundingClientRect(),b=home.getBoundingClientRect();
   const dx=(b.left+b.width/2)-(a.left+a.width/2),dy=(b.top+b.height/2)-(a.top+a.height/2),sc=b.width/a.width;
+  const {createDrawable}=A.svg,outl=createDrawable('#curtain .cu-o'),det=createDrawable('#curtain .cu-d'),shelf=createDrawable('#curtain .cu-s');
+  A.utils.set([...outl,...shelf],{draw:'.5 .5'});A.utils.set(det,{draw:'0 0'});A.utils.set('#curtain .cu-prods',{opacity:1});   // an outline's midpoint sits on the shelf, so it grows upward on both sides
   const tl=A.createTimeline({defaults:{ease:'outExpo'},onComplete:done})
-    .add(logo,{opacity:[0,1],y:[26,0],duration:760},0)
-    .add('#curtain .cu-line',{scaleX:[0,1],duration:980},120)
-    .add('#curtain .cu-line',{opacity:[1,0],duration:300,ease:'inQuad'},980)
-    .add(logo,{x:dx,y:dy,scale:sc,duration:1050,ease:'inOutExpo'},1000)
-    .add('#curtain .cu-p',{scaleY:[1,0],duration:820,delay:A.stagger(90),ease:'inOutExpo'},1180);
+    .add(shelf,{draw:['.5 .5','0 1'],duration:700,ease:'inOutQuart'},0)
+    .add(outl,{draw:['.5 .5','0 1'],duration:850,delay:A.stagger(70,{from:'center'}),ease:'inOutQuad'},120)
+    .add(det,{draw:['0 0','0 1'],duration:450,delay:A.stagger(22),ease:'outQuad'},700)              // labels, caps, crimp
+    .add('#curtain .cu-o',{fillOpacity:[0,1],duration:500,ease:'outQuad'},950)
+    .add(logo,{opacity:[0,1],y:[14,0],clipPath:['inset(-20% 100% -20% -10%)','inset(-20% -10% -20% -10%)'],duration:850,ease:'outCubic'},850)   // the signature is written left to right (the negative insets keep the drop-shadow unclipped)
+    .add('#curtain .cu-g',{y:[0,10],opacity:[1,0],duration:420,delay:A.stagger(35,{from:'center'}),ease:'inQuad'},1550)
+    .add('#curtain .cu-s',{opacity:[1,0],duration:300,ease:'inQuad'},1650)
+    .add(logo,{x:dx,y:dy,scale:sc,duration:1000,ease:'inOutExpo'},1700)
+    .add('#curtain .cu-p',{scaleY:[1,0],duration:800,delay:A.stagger(90),ease:'inOutExpo'},1850);
+  const IN=['pointerdown','keydown','wheel','touchstart'],hurry=()=>{tl.speed=4;IN.forEach(t=>removeEventListener(t,hurry))};   // any input: play the rest 4x faster, nobody waits on the loader
+  IN.forEach(t=>addEventListener(t,hurry,{passive:true}));
   D.motion&&(D.motion.tl=tl);
 }
 
@@ -46,13 +55,21 @@ function counters(){
 
 /* 3. words light up with scroll progress (never below 3:1 contrast: the statement is large text) */
 function scrub(){
+  const items=[];
   $$('.scrub').forEach(p=>{
     let split;try{split=A.splitText(p,{words:true})}catch(e){return}
     if(!split||!split.words||!split.words.length)return;
     p.classList.add('scrubbing');
-    A.animate(split.words,{opacity:[.42,1],ease:'linear',delay:A.stagger(60),
-      autoplay:A.onScroll({target:p,enter:'bottom 90%',leave:'top 40%',sync:.25})});
+    items.push([p,A.animate(split.words,{opacity:[.42,1],ease:'linear',delay:A.stagger(60),autoplay:false})]);
   });
+  if(!items.length)return;
+  // linked to scroll by hand over the same range as onScroll({enter:'bottom 90%',leave:'top 40%'}): anime's scroll observer
+  // keeps an endless timer ticking every frame even at rest, this runs only when the page actually scrolls
+  let queued=false;
+  const update=()=>{queued=false;const vh=innerHeight;
+    items.forEach(([p,a])=>{const r=p.getBoundingClientRect(),k=Math.min(1,Math.max(0,(vh-.9*r.height-r.top)/(vh-.5*r.height)));a.seek(k*a.duration)})};
+  addEventListener('scroll',()=>{if(!queued){queued=true;requestAnimationFrame(update)}},{passive:true});
+  addEventListener('resize',update,{passive:true});update();
 }
 
 /* 4. magnetic call-to-actions (fine pointers only) */

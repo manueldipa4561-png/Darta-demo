@@ -65,6 +65,19 @@ function armStage(){
   stage.appendChild(b);
 }
 
+/* the real product on the studio shelf (img/spot/*.mp4): plays while it is on screen; phones wait for a tap, reduced motion gets plain controls */
+function spot(){
+  const v=$('#ppSpot');if(!v)return;
+  const start=()=>{if(!v.src)v.src=v.dataset.src;v.play().catch(()=>{})};
+  if(D.reduce()){v.src=v.dataset.src;v.controls=true;return}
+  let armed=!D.lite();
+  if(!armed){
+    const b=el('button',{type:'button',class:'pp-spot-play','aria-label':tr('Guarda il video')});
+    b.addEventListener('click',()=>{armed=true;b.remove();start()});v.after(b);
+  }
+  new IntersectionObserver(([e])=>{if(!armed)return;if(e.isIntersecting)start();else v.pause()},{threshold:.35}).observe(v);
+}
+
 function bind(){
   $$('input[name=pv]').forEach(r=>r.addEventListener('change',()=>{vid=r.value;syncBuy();GL.viewer.setAmount(+vid||0)}));
   $('#ppMinus').addEventListener('click',()=>{qty=Math.max(1,qty-1);syncBuy()});
@@ -90,7 +103,7 @@ D.product={
     if(!p)return;
     vid=defVid(p);
     const checked=$('input[name=pv]:checked');if(checked)vid=checked.value;
-    bind();syncBuy();
+    bind();syncBuy();spot();
     if(D.lite()&&!D.reduce()&&GL.supported())armStage();else mountViewer();
   }
 };

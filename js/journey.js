@@ -21,11 +21,13 @@ precision highp float;
 #else
 precision mediump float;
 #endif
-uniform sampler2D uT;uniform vec2 uC,uS,uPx;uniform float uA,uSat,uW,uTm,uR,uDk,uSh;varying vec2 vUv;
+uniform sampler2D uT;uniform vec2 uC,uS,uPx;uniform float uA,uSat,uW,uTm,uR,uDk,uSh,uSw;varying vec2 vUv;
 void main(){vec2 uv=(vUv-.5)*uC+.5;uv.x+=sin(uv.y*11.+uTm*2.2)*uW*.012;float s=uW*.007;
 vec3 c=vec3(texture2D(uT,uv+vec2(s,0.)).r,texture2D(uT,uv).g,texture2D(uT,uv-vec2(s,0.)).b);
 vec2 o=uPx*uC;vec3 bl=(texture2D(uT,uv+vec2(o.x,0.)).rgb+texture2D(uT,uv-vec2(o.x,0.)).rgb+texture2D(uT,uv+vec2(0.,o.y)).rgb+texture2D(uT,uv-vec2(0.,o.y)).rgb)*.25;
 c=clamp(c+(c-bl)*uSh,0.,1.); // unsharp mask, one screen pixel wide
+float lu=dot(c,vec3(.299,.587,.114)),sb=uv.x*.85+uv.y*.4-uSw;
+c+=exp(-sb*sb*140.)*smoothstep(.3,.52,lu)*smoothstep(0.,.12,c.b-c.r)*vec3(1.,.95,.86)*.9; // light sweep: only the raised letters (light, cool) catch it, not the warm wall
 float g=dot(c,vec3(.299,.587,.114));c=mix(vec3(g),c,uSat)*uDk;
 c*=vec3(.96,1.,1.015);c+=(fract(sin(dot(gl_FragCoord.xy+uTm*61.,vec2(12.9898,78.233)))*43758.5453)-.5)*.02;
 vec2 q=abs(vUv-.5)*uS;vec2 h=uS*.5-uR;vec2 e=q-h;float d=length(max(e,0.))+min(max(e.x,e.y),0.)-uR;float m=uR>0.?1.-smoothstep(-.006,.006,d):1.;
@@ -34,7 +36,7 @@ function sh(t,src){const s=gl.createShader(t);gl.shaderSource(s,src);gl.compileS
 const pr=gl.createProgram();gl.attachShader(pr,sh(gl.VERTEX_SHADER,VS));gl.attachShader(pr,sh(gl.FRAGMENT_SHADER,FS));gl.linkProgram(pr);
 if(!gl.getProgramParameter(pr,gl.LINK_STATUS)){root.classList.remove('gl');plainChrome();return}
 gl.useProgram(pr);
-const U={};['uM','uBend','uT','uC','uS','uPx','uSh','uA','uSat','uW','uTm','uR','uDk'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
+const U={};['uM','uBend','uT','uC','uS','uPx','uSh','uA','uSat','uW','uTm','uR','uDk','uSw'].forEach(k=>U[k]=gl.getUniformLocation(pr,k));
 // subdivided quad so planes can bend with scroll speed
 const N=16,pos=[],idx=[];
 for(let y=0;y<=N;y++)for(let x=0;x<=N;x++)pos.push(x/N-.5,y/N-.5);
@@ -44,7 +46,10 @@ gl.bindBuffer(gl.ELEMENT_ARRAY_BUFFER,gl.createBuffer());gl.bufferData(gl.ELEMEN
 const aP=gl.getAttribLocation(pr,'aP');gl.enableVertexAttribArray(aP);gl.vertexAttribPointer(aP,2,gl.FLOAT,false,0,0);
 gl.enable(gl.BLEND);gl.blendFunc(gl.SRC_ALPHA,gl.ONE_MINUS_SRC_ALPHA);gl.clearColor(11/255,11/255,10/255,1);gl.uniform1i(U.uT,0);gl.pixelStorei(gl.UNPACK_FLIP_Y_WEBGL,true);
 
-const ANISO=gl.getExtension('EXT_texture_filter_anisotropic'),MAXTEX=Math.min(lite()?1024:2048,gl.getParameter(gl.MAX_TEXTURE_SIZE));   // phones: a 1024 texture is plenty and a quarter of the memory
+// Texture budget from the screen the photo has to cover (x1.2 for the push-in), as a power of two: 2048 on phones, 4096 only on
+// retina-class desktops. A fixed 1024/2048 left the sign soft on 3x phones and retina laptops; a fixed 4096 would waste memory on small screens.
+const NEED=Math.max(innerWidth,innerHeight)*Math.min(devicePixelRatio||1,lite()?1.5:2)*1.2;   // same pixel ratio the canvas renders at (layout())
+const ANISO=gl.getExtension('EXT_texture_filter_anisotropic'),MAXTEX=Math.min(lite()?2048:4096,gl.getParameter(gl.MAX_TEXTURE_SIZE),Math.max(1024,2**Math.round(Math.log2(NEED))));
 const potNear=n=>Math.pow(2,Math.round(Math.log2(Math.max(2,n))));
 // Photos are resampled once to a power-of-two canvas so the GPU can build mipmaps: big uploads then shrink cleanly
 // (no shimmer) and small ones are not sharpened by accident. UVs are normalised, so the stretch is invisible.
@@ -67,8 +72,9 @@ const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 // scene: the hero sign plane at z=0; the camera starts back at Z0 and dives toward it
 const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),Z0=3.2,ZE=1.1,J=window.DARTA.J||{hero:.26,scene:.12};
-let ASP=1,dirty=true,P,hero=null,cur=Z0,vel=0,raf=0,visible=true;
-const heroCopy=$('#heroCopy');
+let ASP=1,dirty=true,P,hero=null,cur=Z0,vel=0,raf=0,visible=true,sweep=-1,shown=0,still=0,settled=false;   // sweep: where the light band is (-1 = parked off the sign); shown: when the sign was first revealed
+const heroCopy=$('#heroCopy'),wipe=$('#wipe');
+const SWEEP_MS=1700,IDLE=.13,IDLE_MS=2600;   // the reveal sweep, then a slow push-in toward the sign while the visitor reads (camera units)
 
 function layout(){
   const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
@@ -92,30 +98,45 @@ function draw(){
   if(!hero||!P||canvas.style.opacity!==''&&+canvas.style.opacity<.01)return;   // fully dissolved: nothing to paint
   gl.clear(gl.COLOR_BUFFER_BIT);gl.uniform1f(U.uTm,performance.now()/1000);
   const dive=cl((Z0-cur)/Z0,0,1);
-  plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.5,0,cl(Math.abs(vel)*5,0,.7)+dive*.7,0,.66,0);
+  gl.uniform1f(U.uSw,sweep);
+  plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.3,0,cl(Math.abs(vel)*3,0,.45)+dive*.06,0,.66,0);   // the dive stays clean: a light wipe hands over to the counter, no smeared crossfade
 }
 const smoother=e=>e*e*e*(e*(e*6-15)+10);
 function camFor(p){return Z0+(ZE-Z0)*smoother(cl(p/J.hero,0,1))}   // slow start, slow arrival
 function ui(r,p){
   const ho=cl((cur-2.35)/.6,0,1);
   heroCopy.style.opacity=ho;heroCopy.style.transform=`translateY(${(1-ho)*-40}px)`;heroCopy.style.visibility=ho<.01?'hidden':'visible';
-  // the sign fades out while the shop scene fades in underneath: one continuous move, no flash
-  canvas.style.opacity=(1-smoother(cl((p/J.hero-.55)/.45,0,1))).toFixed(3);
+  // a vertical light, like the LED strip of the real shelf, wipes across: the counter is behind it, the sign still in front of it
+  const w=smoother(cl((p/J.hero-.5)/.5,0,1));
+  canvas.style.clipPath=w>0?`inset(0 0 0 ${(w*100).toFixed(2)}%)`:'';
+  canvas.style.opacity=w>=.999?'0':'';
+  if(wipe){wipe.style.opacity=w>0&&w<.999?Math.sqrt(Math.sin(w*Math.PI)).toFixed(3):'0';wipe.style.transform=`translate3d(${(w*canvas.clientWidth).toFixed(1)}px,0,0)`}
   dock.classList.toggle('show',-r.top>innerHeight*.55);
   hdr.classList.toggle('solid',r.bottom<innerHeight*.2);
 }
 function tick(){
   raf=0;if(!visible)return;
-  const r=journey.getBoundingClientRect(),p=cl(-r.top/(r.height-innerHeight),0,1),target=camFor(p);
-  vel=target-cur;const moving=vel!==0;cur+=vel*.14;if(Math.abs(vel)<.0004){cur=target;vel=0}
-  if(moving||dirty){draw();ui(r,p);dirty=false}
+  const r=journey.getBoundingClientRect(),p=cl(-r.top/(r.height-innerHeight),0,1),now=performance.now();
+  if(!shown&&!root.classList.contains('intro'))shown=now+350;          // first look: wait for the loader to hand the logo over
+  const age=shown?Math.max(0,now-shown):0,top=1-cl(p/.03,0,1);
+  const push=Math.min(1,(1-Math.exp(-age/IDLE_MS))/(1-Math.exp(-4)));   // eases out and lands exactly at 4x IDLE_MS, so the stage can rest after
+  const target=camFor(p)-IDLE*push*top;                                 // slow push-in at rest, gone as soon as the dive starts
+  const e=age/SWEEP_MS,dz=cl((Z0-cur)/(Z0-ZE),0,1);
+  const sw=e>0&&e<1?-.3+1.85*smoother(e):dz>.01?-.3+1.85*dz:-1;       // the reveal sweep once, then the light follows the dive
+  if(sw!==sweep){sweep=sw;dirty=true}
+  vel=target-cur;const moving=Math.abs(vel)>=.0004;                    // smaller steps are invisible: settle instead of redrawing every frame forever
+  if(moving){cur+=vel*.14;settled=false}else{vel=0;if(!settled){settled=true;dirty=true}}
+  if(moving||dirty){draw();ui(r,p);dirty=false;still=0}else still++;
+  if(still>30&&shown&&age>SWEEP_MS)return;                            // ~0.5 s with nothing to draw: sleep until the next scroll or resize (battery)
   raf=requestAnimationFrame(tick);
 }
 const jio=new IntersectionObserver(([e])=>{
   visible=e.isIntersecting;
   if(visible){if(!raf)raf=requestAnimationFrame(tick)}else{dock.classList.add('show');hdr.classList.add('solid')}
 });jio.observe(journey);
-new ResizeObserver(layout).observe(canvas);
+const wake=()=>{if(visible&&!raf){still=0;raf=requestAnimationFrame(tick)}};
+addEventListener('scroll',wake,{passive:true});
+new ResizeObserver(()=>{layout();wake()}).observe(canvas);
 // GPU reset on phones: drop to the static layout instead of a blank stage
 canvas.addEventListener('webglcontextlost',e=>{e.preventDefault();jio.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;hero=null;heroCopy.removeAttribute('style');root.classList.remove('gl','gl-ready');plainChrome()},{once:true});
 

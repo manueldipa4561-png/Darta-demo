@@ -115,7 +115,7 @@ precision mediump float;
 #endif
 varying vec3 vW;varying vec3 vN;varying vec2 vU;varying vec3 vL;
 uniform vec3 uCam,uBase,uRim,uShCol;
-uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uShMode,uDim,uTime,uHasT,uShA,uAmb,uMatte;
+uniform float uRough,uMetal,uKnurl,uGlass,uLiquid,uHolo,uShadow,uShMode,uDim,uTime,uHasT,uShA,uAmb,uMatte,uSwX,uSwA;
 uniform vec4 uDecal;
 uniform sampler2D uT;
 vec3 gRim;   // the teal rim light, toned down on printed matte panels (uMatte) so a brown label does not read grey-green
@@ -132,6 +132,8 @@ vec3 studio(vec3 R,float rough){
   c+=gRim*.55*smoothstep(.9-s,.99,dot(R,lf));
   c+=vec3(.55)*smoothstep(.86-s,1.,R.y)*.55;
   c+=vec3(uAmb)*mix(.55,1.,smoothstep(-.6,.9,R.y));
+  if(uSwA>0.){vec2 rh=normalize(R.xz+vec2(1e-4));   // commercial light sweep: a tall softbox gliding round the front of the product (uSwX = its angle)
+    c+=vec3(2.5,2.38,2.2)*uSwA*smoothstep(.975-s*.4,.997,dot(rh,vec2(sin(uSwX),cos(uSwX))))*smoothstep(-.7,.1,R.y)*smoothstep(.98,.5,R.y);}
   return c;
 }
 vec3 aces(vec3 x){return clamp((x*(2.51*x+.03))/(x*(2.43*x+.59)+.14),0.,1.);}
@@ -445,6 +447,10 @@ function canPose(t,time=0){
     mouth:{p:[CAN.MOUTH[0],CAN.MOUTH[1]+bob,CAN.MOUTH[2]],d:CAN.DIR},pan:.32*ss(seg(t,.3,.45))*(1-ss(seg(t,.7,.85))),zoom:open,shadow:null};
 }
 const POSES={powder:powderPose,oil:oilPose,pump:pumpPose,tube:tubePose,can:canPose};
+// commercial light sweep (see the studio() shader): once as the animation opens, once on the final hero pose. {a: strength, x: softbox angle}
+const SWEEPS=[[0,.2],[.8,.98]],SW_OFF={a:0,x:0};
+const sweepOf=u=>({a:Math.sin(cl(u,0,1)*Math.PI),x:-1.15+2.3*io(cl(u,0,1))});
+function sweepAt(t){for(const [a,b] of SWEEPS)if(t>a&&t<b)return sweepOf((t-a)/(b-a));return SW_OFF}
 const PLAY_MS={powder:6200,tube:5000,oil:4400,can:4200,pump:3600,tin:3800};   // how long each animation takes
 
 /* ---------- effects: product-fx.js adds the motion graphics that play with each pose (built lazily from the poses) ---------- */
@@ -471,7 +477,7 @@ function init(){
     if(!gl)return false;
     const pr=link(gl,VS,FS,['aP','aN','aU']),pp=link(gl,PVS,PFS,['aP','aA']);
     gl.useProgram(pr);R.gl=gl;R.prog=pr;R.pp=pp;R.geo=nul();R.tex=nul();R.specs=nul();R.dead=false;
-    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uShMode','uShCol','uDim','uShA','uAmb','uMatte','uTime','uHasT','uDecal','uT'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
+    ['uVP','uM','uCam','uBase','uRim','uRough','uMetal','uKnurl','uGlass','uLiquid','uHolo','uShadow','uShMode','uShCol','uDim','uShA','uAmb','uMatte','uTime','uHasT','uDecal','uT','uSwX','uSwA'].forEach(k=>R.U[k]=gl.getUniformLocation(pr,k));
     ['uVP','uScale','uMaxPt','uCol','uShade','uSoft'].forEach(k=>R.PU[k]=gl.getUniformLocation(pp,k));
     R.pbuf=gl.createBuffer();R.maxPt=gl.getParameter(gl.ALIASED_POINT_SIZE_RANGE)[1]||64;
     ['aP','aN','aU'].forEach((k,i)=>{R.A[k]=i;gl.enableVertexAttribArray(i)});
@@ -563,10 +569,12 @@ function drawParts(p,spec,base,P,amount,dim){
   gl.depthMask(false);spec.parts.filter(q=>q.glass).forEach(draw);gl.depthMask(true);
 }
 // opts: yaw, pitch, amount (gift card), time (s, drives the idle float), pose {t}, fx {t,tint}, cam {dist,ty} (overrides the fitted camera)
-function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null}={}){
+function frame(p,{yaw=0,pitch=.2,amount=0,time=0,pose=null,fx=null,cam=null,sweep=null}={}){
   const gl=R.gl,spec=specFor(p),w=R.canvas.width,h=R.canvas.height,U=R.U;
   gl.viewport(0,0,w,h);gl.clearColor(0,0,0,0);gl.clear(gl.COLOR_BUFFER_BIT|gl.DEPTH_BUFFER_BIT);
   const P=pose?(POSES[spec.pose]||genericPose)(pose.t,time):null;
+  const sw=sweep||(pose?sweepAt(pose.t):SW_OFF);
+  gl.useProgram(R.prog);gl.uniform1f(U.uSwA,sw.a);gl.uniform1f(U.uSwX,sw.x);
   const asp=w/h,fov=.5,fitD=spec.radius/Math.sin(fov/2)/Math.min(1,asp);
   const zo=cam&&cam.zo!=null?cam.zo:(spec.zoomOpen||0),dist=(cam&&cam.dist!=null?cam.dist:fitD)*(1+(P?P.zoom:0)*zo),ty=(cam&&cam.ty!=null?cam.ty:spec.ty)+(P?P.zoom:0)*(spec.tyOpen||0);
   const pt=pitch+(spec.pitch||0);
@@ -620,7 +628,7 @@ function scene(items,{time=0,cam={},glowCol=[.42,.75,.72]}={}){
     spec.shadows.forEach(s=>{gl.uniformMatrix4fv(U.uM,false,m4.mul(floor,m4.mul(m4.T(s.pos[0],.004,s.pos[2]),m4.S(s.size*(1+.25*lift)))));gl.drawElements(gl.TRIANGLES,6,gl.UNSIGNED_SHORT,0)});
   });
   gl.uniform1f(U.uShMode,0);gl.uniform1f(U.uShA,1);gl.uniform1f(U.uShadow,0);gl.depthMask(true);
-  items.forEach(it=>drawParts(it.p,specFor(it.p),place(it),null,0,it.dim==null?1:it.dim));
+  items.forEach(it=>{const sw=it.sw||SW_OFF;gl.uniform1f(U.uSwA,sw.a);gl.uniform1f(U.uSwX,sw.x);drawParts(it.p,specFor(it.p),place(it),null,0,it.dim==null?1:it.dim)});   // sw: a light sweep on that product
 }
 
 /* ---------- public: snapshots ---------- */
@@ -630,7 +638,7 @@ async function snapshot(p,opts={}){
   await fontOK();
   const size=opts.size||560;
   setSize(size,size);
-  frame(p,{yaw:opts.yaw??-.34,pitch:opts.pitch??.2,amount:opts.amount,pose:opts.pose||null,fx:opts.fx||null});
+  frame(p,{yaw:opts.yaw??-.34,pitch:opts.pitch??.2,amount:opts.amount,pose:opts.pose||null,fx:opts.fx||null,sweep:opts.sweep||null});
   let url=null;
   try{url=R.canvas.toDataURL('image/webp',opts.quality||.92)}catch(e){/* tainted or lost canvas: caller shows the fallback */}
   if(Viewer.p)Viewer.size(); // a live viewer shares this canvas: restore its size
@@ -638,13 +646,14 @@ async function snapshot(p,opts={}){
 }
 
 /* ---------- public: live viewer ---------- */
+const REVEAL=[350,1300];   // the reveal glint: delay after the viewer appears, duration (ms)
 const Viewer={
   p:null,host:null,yaw:-.5,pitch:.2,vy:0,vp:0,drag:null,raf:0,idleAt:0,amount:0,ro:null,anim:null,onPlay:null,onTick:null,
   async start(host,p,opts={}){
     if(!init())return false;
     await fontOK();
     this.stop();
-    this.p=p;this.host=host;this.amount=opts.amount||0;this.yaw=opts.yaw??-.5;this.pitch=.2;this.vy=0;this.vp=0;this.idleAt=performance.now();this.anim=null;
+    this.p=p;this.host=host;this.amount=opts.amount||0;this.yaw=opts.yaw??-.5;this.pitch=.2;this.vy=0;this.vp=0;this.idleAt=this.shownAt=performance.now();this.anim=null;
     const c=R.canvas;
     c.className='pv-canvas';c.setAttribute('role','img');c.setAttribute('tabindex','0');
     c.setAttribute('aria-label',D.t('Visualizzatore 3D: {name}. Trascina o usa le frecce per ruotare.',{name:p.name}));
@@ -686,7 +695,9 @@ const Viewer={
         if(Math.abs(this.vy)>.0004){this.yaw+=this.vy;this.vy*=.94;this.dirty=true}
         else if(!this.reduce&&t-this.idleAt>2200&&t-this.idleAt<16000){this.yaw+=.0045;this.dirty=true}   // gentle turntable for a while, then rest (battery)
       }
-      if(this.dirty){frame(this.p,{yaw:this.yaw,pitch:this.pitch,amount:this.amount,time:t/1000,pose,fx});this.dirty=false}
+      const ru=this.reduce?1:(t-this.shownAt-REVEAL[0])/REVEAL[1],sweep=!pose&&ru>0&&ru<1?sweepOf(ru):null;   // reveal: one glint across the product when it first appears
+      if(sweep)this.dirty=true;
+      if(this.dirty){frame(this.p,{yaw:this.yaw,pitch:this.pitch,amount:this.amount,time:t/1000,pose,fx,sweep});this.dirty=false}
       this.loop();
     });
   },
