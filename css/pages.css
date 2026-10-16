@@ -10,9 +10,6 @@
 .crumbs a{color:var(--muted);text-decoration:none;min-height:24px;display:inline-flex;align-items:center}
 .crumbs a:hover{color:var(--text)}
 .crumbs [aria-current]{color:var(--text)}
-.foot-nav{display:flex;flex-wrap:wrap;gap:.4rem 1.4rem}
-.foot-nav a{color:var(--muted);text-decoration:none;font-weight:600;min-height:44px;display:inline-flex;align-items:center}
-.foot-nav a:hover{color:var(--text)}
 
 /* ===== shop page ===== */
 .shop-top{padding-top:clamp(1.2rem,4vw,2.4rem)}

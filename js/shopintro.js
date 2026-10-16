@@ -193,6 +193,10 @@ const zone=P=>[pOfQ(.14),P[N]+.004];                                  // outside
 const spanPx=()=>Math.max(1,journey.getBoundingClientRect().height-innerHeight);
 const yOf=p=>scrollY+journey.getBoundingClientRect().top+p*spanPx();
 let rest=-1,settleT=0,glideRaf=0,gliding=false,freeUntil=0,pushT=0;   // rest: the stop reached last (-1 above the tour, N+1 below it); pushT: when the page first hit the next stop's wall
+// Touch screens never get the wall: a scrollTo during a finger fling kills the native momentum (on iPhone it reads as hitting glass).
+// There the fling runs freely and, once it ends, the page glides to the nearest product (or out of the tour when heading up past the first).
+const TOUCH=matchMedia('(pointer:coarse)').matches;
+let lastY=0,dir=0;
 const nearest=(P,p)=>P.reduce((b,x,j)=>Math.abs(x-p)<Math.abs(P[b]-p)?j:b,0);
 function glide(y1,done){
   const y0=scrollY,d=y1-y0;
@@ -211,6 +215,10 @@ function settle(){
   const p=progress(),P=stopsP(),[a,b]=zone(P),e=EPS_PX/spanPx();
   pushT=0;
   if(gliding||p<a||p>b||performance.now()<freeUntil)return;
+  if(TOUCH){
+    if(dir<0&&p<P[0]){glide(yOf(a-.015),()=>{rest=-1});return}
+    const i=nearest(P,p);glide(yOf(P[i]),()=>{rest=i});return;
+  }
   if(rest<0||rest>N){const i=rest<0?0:N;glide(yOf(P[i]),()=>{rest=i});return}   // came in from above or below: park on the first or last stop
   const d=p-P[rest],i=Math.abs(d)<Math.max(PUSH,e)?rest:d>0?Math.min(N,rest+1):rest-1;
   if(i<0){glide(yOf(a-.015),()=>{rest=-1});return}                     // scrolling up from the first product: leave the tour
@@ -218,10 +226,11 @@ function settle(){
 }
 function onStopScroll(){
   const p=progress(),P=stopsP(),[a,b]=zone(P),e=EPS_PX/spanPx();
+  if(scrollY!==lastY){dir=scrollY>lastY?1:-1;lastY=scrollY}
   if(p<a||p>b){rest=p<a?-1:N+1;return}
   if(performance.now()<freeUntil){rest=nearest(P,p);return}            // a link or anchor jump: let it travel
   const lo=rest<=0?-Infinity:P[rest-1],hi=rest>=N?Infinity:P[rest+1];
-  if(p<lo-e||p>hi+e){
+  if(!TOUCH&&(p<lo-e||p>hi+e)){
     const now=performance.now();pushT=pushT||now;
     if(now-pushT>BREAK_MS){rest=p<lo?rest-1:rest+1;pushT=now}          // never stuck: a long unbroken push carries on to the next stop
     else scrollTo({top:yOf(p<lo?lo:hi),behavior:'instant'});

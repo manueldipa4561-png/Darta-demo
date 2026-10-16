@@ -47,13 +47,14 @@ function bindCard(card){
   });
 }
 
-/* the counter film above the shelf (img/spot/banco.mp4): downloaded and played only while it is on screen; reduced motion or saving data keeps the still */
+/* the counter film above the shelf (img/spot/banco.mp4, phones get the 480p banco-m.mp4): downloaded and played only while it is on screen;
+   reduced motion or saving data keeps the still */
 function film(){
   const v=$('#shopFilm');
   if(!v||lite())return;
   new IntersectionObserver(([e])=>{
     if(!e.isIntersecting){v.pause();return}
-    if(!v.src)v.src=v.dataset.src;
+    if(!v.src)v.src=(innerWidth<760&&v.dataset.srcM)||v.dataset.src;
     v.play().catch(()=>{});
   },{threshold:.25}).observe(v);
 }

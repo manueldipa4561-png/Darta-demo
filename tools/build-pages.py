@@ -306,7 +306,7 @@ def shop_page():
           {PERKS}
         </div>
       </div>
-      <div class="shop-film rv"><video class="shop-film-v" id="shopFilm" muted loop playsinline preload="none" width="1280" height="720" poster="/img/spot/banco.webp" data-src="/img/spot/banco.mp4" tabindex="-1" aria-hidden="true"></video></div>
+      <div class="shop-film rv"><video class="shop-film-v" id="shopFilm" muted loop playsinline preload="none" width="1280" height="720" poster="/img/spot/banco.webp" data-src="/img/spot/banco.mp4" data-src-m="/img/spot/banco-m.mp4" tabindex="-1" aria-hidden="true"></video></div>
       <div class="shop-bar">
         <div class="filters" id="filters" role="group" aria-label="Filtra per categoria">{filters}</div>
         <p class="count num" id="shopCount" aria-live="polite">{esc(tr("{n} prodotti", n=len(PRODUCTS)))}</p>
@@ -413,7 +413,7 @@ def product_page(p):
     return page(f'{p["name"]} | Shop Darta Barber Studio', f'{p["name"]}: {p["short"]} {p["desc"]}'[:300], 'page-product', main,
                 ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'product.js', 'main.js'],
                 {'it': f'/prodotti/{p["slug"]}', 'en': f'/en/products/{p["slug"]}'}, og=thumb(p), jsonld=ld,
-                head_extra=f'\n<link rel="preload" as="image" href="{thumb(p)}" fetchpriority="high">')
+                head_extra=f'\n<link rel="preload" as="image" href="{thumb(p)}" imagesrcset="{thumb(p)} 640w, {thumb(p, "a-lg")} 1280w" imagesizes="(min-width:900px) 48vw, 100vw" fetchpriority="high">')   # same choice as the stage photo, so it is fetched once
 
 
 # ---------------------------------------------------------------- order confirmation (Stripe sends the customer back here)

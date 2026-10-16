@@ -1,5 +1,6 @@
-/* Darta journey: raw-WebGL hero. The camera dives into the salon sign, and the sign dissolves into the shop scene (js/shopintro.js)
-   that sits underneath the same pinned stage. Falls back to the plain photo when WebGL is off. */
+/* Darta journey: the hero. The camera dives into the salon sign, and the sign dissolves into the shop scene (js/shopintro.js)
+   that sits underneath the same pinned stage. Desktop draws it in raw WebGL; phones move the photo itself with GPU transforms
+   (same dive, no shader). Falls back to the plain photo when neither can run. */
 (()=>{
 'use strict';
 const {$,$$}=window.DARTA,lite=window.DARTA.lite||(()=>false);   // lite: phone-class device (older core.js may not have it yet)
@@ -8,6 +9,61 @@ const root=document.documentElement,hdr=$('#hdr'),dock=$('#dock'),journey=$('#jo
 function plainChrome(){
   new IntersectionObserver(([e])=>{dock.classList.toggle('show',!e.isIntersecting);hdr.classList.toggle('solid',!e.isIntersecting)}).observe($('.hero-copy .cta-row'));
 }
+
+// the camera's track, shared by both heroes: it starts back at Z0 and dives toward the sign at z = 0
+const Z0=3.2,ZE=1.1,J=window.DARTA.J||{hero:.26,scene:.12};
+const SWEEP_MS=1700,IDLE=.13,IDLE_MS=2600;   // the reveal sweep, then a slow push-in toward the sign while the visitor reads (camera units)
+const cl=(v,a,b)=>Math.max(a,Math.min(b,v)),smoother=e=>e*e*e*(e*(e*6-15)+10);
+const camFor=p=>Z0+(ZE-Z0)*smoother(cl(p/J.hero,0,1));   // slow start, slow arrival
+const heroCopy=$('#heroCopy'),wipe=$('#wipe');
+const progress=r=>cl(-r.top/(r.height-innerHeight),0,1);
+// hero copy, the light wipe (its vertical line) and header/dock, the same for both heroes. w: how far the wipe has crossed (0..1)
+function chrome(r,cur,w,width){
+  const ho=cl((cur-2.35)/.6,0,1);
+  heroCopy.style.opacity=ho;heroCopy.style.transform=`translateY(${(1-ho)*-40}px)`;heroCopy.style.visibility=ho<.01?'hidden':'visible';
+  if(wipe){wipe.style.opacity=w>0&&w<.999?Math.sqrt(Math.sin(w*Math.PI)).toFixed(3):'0';wipe.style.transform=`translate3d(${(w*width).toFixed(1)}px,0,0)`}
+  dock.classList.toggle('show',-r.top>innerHeight*.55);
+  hdr.classList.toggle('solid',r.bottom<innerHeight*.2);
+}
+const wipeAt=p=>smoother(cl((p/J.hero-.5)/.5,0,1));   // a vertical light, like the LED strip of the real shelf, wipes across in the second half
+
+/* ===== phones: the same dive with no WebGL =====
+   A full-screen shader (seven texture reads per pixel) plus a 2048 px texture upload at start is what made phones stutter. Here the
+   photo itself moves with transforms only, on the GPU compositor with no repaint: a slow push-in while the visitor reads, the dive
+   toward the sign, then the light wipe hands over to the counter (the frame slides right while the photo slides back left by the
+   same amount, so the sign stays put and the counter appears behind the line). */
+function cssHero(){
+  const pic=$('#stage picture'),img=$('.hero-img');
+  if(!pic||!img){root.classList.remove('gl');plainChrome();return}
+  root.classList.add('hero-css');
+  let cur=Z0,raf=0,visible=true,still=0,shown=0;
+  const frame=()=>{
+    raf=0;if(!visible)return;
+    const r=journey.getBoundingClientRect(),p=progress(r),now=performance.now();
+    if(!shown&&!root.classList.contains('intro'))shown=now+350;          // first look: wait for the loader to hand the logo over
+    const age=shown?Math.max(0,now-shown):0,top=1-cl(p/.03,0,1);
+    const push=Math.min(1,(1-Math.exp(-age/IDLE_MS))/(1-Math.exp(-4)));
+    const target=camFor(p)-IDLE*push*top,vel=target-cur,moving=Math.abs(vel)>=.0004;
+    cur=moving?cur+vel*.14:target;
+    const w=wipeAt(p),width=pic.clientWidth,dx=w*width;
+    pic.style.transform=dx>0?`translate3d(${dx.toFixed(1)}px,0,0)`:'';
+    pic.style.visibility=w>=.999?'hidden':'';
+    img.style.transform=`translate3d(${(-dx).toFixed(1)}px,0,0) scale(${(1.08*Z0/cur).toFixed(4)})`;   // apparent size grows as 1/distance
+    chrome(r,cur,w,width);
+    still=moving?0:still+1;
+    if(still>30&&shown&&age>IDLE_MS*4)return;                           // nothing left to move: sleep until the next scroll (battery)
+    raf=requestAnimationFrame(frame);
+  };
+  const wake=()=>{if(visible&&!raf){still=0;raf=requestAnimationFrame(frame)}};
+  const io=new IntersectionObserver(([e])=>{visible=e.isIntersecting;if(visible)wake();else{dock.classList.add('show');hdr.classList.add('solid')}});
+  io.observe(journey);
+  addEventListener('scroll',wake,{passive:true});
+  addEventListener('resize',wake,{passive:true});
+  window.DARTA.heroOff=()=>{io.disconnect();cancelAnimationFrame(raf);raf=0;visible=false;root.classList.remove('gl','hero-css');
+    [pic,img,heroCopy].forEach(e=>e.removeAttribute('style'));plainChrome()};
+  wake();
+}
+if(root.classList.contains('gl')&&lite()){cssHero();return}
 
 /* ===== WebGL 3D scroll journey (raw WebGL1, no library) ===== */
 const canvas=$('#gl');
@@ -68,13 +124,10 @@ function tex(src){return new Promise((res,rej)=>{const im=new Image();im.decodin
 function mul(a,b){const o=new Float32Array(16);for(let c=0;c<4;c++)for(let r=0;r<4;r++){let s=0;for(let k=0;k<4;k++)s+=a[k*4+r]*b[c*4+k];o[c*4+r]=s}return o}
 function persp(f,a,n,fa){const t=1/Math.tan(f/2),nf=1/(n-fa);return new Float32Array([t/a,0,0,0,0,t,0,0,0,0,(fa+n)*nf,-1,0,0,2*fa*n*nf,0])}
 function model(x,y,z,ry,sx,sy){const c=Math.cos(ry),s=Math.sin(ry);return new Float32Array([c*sx,0,-s*sx,0,0,sy,0,0,s,0,c,0,x,y,z,1])}
-const cl=(v,a,b)=>Math.max(a,Math.min(b,v));
 
 // scene: the hero sign plane at z=0; the camera starts back at Z0 and dives toward it
-const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2),Z0=3.2,ZE=1.1,J=window.DARTA.J||{hero:.26,scene:.12};
+const FOV=45*Math.PI/180,TAN=Math.tan(FOV/2);
 let ASP=1,dirty=true,P,hero=null,cur=Z0,vel=0,raf=0,visible=true,sweep=-1,shown=0,still=0,settled=false;   // sweep: where the light band is (-1 = parked off the sign); shown: when the sign was first revealed
-const heroCopy=$('#heroCopy'),wipe=$('#wipe');
-const SWEEP_MS=1700,IDLE=.13,IDLE_MS=2600;   // the reveal sweep, then a slow push-in toward the sign while the visitor reads (camera units)
 
 function layout(){
   const W=canvas.clientWidth,H=canvas.clientHeight;if(!W||!H)return;
@@ -101,22 +154,15 @@ function draw(){
   gl.uniform1f(U.uSw,sweep);
   plane(hero,cl((cur-.12)/1.1,0,1),1-dive*.3,0,cl(Math.abs(vel)*3,0,.45)+dive*.06,0,.66,0);   // the dive stays clean: a light wipe hands over to the counter, no smeared crossfade
 }
-const smoother=e=>e*e*e*(e*(e*6-15)+10);
-function camFor(p){return Z0+(ZE-Z0)*smoother(cl(p/J.hero,0,1))}   // slow start, slow arrival
 function ui(r,p){
-  const ho=cl((cur-2.35)/.6,0,1);
-  heroCopy.style.opacity=ho;heroCopy.style.transform=`translateY(${(1-ho)*-40}px)`;heroCopy.style.visibility=ho<.01?'hidden':'visible';
-  // a vertical light, like the LED strip of the real shelf, wipes across: the counter is behind it, the sign still in front of it
-  const w=smoother(cl((p/J.hero-.5)/.5,0,1));
+  const w=wipeAt(p);                          // the counter is behind the light, the sign still in front of it
   canvas.style.clipPath=w>0?`inset(0 0 0 ${(w*100).toFixed(2)}%)`:'';
   canvas.style.opacity=w>=.999?'0':'';
-  if(wipe){wipe.style.opacity=w>0&&w<.999?Math.sqrt(Math.sin(w*Math.PI)).toFixed(3):'0';wipe.style.transform=`translate3d(${(w*canvas.clientWidth).toFixed(1)}px,0,0)`}
-  dock.classList.toggle('show',-r.top>innerHeight*.55);
-  hdr.classList.toggle('solid',r.bottom<innerHeight*.2);
+  chrome(r,cur,w,canvas.clientWidth);
 }
 function tick(){
   raf=0;if(!visible)return;
-  const r=journey.getBoundingClientRect(),p=cl(-r.top/(r.height-innerHeight),0,1),now=performance.now();
+  const r=journey.getBoundingClientRect(),p=progress(r),now=performance.now();
   if(!shown&&!root.classList.contains('intro'))shown=now+350;          // first look: wait for the loader to hand the logo over
   const age=shown?Math.max(0,now-shown):0,top=1-cl(p/.03,0,1);
   const push=Math.min(1,(1-Math.exp(-age/IDLE_MS))/(1-Math.exp(-4)));   // eases out and lands exactly at 4x IDLE_MS, so the stage can rest after
