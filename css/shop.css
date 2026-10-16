@@ -87,6 +87,10 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 .perks li{display:flex;align-items:center;gap:.75rem}
 .perks svg{color:var(--accent);width:1.35em;height:1.35em}
 @media(min-width:900px){.shop-head{grid-template-columns:1.1fr 1fr;align-items:end;gap:6vw}}
+/* the counter film between the shop's title and the shelf (img/spot/banco.mp4, poster banco.webp) */
+.shop-film{position:relative;margin:0 0 clamp(1.8rem,4vw,2.8rem);border-radius:var(--r);overflow:hidden;background:#0d0d0c;box-shadow:0 50px 90px -50px rgba(0,0,0,.95),0 0 0 1px rgba(239,233,223,.08)}
+.shop-film-v{display:block;width:100%;height:auto;aspect-ratio:16/9;object-fit:cover;object-position:50% 62%}
+@media(min-width:900px){.shop-film-v{aspect-ratio:21/9}}
 .shop-bar{display:flex;align-items:center;justify-content:space-between;gap:1rem;margin-bottom:1.25rem}
 .filters{display:flex;gap:8px;overflow-x:auto;scrollbar-width:none;margin:0 calc(var(--g)*-1);padding:2px var(--g)}
 .filters::-webkit-scrollbar{display:none}
@@ -163,7 +167,7 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 .pv-canvas{position:absolute;inset:0;width:100%;height:100%;display:block;cursor:grab;touch-action:pan-y;outline-offset:-6px;border-radius:14px}
 .pv-canvas.grab{cursor:grabbing}
 .pv-canvas:focus-visible{outline:2px solid var(--accent)}
-.pdp-fallback{position:absolute;inset:6%;width:88%;height:88%;object-fit:contain;transition:opacity .5s}
+.pdp-fallback{position:absolute;inset:0;width:100%;height:100%;object-fit:cover;transition:opacity .5s}   /* the packshot carries its own shelf, so it fills the stage */
 .pdp-stage.live .pdp-fallback{opacity:0}
 .pdp-hint{position:absolute;left:50%;bottom:26px;translate:-50% 0;z-index:2;padding:.55em 1em;border-radius:var(--pill);background:rgba(11,11,10,.55);-webkit-backdrop-filter:blur(6px);backdrop-filter:blur(6px);font:500 .6875rem/1 var(--mono);letter-spacing:.14em;text-transform:uppercase;color:var(--muted);pointer-events:none;transition:opacity .5s}
 .pdp-host.touched ~ .pdp-hint,.pdp-stage:not(.live) .pdp-hint{opacity:0}
@@ -191,7 +195,11 @@ body::before{content:"";position:fixed;inset:0;z-index:90;pointer-events:none;op
 .pdp-start:disabled{opacity:.6}
 .pdp-start-ico{width:36px;height:36px;border-radius:50%;background:var(--text);display:grid;place-items:center;position:relative}
 .pdp-start-ico::before{content:"";width:0;height:0;margin-left:3px;border-style:solid;border-width:7px 0 7px 11px;border-color:transparent transparent transparent var(--bg)}
-.pdp-stage.live .pdp-start{display:none}
+/* "Guarda come si usa": the product's own film plays over the photo (js/product.js) */
+.pdp-use{position:absolute;inset:0;z-index:1;width:100%;height:100%;object-fit:cover;opacity:0;transition:opacity .35s}
+.pdp-stage.playing .pdp-use{opacity:1}
+.pdp-start{transition:opacity .3s,scale .2s}
+.pdp-stage.playing .pdp-start{opacity:0;pointer-events:none}
 .pdp-badge{position:static;display:inline-block;margin-bottom:.9rem}
 .pdp-h{font-size:clamp(3rem,10vw,4.8rem);line-height:.9}
 .pdp-tag{margin-top:.7rem;color:var(--dim);font:500 .8125rem/1.3 var(--mono);letter-spacing:.08em;text-transform:uppercase}

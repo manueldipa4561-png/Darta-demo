@@ -1,24 +1,28 @@
-/* Darta shop intro: the hero's dive into the sign dissolves into a dark 3D lineup of the shop's products, in the same pinned stage.
-   Scroll drives everything: the camera arrives, a spotlight travels from product to product (each one lifts and turns as it
+/* Darta shop intro: the hero's dive into the sign dissolves into the real products standing on the studio's shelf, in the same pinned stage.
+   Scroll drives everything: the camera arrives, a spotlight travels from product to product (each one lifts into the light as it
    comes into focus), the big words assemble letter by letter, then the camera pulls back to the whole counter with a link into the shop.
-   The 3D lives in its own WebGL context, created lazily. Without WebGL or with reduced motion the section is plain text and a button. */
+   The products are photographs (img/cut/<slug>.webp, cut out from the studio packshots), placed in plain DOM with the scene's own
+   camera, so they keep true perspective against the shelf. With reduced motion the section is plain text and a button. */
 (()=>{
 'use strict';
 const D=window.DARTA,{$,$$,el,eur,cl}=D,lite=D.lite||(()=>false),tr=D.t;
 const journey=$('#journey'),sec=$('#shopIntro');
-let canvas=$('#glShop');                          // replaced by the renderer's own canvas once the 3D starts
-if(!journey||!canvas||!sec)return;
+let stage=$('#glShop');                           // the empty placeholder becomes the products' stage once the scene starts
+if(!journey||!stage||!sec)return;
 const root=document.documentElement,wordsEl=$('#siWords'),endEl=$('#siEnd'),kicker=$('.si-kicker',sec),allEl=$('.si-all',sec);
 const J=D.J||{hero:.26,scene:.12};
 const sm=e=>e*e*e*(e*(e*6-15)+10),seg=(t,a,b)=>cl((t-a)/(b-a),0,1),lerp=(a,b,t)=>a+(b-a)*t;
-const TAN=Math.tan(.25);                         // the renderer's field of view is .5 rad
+const TAN=Math.tan(.25);                         // the scene camera's field of view is .5 rad
 
 const LINEUP=['pomata','clay','olio','sale','curlman','curlcontrol'];          // catalog ids, left to right
-const LOOK={clay:{s:.82,yaw:-.3},pomata:{s:1.15,yaw:.1,tilt:1.15,c:[.55,.28]},olio:{s:.82,yaw:-.2},sale:{s:.76,yaw:.3},curlman:{s:.82,yaw:-.25},curlcontrol:{s:.94,yaw:.2}};   // size in the scene and resting turn
+// h: height on the counter in scene units (true proportions, small pieces nudged up so they still read); ar: the cutout's width/height
+const LOOK={pomata:{h:1.05,ar:1.0376},clay:{h:1.05,ar:.3455},olio:{h:1.6,ar:.2282},sale:{h:1.95,ar:.2283},curlman:{h:1.65,ar:.4295},curlcontrol:{h:1.75,ar:.471}};
+const CUT_H=1000;                                // sprites are laid out at the cutouts' full pixel height and scaled down to size
+const GROW=1.85;                                 // the closing view pulls far back to fit the row: the products grow with it so they still lead (the widest pair stays inside GAPC)
 const GAP=1.95,GAPC=1.5,N=LINEUP.length,X=i=>(i-(N-1)/2)*GAP,XC=i=>(i-(N-1)/2)*GAPC;   // GAPC: the closing view packs the row tighter so all six fit beside the text
 const ARRIVE=.17,SPOT=[.17,.8],OUTRO=.84;        // scene timeline (q, 0..1): arrival, spotlight tour, closing view
 
-let FG=null,prods=[],words=[],live=false,vis=false,raf=0,cur=0,W=2,H=2,cw=1,ch=1,lastDraw=0,lastScroll=0,booted=false,bg=null;
+let sprites=[],prods=[],words=[],live=false,vis=false,raf=0,cur=0,W=2,H=2,cw=1,ch=1,lastDraw=0,lastScroll=0,booted=false,bg=null;
 const IDLE_REST=12000;   // the parked product keeps its idle sway this long after the last scroll, then the scene rests (battery)
 const progress=()=>{const r=journey.getBoundingClientRect();return cl(-r.top/Math.max(1,r.height-innerHeight),0,1)};
 
@@ -62,39 +66,53 @@ function camera(a,s,q,time){
   const fr=lerp(desk?.47:.4,desk?.45:.24,closing);   // where the products sit in the frame (phones: above the words)
   return {x:cx+Math.sin(time*.3)*.04,y:.58-(.5-fr)*hv,dist:hv/TANH,pitch:.1};
 }
+// The scene camera as a projector: scene point (x, y, z) -> stage pixels. z = 0 is the front of the counter, where the products stand.
+function projector(cam){
+  const s=Math.sin(cam.pitch),c=Math.cos(cam.pitch),ex=cam.x,ey=cam.y+s*cam.dist,ez=c*cam.dist,A=cw/ch;
+  return (x,y,z)=>{const vy=y-ey,vz=z-ez,zc=-(vy*s+vz*c),yc=vy*c-vz*s;return [((x-ex)/(zc*TAN*A)*.5+.5)*cw,(.5-yc/(zc*TAN)*.5)*ch]};
+}
+const px=n=>n.toFixed(1);
+// One product photo on the counter: base at (x, y), its contact shadow and warm light pool always on the counter itself (y = 0)
+function draw(sp,pr,x,y,o){
+  const L=sp.look,[bx,by]=pr(x,y,0),ty=pr(x,y+L.h*o.grow,0)[1],h=by-ty,w=h*L.ar;
+  sp.el.style.transform=`translate3d(${px(bx-w/2)}px,${px(ty)}px,0) scale(${(h/CUT_H).toFixed(4)})`;
+  sp.el.style.opacity=o.arrive.toFixed(3);
+  sp.img.style.filter=`brightness(${lerp(.32,1.05,o.dim).toFixed(3)})`;
+  if(sp.sheen){sp.sheen.style.opacity=o.sweep.toFixed(3);sp.sheen.style.backgroundPosition=`${(50+o.sx*55).toFixed(1)}% 0`}
+  const [fx,fy]=pr(x,0,0),fw=Math.max(w*1.9,h*.9);                     // the floor element is 1000 x 240 px, scaled to the product's footprint
+  sp.floor.style.transform=`translate3d(${px(fx-fw/2)}px,${px(fy-fw*.12)}px,0) scale(${(fw/1000).toFixed(4)})`;
+  sp.floor.style.opacity=(o.arrive*(1-o.lift*.35)).toFixed(3);           // the slight lift softens the shadow a little
+  sp.floor.style.setProperty('--g',o.glow.toFixed(3));
+}
 function render(p,time){
   const q=cl((p-J.scene)/(1-J.scene),0,1);
   const a=seg(q,0,ARRIVE),s=seg(q,SPOT[0],SPOT[1])*N;     // s: which product the spotlight is on (0..N)
-  const cam=camera(a,s,q,time),closing=sm(seg(q,OUTRO-.02,OUTRO+.1));
-  const items=prods.map((p0,j)=>{
+  const cam=camera(a,s,q,time),closing=sm(seg(q,OUTRO-.02,OUTRO+.1)),pr=projector(cam);
+  prods.forEach((p0,j)=>{
     const near=1-cl(Math.abs(cam.x-X(j))/GAP,0,1),focus=sm(near);
-    const arrive=sm(seg(a,j*.1,.55+j*.1));                // products rise into place one after the other
-    const lookJ=LOOK[p0.id]||{s:1,yaw:0};
-    const spotlit=lerp(lerp(.34,1,focus),.95,closing);                // the spotlight follows the camera; the closing view lights everything evenly
-    return {p:p0,x:lerp(X(j),XC(j),closing),y:(1-arrive)*-.9+focus*.28*(1-closing)+Math.sin(time*1.3+j)*.012,
-      yaw:lookJ.yaw+(lookJ.tilt?0:cl(s-j,-1.5,1.5)*.8*(1-closing))+Math.sin(time*.4+j)*.08*focus,s:lookJ.s,tilt:lookJ.tilt,tiltC:lookJ.c,   // each product turns toward you as the spotlight arrives
-      dim:spotlit*arrive,glow:(.1+.5*focus)*arrive,lift:focus*(1-closing),
-      sw:{a:Math.pow(near,1.5)*.9*arrive*(1-closing),x:cl((X(j)-cam.x)/GAP,-1,1)*1.6}};   // the light slides across each product as the camera glides past it
+    const arrive=sm(seg(a,j*.1,.55+j*.1));                // products come into place one after the other
+    const spotlit=lerp(lerp(.34,1,focus),.95,closing);    // the spotlight follows the camera; the closing view lights everything evenly
+    const lift=focus*(1-closing);
+    draw(sprites[j],pr,lerp(X(j),XC(j),closing),(1-arrive)*-.35+lift*.06+Math.sin(time*1.3+j)*.006*focus,   // a photo only hints at the lift: more reads as floating
+      {arrive,dim:spotlit,glow:(.1+.5*focus)*arrive,lift,grow:lerp(1,GROW,closing),
+       sweep:Math.pow(near,1.5)*.85*arrive*(1-closing),sx:cl((X(j)-cam.x)/GAP,-1,1)});   // the light slides across each product as the camera glides past it
   });
-  FG.scene(items,{time,cam,glowCol:[.95,.78,.55]});                    // warm pools, the colour of the shelf's LED strips
-  placeBg(cam,lerp(.62*sm(seg(a,.15,.9)),.92,closing));                  // lights on as the camera arrives, brighter on the whole counter
+  placeBg(pr,lerp(.62*sm(seg(a,.15,.9)),.92,closing));                   // lights on as the camera arrives, brighter on the whole counter
   return {q,s,closing};
 }
-// The real shelf (img/counter*.webp, made from the studio's photos) is a wall standing BG.z behind the row. It is drawn by CSS under the
-// transparent 3D canvas, placed with the scene's own camera, so it moves with true parallax. line: where its shelf edge sits (share of
-// the height from the top); that edge is put at the counter's height (y = 0).
+// The real shelf (img/counter*.webp, made from the studio's photos) is a wall standing BG.z behind the row, drawn under the products and
+// placed with the scene's own camera, so it moves with true parallax. line: where its shelf edge sits (share of the height from the top);
+// that edge is put at the counter's height (y = 0).
 const BG={w:16,z:-2.6,line:.815,ar:2400/1029};
-function placeBg(cam,light){
+function placeBg(pr,light){
   if(!bg)return;
-  const s=Math.sin(cam.pitch),c=Math.cos(cam.pitch),ex=cam.x,ey=cam.y+s*cam.dist,ez=c*cam.dist,A=cw/ch;
-  const pr=(x,y)=>{const vy=y-ey,vz=BG.z-ez,zc=-(vy*s+vz*c),yc=vy*c-vz*s;return [((x-ex)/(zc*TAN*A)*.5+.5)*cw,(.5-yc/(zc*TAN)*.5)*ch]};
-  const h=BG.w/BG.ar,[x0,y0]=pr(-BG.w/2,BG.line*h),[x1,y1]=pr(BG.w/2,-(1-BG.line)*h);
-  bg.style.transform=`translate3d(${x0.toFixed(1)}px,${y0.toFixed(1)}px,0) scale(${((x1-x0)/1000).toFixed(4)},${((y1-y0)/(1000/BG.ar)).toFixed(4)})`;
+  const h=BG.w/BG.ar,[x0,y0]=pr(-BG.w/2,BG.line*h,BG.z),[x1,y1]=pr(BG.w/2,-(1-BG.line)*h,BG.z);
+  bg.style.transform=`translate3d(${px(x0)}px,${px(y0)}px,0) scale(${((x1-x0)/1000).toFixed(4)},${((y1-y0)/(1000/BG.ar)).toFixed(4)})`;
   bg.style.opacity=light.toFixed(3);
 }
 function ui(p){
   const q=cl((p-J.scene)/(1-J.scene),0,1),s=seg(q,SPOT[0],SPOT[1])*N;
-  canvas.style.opacity=sm(seg(p,J.scene,J.hero*.5+.012)).toFixed(3);  // ready underneath before the light wipe uncovers it
+  stage.style.opacity=sm(seg(p,J.scene,J.hero*.5+.012)).toFixed(3);   // ready underneath before the light wipe uncovers it
   const closing=q>OUTRO;
   words.forEach((w,k)=>{
     let on,past;
@@ -116,10 +134,22 @@ function tick(now){
   raf=requestAnimationFrame(tick);
 }
 function resize(){
-  const r=canvas.getBoundingClientRect(),dpr=Math.min(devicePixelRatio||1,lite()?1.5:2);
-  cw=Math.max(1,r.width);ch=Math.max(1,r.height);
-  W=Math.max(2,Math.round(r.width*dpr));H=Math.max(2,Math.round(r.height*dpr));FG.setSize(W,H);
+  const r=stage.getBoundingClientRect();
+  cw=Math.max(1,r.width);ch=Math.max(1,r.height);W=cw;H=ch;            // the camera only needs the stage's aspect
   if(live){render(cur,performance.now()/1000)}
+}
+function makeSprites(st){
+  const m=lite()?'-m':'';                                               // phones and slow devices get the 560 px cutouts
+  sprites=prods.map(p0=>{
+    const look=LOOK[p0.id],src=`/img/cut/${p0.slug}${m}.webp`;
+    const img=el('img',{src,alt:'',decoding:'async',draggable:'false'});
+    const sheen=lite()?null:el('i',{class:'si-sheen'});
+    if(sheen)sheen.style.setProperty('--cut',`url("${src}")`);           // the light sweep is masked to the product's own outline
+    const box=el('div',{class:'si-p'},img,sheen);box.style.width=`${px(CUT_H*look.ar)}px`;
+    const floor=el('i',{class:'si-floor'});
+    st.append(floor,box);
+    return {el:box,img,sheen,floor,look};
+  });
 }
 
 /* ---------- start ---------- */
@@ -127,17 +157,14 @@ async function boot(){
   if(booted||!root.classList.contains('gl')||D.reduce())return;
   booted=true;
   try{
-    if(!D.GL.supported()){D.heroOff&&D.heroOff();return}
-    FG=D.makeGL({onLost:()=>{live=false;D.heroOff&&D.heroOff()},onRestored:()=>{}});
-    if(!FG.init()){D.heroOff&&D.heroOff();return}
-    FG.setCatalog(D.store.catalog.products);
-    await FG.fontsReady();
+    if(document.fonts)await document.fonts.ready;
     buildWords();
-    const c=FG.canvas();c.id='glShop';c.setAttribute('aria-hidden','true');canvas.replaceWith(c);canvas=c;
+    const st=el('div',{id:'glShop',class:'si-stage','aria-hidden':'true'});stage.replaceWith(st);stage=st;
+    makeSprites(st);
     bg=document.createElement('img');bg.className='si-bg';bg.alt='';bg.setAttribute('aria-hidden','true');bg.decoding='async';
-    bg.src=lite()?'/img/counter-m.webp':'/img/counter.webp';c.before(bg);
+    bg.src=lite()?'/img/counter-m.webp':'/img/counter.webp';st.before(bg);
     sec.classList.add('si-live');live=true;
-    new ResizeObserver(()=>{const r=c.getBoundingClientRect();if(r.width)resize()}).observe(c);
+    new ResizeObserver(()=>{const r=st.getBoundingClientRect();if(r.width)resize()}).observe(st);
     cur=progress();resize();ui(cur);
     startStops();
     new IntersectionObserver(([e])=>{vis=e.isIntersecting;if(vis){cur=progress();if(!raf)raf=requestAnimationFrame(tick)}},{rootMargin:'10% 0px'}).observe(journey);

@@ -30,7 +30,7 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 .d{font-family:var(--fd);font-weight:800;text-transform:uppercase;letter-spacing:-.005em;line-height:.88}
 .d em{font-style:italic;color:var(--accent)}
 .h1{font-size:clamp(3.6rem,min(17vw,17vh),10.5rem)}
-.h2{font-size:clamp(3rem,12.5vw,7.25rem)}
+.h2{font-size:clamp(3rem,12.5vw,7.25rem);letter-spacing:-.015em}   /* large display type is tracked tighter */
 .h3{font-family:var(--fd);font-weight:800;text-transform:uppercase;font-size:clamp(1.6rem,6vw,2.1rem);line-height:1}
 .lead{color:var(--muted);max-width:44ch;font-size:clamp(1.0625rem,2.6vw,1.2rem)}
 .eyebrow{font:600 .8125rem/1 var(--fb);letter-spacing:.14em;text-transform:uppercase;color:var(--accent)}
@@ -40,7 +40,7 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 
 /* buttons */
 .btn{display:inline-flex;align-items:center;justify-content:center;gap:.6em;min-height:52px;padding:0 1.6em;border-radius:var(--pill);font:600 1rem/1 var(--fb);letter-spacing:.02em;white-space:nowrap;transition:transform .25s var(--ease),background .25s,border-color .25s}
-.btn:active{transform:scale(.97)}
+.btn:active{transform:scale(.97);transition-duration:.08s}   /* feedback on press, not on release */
 .btn-p{background:var(--text);color:var(--bg)}
 .btn-p:hover{background:#fff}
 .btn-g{border:1px solid rgba(239,233,223,.34);color:var(--text);background:rgba(11,11,10,.35);-webkit-backdrop-filter:blur(8px);backdrop-filter:blur(8px)}
@@ -63,7 +63,15 @@ svg.i{width:1.25em;height:1.25em;flex:none}
 #gl,#glShop{opacity:0}
 .gl-ready #gl{opacity:1;animation:glIn .8s}   /* the script's inline opacity takes over during the dissolve */
 @keyframes glIn{from{opacity:0}}
-#glShop{pointer-events:none}
+#glShop{position:absolute;inset:0;overflow:hidden;pointer-events:none}
+/* the shop scene's products: real photo cutouts placed by js/shopintro.js with the scene camera (1000 px tall, scaled down) */
+.si-p{position:absolute;left:0;top:0;height:1000px;transform-origin:0 0;opacity:0;will-change:transform,opacity}
+.si-p img{display:block;width:100%;height:100%;-webkit-user-drag:none;user-select:none}
+.si-sheen{position:absolute;inset:0;opacity:0;mix-blend-mode:screen;pointer-events:none;
+  background:linear-gradient(100deg,transparent 42%,rgba(255,240,218,.5) 50%,transparent 58%) 50% 0/320% 100% no-repeat;
+  -webkit-mask:var(--cut) 0 0/100% 100% no-repeat;mask:var(--cut) 0 0/100% 100% no-repeat}
+.si-floor{position:absolute;left:0;top:0;width:1000px;height:240px;transform-origin:0 0;opacity:0;pointer-events:none;will-change:transform,opacity;
+  background:radial-gradient(28% 15% at 50% 50%,rgba(0,0,0,.78),transparent),radial-gradient(50% 50% at 50% 46%,rgba(242,199,140,calc(var(--g,0)*.6)),transparent 72%)}
 /* sign -> counter: a vertical light wipes across (js/journey.js moves it); the real shelf stands behind the 3D row (js/shopintro.js places it) */
 .wipe{position:absolute;top:0;bottom:0;left:0;width:2px;margin-left:-1px;z-index:2;pointer-events:none;opacity:0;background:#fff4e2;box-shadow:0 0 14px 3px rgba(255,232,196,.7),0 0 72px 22px rgba(255,208,150,.26);will-change:transform,opacity}
 .si-bg{position:absolute;left:0;top:0;width:1000px;height:428.6px;max-width:none;transform-origin:0 0;opacity:0;pointer-events:none;will-change:transform,opacity;
@@ -271,4 +279,21 @@ dialog[open]{animation:up .45s var(--ease)}
   *,*::before,*::after{animation:none!important;transition:none!important}
   .rv,.ln>span.rv{opacity:1;transform:none}
   html{scroll-behavior:auto}
+}
+
+/* extra calls to action: works, manifesto, story, champions */
+.works-cta{padding:clamp(2rem,6vw,3.5rem) var(--g) var(--sec)}
+.manifesto .cta-row{margin-top:2rem}
+.story .lead+.cta-row,.champs .lead+.cta-row{margin-top:1.75rem}
+
+/* system settings: frosted surfaces go solid, borders sharpen */
+@media (prefers-reduced-transparency:reduce){
+  .btn-g,.hdr.solid,.dock,dialog::backdrop{-webkit-backdrop-filter:none;backdrop-filter:none}
+  .btn-g{background:var(--bg2)}
+  .hdr.solid{background:var(--bg)}
+  .dock{background:var(--bg2)}
+}
+@media (prefers-contrast:more){
+  .btn-g{border-color:var(--text);background:var(--bg)}
+  .dock{border-color:var(--text)}
 }

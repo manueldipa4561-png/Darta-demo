@@ -306,6 +306,7 @@ def shop_page():
           {PERKS}
         </div>
       </div>
+      <div class="shop-film rv"><video class="shop-film-v" id="shopFilm" muted loop playsinline preload="none" width="1280" height="720" poster="/img/spot/banco.webp" data-src="/img/spot/banco.mp4" tabindex="-1" aria-hidden="true"></video></div>
       <div class="shop-bar">
         <div class="filters" id="filters" role="group" aria-label="Filtra per categoria">{filters}</div>
         <p class="count num" id="shopCount" aria-live="polite">{esc(tr("{n} prodotti", n=len(PRODUCTS)))}</p>
@@ -349,7 +350,8 @@ def ingredients(p):
 
 def product_page(p):
     v = default_variant(p)
-    is_try = p['kind'] in ('tin', 'oilbottle', 'can', 'tube', 'pumpbottle', 'powder')
+    use_film = f'/img/use/{p["slug"]}.mp4'   # the product doing its own routine (img/use/<slug>.mp4, see img/README.md): js/product.js plays it on request
+    use_attr = f' data-use="{use_film}"' if os.path.exists(os.path.join(ROOT, use_film.lstrip('/'))) else ''
     badge = f'<span class="pcard-badge pdp-badge">{esc(tr("Risparmi {amount}", amount=eur(kit_saving(p))))}</span>' if kit_saving(p) > 0 else ''
     variants = ''
     if p.get('variants'):
@@ -367,7 +369,6 @@ def product_page(p):
       <div><p class="kicker">In salone</p><h2 class="d h2" id="ppSpotT">Il prodotto vero.</h2><p class="lead">Lo stesso che trovi sullo scaffale del salone, in Via Gobetti 184.</p></div>
       <div class="pp-spot-media"><video class="pp-spot-v" id="ppSpot" muted playsinline loop preload="none" width="720" height="960" poster="/img/spot/{p["slug"]}.webp" data-src="/img/spot/{p["slug"]}.mp4" aria-label="{esc(tr("Video: {name} sullo scaffale del salone", name=p["name"]))}"></video></div>
     </section>'''
-    try_btn = f'<button type="button" class="pdp-try" id="ppTry" hidden>{icon("i-play")}<span id="ppTryTxt">Apri</span></button>' if is_try else ''
     unit = unit_price(p)
     add_label = f'{esc(tr("Aggiungi"))} <span class="opt">{esc(tr("al carrello"))}</span> · {eur(unit)}'
     price = tr('{price} /mese', price=eur(unit)) if p.get('recurring') else eur(unit)
@@ -375,16 +376,9 @@ def product_page(p):
   <div class="wrap">
     {crumbs(('Shop', '/shop'), (p['name'], None))}
     <div class="pp-grid">
-      <div class="pdp-stage pp-stage" id="ppStage" style="--glow:{glow(p)}">
+      <div class="pdp-stage pp-stage" id="ppStage" style="--glow:{glow(p)}"{use_attr}>
         <span class="pdp-no">/{p["no"]} · {esc(CATLABEL.get(p["cat"], p["cat"]))}</span>
-        <img class="pdp-fallback" id="ppFallback" src="{thumb(p)}" alt="{esc(p["name"])}" width="640" height="640" fetchpriority="high">
-        <div class="pdp-host" id="ppHost"></div>
-        {try_btn}
-        <p class="pdp-hint" aria-hidden="true">Trascina per ruotare</p>
-        <div class="pdp-rot">
-          <button type="button" id="ppL" aria-label="Ruota a sinistra">{icon("s-chev-l")}</button>
-          <button type="button" id="ppR" aria-label="Ruota a destra">{icon("s-chev-r")}</button>
-        </div>
+        <img class="pdp-fallback" id="ppFallback" src="{thumb(p)}" srcset="{thumb(p)} 640w, {thumb(p, "a-lg")} 1280w" sizes="(min-width:900px) 48vw, 100vw" alt="{esc(p["name"])}" width="640" height="640" fetchpriority="high">
       </div>
       <div class="pp-info">
         {badge}
@@ -417,7 +411,7 @@ def product_page(p):
           'brand': {'@type': 'Brand', 'name': 'Darta Barber Studio'},
           'offers': {'@type': 'Offer', 'priceCurrency': 'EUR', 'price': f'{unit / 100:.2f}', 'availability': 'https://schema.org/InStock', 'url': U(f'/prodotti/{p["slug"]}')}}
     return page(f'{p["name"]} | Shop Darta Barber Studio', f'{p["name"]}: {p["short"]} {p["desc"]}'[:300], 'page-product', main,
-                ['core.js', 'store.js', 'pay.js', 'product-fx.js', 'product-gl.js', 'cart.js', 'motion.js', 'product.js', 'main.js'],
+                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'product.js', 'main.js'],
                 {'it': f'/prodotti/{p["slug"]}', 'en': f'/en/products/{p["slug"]}'}, og=thumb(p), jsonld=ld,
                 head_extra=f'\n<link rel="preload" as="image" href="{thumb(p)}" fetchpriority="high">')
 

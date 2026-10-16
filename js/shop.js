@@ -47,9 +47,21 @@ function bindCard(card){
   });
 }
 
+/* the counter film above the shelf (img/spot/banco.mp4): downloaded and played only while it is on screen; reduced motion or saving data keeps the still */
+function film(){
+  const v=$('#shopFilm');
+  if(!v||lite())return;
+  new IntersectionObserver(([e])=>{
+    if(!e.isIntersecting){v.pause();return}
+    if(!v.src)v.src=v.dataset.src;
+    v.play().catch(()=>{});
+  },{threshold:.25}).observe(v);
+}
+
 D.shop={
   init(){
     if(!$('#shelf'))return;
+    film();
     $$('.pcard').forEach(bindCard);
     $$('.fbtn').forEach(btn=>btn.addEventListener('click',()=>setFilter(btn.dataset.cat)));
   }

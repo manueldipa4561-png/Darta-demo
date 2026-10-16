@@ -10,7 +10,7 @@ The site is a booking landing page that doubles as a small **e-commerce**: every
 |---|---|
 | Home (`/`) | Raw WebGL dive into the salon sign that dissolves into the shop intro: a dark 3D lineup where a spotlight travels from product to product (scroll-driven), then a link into the shop. Then the Lavori deck, proof, services teaser, story, team (three equal cards), club, hours |
 | Shop (`/shop`) | The whole catalog: category filters, quick add, a picture per product rendered from the real 3D models (static HTML, no 3D needed) |
-| Product pages (`/prodotti/<name>`) | One page per product: live WebGL viewer (drag, arrows, "Svita e scuoti" / "Apri" plays the product's own animation), quantity, add to cart, related products. Old `#prodotto/<name>` links redirect here |
+| Product pages (`/prodotti/<name>`) | One page per product: the real packshot, "Guarda come si usa" plays the product's own routine as a film (`img/use/<slug>.mp4`, the product unscrews, sprays or pumps by itself, with the steps lighting up), quantity, add to cart, related products. Old `#prodotto/<name>` links redirect here |
 | Services (`/servizi`, `/servizi/<name>`) | The price list as a page, plus one page per service with duration, price, how it goes, products to pair, and a booking button |
 | Cart and checkout | Drawer (`#carrello`) and demo checkout (`#checkout`) work on every page and share the same saved cart. **Demo only: no payment, nothing is sent** |
 | Opening status | The header chip is green when the salon is open and red when closed (Europe/Rome, Tuesday to Saturday 10:00 to 19:00); it updates by itself |
@@ -46,7 +46,7 @@ python3 tools/build-pages.py       # shop.html, servizi.html, prodotti/*.html, s
 
 **After editing any script or stylesheet, run `python3 tools/build-pages.py`**: it stamps every `/js/...` and `/css/...` URL in the pages with `?v=<hash of the file>`, and `netlify.toml` caches those files for a year (`immutable`), so a changed file is only picked up through its new stamp (a test checks that no page lacks one). Above the fold the entrance animations are pure CSS (`.hero-copy .rv`, the first section of inner pages, the first shop row in `css/styles.css`), so the first paint never waits for the scripts; keep it that way when you add a hero. The shop posters come in three sizes (`-a`, `-a-sm` 480px for phones, `-a-xs` 240px thumbnails): `render-images.html` writes all three.
 
-If a product's look or model changed, re-render its pictures: start the dev server, open `http://127.0.0.1:4173/tools/render-images.html`, and it writes `img/p/<name>-a.webp` using the real 3D renderer. The shop cards also play a loop of each product's own animation (`img/v/<slug>.mp4`): after a change to a model, a pose or `js/product-fx.js`, open `/tools/render-loops.html` (it sends every frame to the dev server) and run `python3 tools/encode-loops.py` (needs `pip install pillow av`). `look.glow` in `data/catalog.json` is the colour of each product's stage; the card background in `css/shop.css` and `backdrop()` in the encoder must stay in step. The header, footer, cart and checkout of every page are copied from the `<!--shared:...-->` blocks of `index.html`.
+Product pictures, card loops, the home counter cutouts and the usage films are photographic, made with Higgsfield from the studio's own product photos (see `img/README.md` for every file, size and how it was made). The old 3D pipeline (`js/product-gl.js`, `js/product-fx.js`, `tools/render-images.*`, `tools/render-loops.*`, `encode-loops.py`) is kept in the repository but no page loads it any more.
 
 ## Structure
 
@@ -71,16 +71,16 @@ img/v/                shop-card loops (mp4) of each product's animation, made by
 js/core.js            helpers, language (D.lang, D.t), reveal observer, router (#carrello / #cart, #checkout), URL helpers
 js/en.js              GENERATED English dictionary for the scripts, loaded only on /en/ pages
 js/store.js           catalog loading, cart state, totals
-js/product-fx.js      the motion graphics of each animation (powder cloud, mist, oil drops, cream curl, pomade glints): stateless particle effects
-js/product-gl.js      raw WebGL renderer (lathe models, studio lighting, label textures, viewer, scene of several products, poses); createGL() makes independent renderers
+js/product-fx.js      (no longer loaded) particle effects of the earlier 3D animations
+js/product-gl.js      (no longer loaded) raw WebGL renderer of the earlier 3D product models, viewer and poses
 js/shop.js            shop page: filters, quick add, hover picture
-js/product.js         product page: 3D viewer, options, quantity, add to cart
+js/product.js         product page: photo, "Guarda come si usa" film with timed steps, options, quantity, add to cart
 js/cart.js            drawer, checkout (demo or Stripe), fly-to-cart
 js/pay.js             talks to the Supabase functions (is real payment on? create checkout, look up an order)
 js/order.js           /ordine page: confirms the payment and empties the cart
 js/motion.js          anime.js choreography (progressive enhancement)
 js/journey.js         hero WebGL dive into the sign (dissolves into the shop scene)
-js/shopintro.js       shop intro: 3D lineup, spotlight tour, captions, all driven by scroll
+js/shopintro.js       shop intro: the real products (photo cutouts placed with the scene camera) on the studio shelf, spotlight tour, captions, all driven by scroll
 js/works.js           Lavori deck
 js/club.js            loyalty card
 js/wallet.js          talks to the darta-wallet function (which wallets are on, save the card, open the pass)
@@ -108,4 +108,4 @@ The loyalty card has an "Aggiungi al Wallet" button for Apple Wallet and Google 
 
 ## Accessibility
 
-Native `<dialog>` modals with focus management, visible focus rings, 44px touch targets, labelled form errors, `aria-live` counters, keyboard rotation for the 3D viewer, and `prefers-reduced-motion` support (no curtain, no auto-rotate, no fly animation).
+Native `<dialog>` modals with focus management, visible focus rings, 44px touch targets, labelled form errors, `aria-live` counters, and `prefers-reduced-motion` support (no curtain, no auto-rotate, no fly animation).

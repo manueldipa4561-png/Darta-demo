@@ -23,8 +23,8 @@
 <link rel="preload" as="fetch" href="/data/catalog.json" crossorigin="anonymous">
 <link rel="preload" as="fetch" href="/data/catalog.en.json" crossorigin="anonymous">
 <script>/* set layout flags before first paint: GL corridor, first-visit curtain */(function(d){var r=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!r){d.classList.add('gl');try{if(location.pathname.length<2&&!sessionStorage.getItem('darta-seen')&&!location.hash){d.classList.add('intro');sessionStorage.setItem('darta-seen','1')}}catch(e){}}})(document.documentElement)</script>
-<link rel="stylesheet" href="/css/styles.css?v=c7353f97">
-<link rel="stylesheet" href="/css/shop.css?v=09687923">
+<link rel="stylesheet" href="/css/styles.css?v=ab309627">
+<link rel="stylesheet" href="/css/shop.css?v=63a14fdb">
 <link rel="stylesheet" href="/css/scenes.css?v=37392533">
 </head>
 <body>
@@ -73,7 +73,7 @@
     <div id="stage">
       <picture><source media="(min-aspect-ratio: 23/20)" srcset="/img/sign-wide-m.webp 1600w, /img/sign-wide.webp 3200w" sizes="100vw" width="3200" height="1792"><img class="hero-img" src="/img/sign-hd.webp" srcset="/img/sign-m.webp 1400w, /img/sign-hd.webp 2400w" sizes="82vh" alt="The Darta Barber Studio sign on the studio wall" width="2400" height="2934" fetchpriority="high"></picture>
       <i class="wipe" id="wipe" aria-hidden="true"></i>
-      <canvas id="glShop" aria-hidden="true"></canvas>
+      <div id="glShop" aria-hidden="true"></div>
       <canvas id="gl" role="img" aria-label="3D scene: the studio sign. Scroll to enter."></canvas>
 
       <div class="hero-copy" id="heroCopy">
@@ -118,6 +118,7 @@
         <div class="works-bar" aria-hidden="true"><i id="worksFill"></i></div>
       </div>
     </div>
+    <div class="wrap works-cta"><div class="cta-row rv"><button type="button" class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Book your cut</button><a class="btn btn-g" href="/en/services">See the services</a></div></div>
   </section>
 
   <div class="tick" id="tick" aria-hidden="true">
@@ -149,6 +150,7 @@
     <div class="wrap">
       <p class="eyebrow rv">From the chair to your home</p>
       <p class="scrub">The fade leaves the studio. Thomas's products help you keep it fresh until next time.</p>
+      <div class="cta-row rv"><a class="btn btn-p" href="/en/shop"><svg class="i"><use href="#s-bag"/></svg>Explore the products</a><button type="button" class="btn btn-g" data-book><svg class="i"><use href="#i-cal"/></svg>Book</button></div>
     </div>
   </section>
 
@@ -169,6 +171,7 @@
       <div>
         <h2 class="d h2"><span class="ln"><span class="rv">From father</span></span><span class="ln"><span class="rv" style="--i:1">to <em>son.</em></span></span></h2>
         <p class="lead rv">Thomas grows up among the chairs of La Bottega dei Parrucchieri, his father Fabio's salon in Pescara. Then he leaves, studies, comes back and opens his own studio.</p>
+        <div class="cta-row rv"><button type="button" class="btn btn-p" data-book data-who="Thomas"><svg class="i"><use href="#i-cal"/></svg>Book with Thomas</button><a class="btn btn-g" href="#team">The team</a></div>
       </div>
       <ol class="tl">
         <li class="rv"><h3 class="h3">Pescara</h3><p>Starting out in the family salon as a teenager.</p></li>
@@ -187,6 +190,7 @@
         <li>Pescara</li><li>Salernitana</li><li>Pineto</li><li>Chieti</li>
       </ul>
       <p class="lead rv">Footballers, TV personalities and local lads. Among Thomas's clients: <strong>Lorenzo Insigne, Fabrizio Corona, Lorenzo Venuti and Marco Pompetti.</strong></p>
+      <div class="cta-row rv"><button type="button" class="btn btn-p" data-book><svg class="i"><use href="#i-cal"/></svg>Book your chair</button><a class="btn btn-g" href="tel:+393939031656"><svg class="i"><use href="#i-phone"/></svg>Call</a></div>
     </div>
   </section>
 
@@ -395,18 +399,17 @@
 </dialog>
 <!--/shared:dialogs-->
 
-<script defer src="/js/en.js?v=54370414"></script>
+<script defer src="/js/en.js?v=3a13f948"></script>
 <script defer src="/js/vendor/anime.umd.min.js?v=99b376c4"></script>
 <script defer src="/js/core.js?v=e44cd281"></script>
 <script defer src="/js/store.js?v=95e81d00"></script>
-<script defer src="/js/product-gl.js?v=42eea50e"></script>
 <script defer src="/js/pay.js?v=7d133925"></script>
 <script defer src="/js/cart.js?v=6e4e7199"></script>
 <script defer src="/js/motion.js?v=64437ee6"></script>
 <script defer src="/js/wallet.js?v=85b70cb7"></script>
 <script defer src="/js/club.js?v=ef17d4dd"></script>
 <script defer src="/js/journey.js?v=fee7bad9"></script>
-<script defer src="/js/shopintro.js?v=94458552"></script>
+<script defer src="/js/shopintro.js?v=53fc1a79"></script>
 <script defer src="/js/works.js?v=36f25944"></script>
 <script defer src="/js/main.js?v=ed273be4"></script>
 </body>
