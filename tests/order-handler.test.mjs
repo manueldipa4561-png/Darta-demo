@@ -23,7 +23,7 @@ test('returns the order summary and no personal data', async () => {
   const res = await handleOrderLookup(get('?s=cs_test_abcdef123'), deps());
   assert.equal(res.status, 200);
   const body = await res.json();
-  assert.deepEqual(body, { paid: true, pending: false, orderNo: 'DA-1234AB', mode: 'ship', total: 2490, items: [{ name: 'Wax Powder', q: 1 }] });
+  assert.deepEqual(body, { paid: true, pending: false, orderNo: 'DA-1234AB', mode: 'ship', plan: false, total: 2490, items: [{ name: 'Wax Powder', q: 1 }] });
   const text = JSON.stringify(body);
   assert.ok(!/Mario|example\.com|Via Roma|\+39/.test(text));
 });

@@ -18,6 +18,10 @@ const set=(title,text,{no='',items=[],link=''}={})=>{
 };
 
 function show(o){
+  if(o.paid&&o.plan){   // a Darta Club membership: the shop cart is not involved
+    set(tr('Benvenuto nel Darta Club.'),tr('L’abbonamento è attivo: {total} al mese, si rinnova da solo. Controlla l’email: Stripe invia la ricevuta e il link per gestirlo o disdirlo.',{total:eur(o.total)}),{no:o.orderNo,items:o.items});
+    return true;
+  }
   if(o.paid){
     D.store.clear();   // the customer has paid: the cart is done
     const ship=o.mode==='ship';

@@ -1,9 +1,9 @@
-// POST /darta-checkout: cart in, Stripe Checkout URL out.
+// POST /darta-checkout: cart in, Stripe Checkout URL out. { plan } instead of a cart starts a monthly Darta Club membership.
 // GET  /darta-checkout: { live } so the shop knows whether to offer real payment or stay in demo mode.
 import { allowedOrigins, reply } from './cors.ts';
-import { parseCart, quote } from './pricing.ts';
-import type { Catalog, Lang } from './pricing.ts';
-import { couponParams, sessionParams } from './stripe.ts';
+import { parseCart, parsePlan, quote, quotePlan } from './pricing.ts';
+import type { Cart, Catalog, Lang, PlanQuote, PlanRequest, Quote } from './pricing.ts';
+import { couponParams, planSessionParams, sessionParams } from './stripe.ts';
 import { StripeError } from './stripe-api.ts';
 import type { Param } from './stripe-api.ts';
 
@@ -41,7 +41,7 @@ export async function visitorKey(req: Request): Promise<string> {
 }
 
 const STATUS: Record<string, number> = {
-  bad_cart: 400, unknown_product: 422, bad_variant: 422, bad_coupon: 422, digital_unsupported: 422, below_minimum: 422, bad_catalog: 500,
+  bad_cart: 400, unknown_product: 422, bad_variant: 422, bad_coupon: 422, unknown_plan: 422, digital_unsupported: 422, below_minimum: 422, bad_catalog: 500,
 };
 
 export async function handleCheckout(req: Request, deps: CheckoutDeps): Promise<Response> {
@@ -76,7 +76,8 @@ export async function handleCheckout(req: Request, deps: CheckoutDeps): Promise<
   let body: unknown;
   try { body = JSON.parse(raw); } catch { return send(400, { error: 'bad_cart' }); }
 
-  const parsed = parseCart(body);
+  const isPlan = !!body && typeof body === 'object' && 'plan' in body;
+  const parsed = isPlan ? parsePlan(body) : parseCart(body);
   if (!parsed.ok) return send(400, { error: parsed.error });
 
   let catalog: Catalog;
@@ -85,7 +86,7 @@ export async function handleCheckout(req: Request, deps: CheckoutDeps): Promise<
     return send(502, { error: 'catalog_unavailable' });
   }
 
-  const priced = quote(catalog, parsed.value);
+  const priced = isPlan ? quotePlan(catalog, parsed.value as PlanRequest) : quote(catalog, parsed.value as Cart);
   if (!priced.ok) {
     if (priced.error === 'bad_catalog') console.error('catalog has a bad price, refusing to sell');
     return send(STATUS[priced.error] ?? 422, { error: priced.error });
@@ -103,11 +104,13 @@ export async function handleCheckout(req: Request, deps: CheckoutDeps): Promise<
   let sessionId: string | undefined;
   try {
     let couponId: string | undefined;
-    const coupon = couponParams(q, now);
+    const coupon = isPlan ? null : couponParams(q as Quote, now);
     if (coupon) couponId = (await deps.stripe(secretKey!, 'POST', '/v1/coupons', coupon)).id;
 
     const create = (withImages: boolean) =>
-      deps.stripe(secretKey!, 'POST', '/v1/checkout/sessions', sessionParams(q, { siteUrl, orderNo, now, couponId, withImages }));
+      deps.stripe(secretKey!, 'POST', '/v1/checkout/sessions', isPlan
+        ? planSessionParams(q as PlanQuote, { siteUrl, orderNo, now })
+        : sessionParams(q as Quote, { siteUrl, orderNo, now, couponId, withImages }));
     let session;
     try { session = await create(true); } catch (err) {
       if (!(err instanceof StripeError) || err.status !== 400) throw err;

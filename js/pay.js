@@ -18,7 +18,8 @@ const MESSAGES={
   too_many_requests:'Troppi tentativi ravvicinati. Aspetta qualche minuto e riprova.',
   unknown_product:'Un prodotto del carrello non è più disponibile. Aggiorna il carrello.',
   bad_variant:'Un prodotto del carrello non è più disponibile. Aggiorna il carrello.',
-  not_configured:'Il pagamento online non è ancora attivo.'
+  not_configured:'Il pagamento online non è ancora attivo.',
+  unknown_plan:'Questo abbonamento non è più disponibile. Aggiorna la pagina.'
 };
 const FALLBACK='Non riesco ad aprire il pagamento. Riprova tra poco o scrivici su WhatsApp.';
 
@@ -45,6 +46,31 @@ async function start(){
   throw Object.assign(new Error(json.error||'payment_unavailable'),{code:json.error||'payment_unavailable'});
 }
 
+/** Starts a monthly Darta Club membership (plan id only: the server knows the price) and returns Stripe's hosted page. */
+async function subscribe(plan){
+  let res,json={};
+  try{
+    res=await fetch(FN+'/darta-checkout',{method:'POST',headers:{'content-type':'application/json'},body:JSON.stringify({plan,lang:D.lang}),signal:AbortSignal.timeout(20000)});
+    json=await res.json().catch(()=>({}));
+  }catch(e){throw Object.assign(new Error('network'),{code:'network'})}
+  if(res.ok&&typeof json.url==='string'&&json.url.startsWith(STRIPE_HOST))return json.url;
+  throw Object.assign(new Error(json.error||'payment_unavailable'),{code:json.error||'payment_unavailable'});
+}
+
+// every "Attiva" button of the Darta Club plans (home and shop)
+document.addEventListener('click',async e=>{
+  const b=e.target.closest('[data-plan]');
+  if(!b||b.disabled)return;
+  b.disabled=true;
+  const m=await mode();
+  if(m!=='live'){
+    D.toast(D.t(m==='demo'?'Demo: qui il cliente attiva l’abbonamento e paga con Stripe. Si accende con l’account Stripe del salone.':FALLBACK));
+    b.disabled=false;return;
+  }
+  try{location.href=await subscribe(b.dataset.plan)}
+  catch(ex){D.toast(D.t(MESSAGES[ex.code]||FALLBACK));b.disabled=false}
+});
+
 /** Summary of a paid order for the thank-you page (no personal data comes back). */
 async function order(sessionId){
   if(!SESSION.test(sessionId))return {error:'bad_session'};
@@ -55,5 +81,5 @@ async function order(sessionId){
   }catch(e){return {error:'network'}}
 }
 
-D.pay={mode,start,order,message:err=>D.t(MESSAGES[err&&err.code]||FALLBACK)};
+D.pay={mode,start,subscribe,order,message:err=>D.t(MESSAGES[err&&err.code]||FALLBACK)};
 })();

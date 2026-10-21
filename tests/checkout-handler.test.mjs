@@ -250,3 +250,37 @@ test('the catalog is loaded in the customer\'s language', async () => {
   const bad = await handleCheckout(post({ ...cart(), lang: 'xx' }), d);
   assert.equal(bad.status, 400);
 });
+
+test('a plan opens a monthly Stripe subscription priced from the catalog, whatever the browser sends', async () => {
+  const d = deps();
+  const res = await handleCheckout(post({ plan: 'premium', price: 1, lang: 'it' }), d);
+  assert.equal(res.status, 200);
+  assert.match((await res.json()).url, /^https:\/\/checkout\.stripe\.com\//);
+  assert.equal(d.calls.length, 1); // no coupon for memberships
+  const p = d.calls[0].params;
+  assert.equal(p.mode, 'subscription');
+  assert.deepEqual(p.line_items, [{ quantity: 1, price_data: { currency: 'eur', unit_amount: 5490, recurring: { interval: 'month' }, product_data: { name: 'Darta Club Premium' } } }]);
+  assert.equal(p.metadata.plan, 'premium');
+  assert.match(p.client_reference_id, /^DA-/);
+  assert.equal(p.cancel_url, `${SITE}/#abbonamenti`);
+  assert.equal(p.payment_intent_data, undefined); // not allowed by Stripe in subscription mode
+  assert.equal(p.submit_type, undefined);
+});
+
+test('both plans exist with their prices', async () => {
+  for (const [plan, cents] of [['essential', 3490], ['premium', 5490]]) {
+    const d = deps();
+    assert.equal((await handleCheckout(post({ plan }), d)).status, 200);
+    assert.equal(d.calls[0].params.line_items[0].price_data.unit_amount, cents);
+  }
+});
+
+test('an unknown or malformed plan never reaches Stripe', async () => {
+  for (const [body, status, error] of [[{ plan: 'gold' }, 422, 'unknown_plan'], [{ plan: '../x' }, 400, 'bad_cart'], [{ plan: 'premium', lang: 'de' }, 400, 'bad_cart']]) {
+    const d = deps();
+    const res = await handleCheckout(post(body), d);
+    assert.equal(res.status, status);
+    assert.equal((await res.json()).error, error);
+    assert.equal(d.calls.length, 0);
+  }
+});

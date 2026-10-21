@@ -23,7 +23,7 @@
 <link rel="preload" as="fetch" href="/data/catalog.json" crossorigin="anonymous">
 <link rel="preload" as="fetch" href="/data/catalog.en.json" crossorigin="anonymous">
 <script>/* set layout flags before first paint: GL corridor, first-visit curtain */(function(d){var r=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!r){d.classList.add('gl');try{if(location.pathname.length<2&&!sessionStorage.getItem('darta-seen')&&!location.hash){d.classList.add('intro');sessionStorage.setItem('darta-seen','1')}}catch(e){}}})(document.documentElement)</script>
-<link rel="stylesheet" href="/css/styles.css?v=6688f0c6">
+<link rel="stylesheet" href="/css/styles.css?v=f1d880c8">
 <link rel="stylesheet" href="/css/shop.css?v=7c2f033a">
 <link rel="stylesheet" href="/css/scenes.css?v=37392533">
 </head>
@@ -203,6 +203,28 @@
     </div>
   </section>
 
+  <!--gen:plans--><section class="sec plans" id="abbonamenti" aria-labelledby="plansTitle">
+    <div class="wrap">
+      <p class="eyebrow rv">Monthly membership</p>
+      <h2 class="d h2" id="plansTitle" style="margin-top:1rem"><span class="ln"><span class="rv">Always</span></span><span class="ln"><span class="rv" style="--i:1"><em>sharp.</em></span></span></h2>
+      <p class="lead rv">Cuts every month and discounts on Darta products. It renews by itself, cancel whenever you like.</p>
+      <div class="plans-row">
+        <article class="plan plan-essential rv" style="--i:0">
+          <h3 class="h3">Essential</h3>
+          <p class="plan-price"><b class="num">€34.90</b><span>/month</span></p>
+          <ul class="plan-perks"><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>2 cuts a month</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>15% off Darta products</li></ul>
+          <button type="button" class="btn btn-g" data-plan="essential">Start Essential</button>
+        </article><article class="plan plan-premium rv" style="--i:1">
+          <h3 class="h3"><svg class="i" aria-hidden="true"><use href="#i-crown"/></svg>Premium</h3>
+          <p class="plan-price"><b class="num">€54.90</b><span>/month</span></p>
+          <ul class="plan-perks"><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>2 cut and beard services a month</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>50% off Darta products</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>15% off clothing</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>Priority booking</li></ul>
+          <button type="button" class="btn btn-p" data-plan="premium">Start Premium</button>
+        </article>
+      </div>
+      <p class="note plans-note">Valid with every barber. Unused services do not carry over to the next month. Pay by card, Apple Pay or Google Pay on Stripe's secure page.</p>
+    </div>
+  </section><!--/gen:plans-->
+
   <section class="sec" id="club">
     <div class="wrap club-grid">
       <div>
@@ -264,7 +286,6 @@
       <ul class="ideas ideas-row">
         <li class="rv"><h3 class="h3">WhatsApp reminder</h3><p>The day before, a message arrives with the time and the barber. Fewer empty slots.</p></li>
         <li class="rv"><h3 class="h3">Bring a friend</h3><p>Whoever brings in a new client gets a discount, and so does the friend.</p><span class="ex">Example: €5 each</span></li>
-        <li class="rv"><h3 class="h3">Monthly membership</h3><p>Two haircuts a month at a fixed price, for anyone who wants an always-fresh fade.</p><span class="ex">Example: 2 haircuts, €36 a month</span></li>
         <li class="rv"><h3 class="h3">Booking statistics</h3><p>Busy days, most requested services, clients to call back. All in one dashboard.</p></li>
       </ul>
     </div>
@@ -399,11 +420,11 @@
 </dialog>
 <!--/shared:dialogs-->
 
-<script defer src="/js/en.js?v=3a13f948"></script>
+<script defer src="/js/en.js?v=ce8d456e"></script>
 <script defer src="/js/vendor/anime.umd.min.js?v=99b376c4"></script>
 <script defer src="/js/core.js?v=e44cd281"></script>
 <script defer src="/js/store.js?v=95e81d00"></script>
-<script defer src="/js/pay.js?v=7d133925"></script>
+<script defer src="/js/pay.js?v=6d3cad7c"></script>
 <script defer src="/js/cart.js?v=6e4e7199"></script>
 <script defer src="/js/motion.js?v=64437ee6"></script>
 <script defer src="/js/wallet.js?v=85b70cb7"></script>

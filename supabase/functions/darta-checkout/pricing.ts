@@ -11,7 +11,12 @@ export interface Catalog {
   shipping: { flat: number; freeFrom: number };
   coupons: Record<string, { pct: number; label: string }>;
   products: Product[];
+  plans?: Plan[];
 }
+/** A Darta Club membership: one fixed price, charged every month by Stripe until the customer cancels. */
+export interface Plan { id: string; name: string; price: number }
+export interface PlanRequest { plan: string; lang: Lang }
+export interface PlanQuote { id: string; name: string; lang: Lang; total: number }
 
 export type Mode = 'pickup' | 'ship';
 export type Lang = 'it' | 'en';
@@ -99,6 +104,22 @@ export function quote(catalog: Catalog, cart: Cart): Result<Quote> {
   if (!Number.isFinite(total) || total < MIN_CHARGE) return fail('below_minimum');
 
   return { ok: true, value: { items, mode: cart.mode, lang: cart.lang, coupon: cart.coupon, couponLabel, subtotal, discount, shipping, total } };
+}
+
+/** A membership request carries only the plan id: the price comes from the catalog, like everything else. */
+export function parsePlan(body: unknown): Result<PlanRequest> {
+  if (!body || typeof body !== 'object') return fail('bad_cart');
+  const { plan, lang = 'it' } = body as Record<string, unknown>;
+  if (typeof plan !== 'string' || !ID.test(plan)) return fail('bad_cart');
+  if (lang !== 'it' && lang !== 'en') return fail('bad_cart');
+  return { ok: true, value: { plan, lang } };
+}
+
+export function quotePlan(catalog: Catalog, req: PlanRequest): Result<PlanQuote> {
+  const p = (catalog.plans ?? []).find((x) => x.id === req.plan);
+  if (!p) return fail('unknown_plan');
+  if (!cents(p.price) || p.price < MIN_CHARGE || typeof p.name !== 'string' || !p.name) return fail('bad_catalog');
+  return { ok: true, value: { id: p.id, name: p.name, lang: req.lang, total: p.price } };
 }
 
 /** The English copy of data/catalog.en.json laid over the catalog. Only names and labels are taken: prices always come from the Italian file. */

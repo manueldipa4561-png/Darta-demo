@@ -2,7 +2,7 @@
 
 Demo website concept for **Darta Barber Studio** (Via Gobetti 184, Pescara), designed and developed by [Punto Due Studio](https://puntoduestudio.it).
 
-The site is a booking landing page that doubles as a small **e-commerce**: every product and every service has its own page, products are rendered in 3D, there is a cart, a demo checkout. The shop sells only the real Darta products (Hair Pomade, Hair Powder Clay, Beard Oil, Eco Spray, Curl Man, Curl Control); the gift card, kit and membership code paths are still in the cart, pricing and tests but no product uses them. No framework, no build step, no backend: static files on Netlify.
+The site is a booking landing page that doubles as a small **e-commerce**: every product and every service has its own page, products are rendered in 3D, there is a cart, a demo checkout. The shop sells only the real Darta products (Hair Pomade, Hair Powder Clay, Beard Oil, Eco Spray, Curl Man, Curl Control); the two Darta Club memberships (Essential and Premium, monthly, `plans` in `data/catalog.json`) are sold through Stripe subscriptions; the gift card and kit code paths are still in the cart, pricing and tests but no product uses them. No framework, no build step, no backend: static files on Netlify.
 
 ## What is in it
 

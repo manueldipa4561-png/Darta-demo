@@ -45,6 +45,7 @@ export async function handleOrderLookup(req: Request, deps: OrderLookupDeps): Pr
       pending: s.status === 'complete' && s.payment_status === 'unpaid',
       orderNo: String(s.client_reference_id ?? ''),
       mode: s.metadata?.mode === 'ship' ? 'ship' : 'pickup',
+      plan: s.mode === 'subscription',
       total: Number(s.amount_total) || 0,
       items: (s.line_items?.data ?? []).map((l: any) => ({ name: String(l.description ?? '').slice(0, 120), q: Number(l.quantity) || 1 })),
     });

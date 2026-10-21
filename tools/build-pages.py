@@ -318,6 +318,7 @@ def shop_page():
       <p class="note shop-note">Prodotti, prezzi e descrizioni sono d'esempio per la demo e da confermare con il salone. Nessun pagamento reale.</p>
     </div>
   </section>
+  {plans_html()}
 </main>'''
     ld = {'@context': 'https://schema.org', '@type': 'ItemList', 'itemListElement': [
         {'@type': 'ListItem', 'position': i + 1, 'url': U(f'/prodotti/{p["slug"]}'), 'name': p['name']} for i, p in enumerate(PRODUCTS)]}
@@ -534,9 +535,39 @@ def groups_html():
 GROUPS_RE = r'<!--gen:svc-groups-->.*?<!--/gen:svc-groups-->'
 
 
+def plans_html():
+    """The two Darta Club memberships (home and shop), from the plans in data/catalog.json. The buttons are wired in js/pay.js."""
+    cards = ''
+    for i, p in enumerate(CAT_IT['plans']):
+        tier = p['name'].replace('Darta Club ', '')
+        crown = '<svg class="i" aria-hidden="true"><use href="#i-crown"/></svg>' if p['id'] == 'premium' else ''
+        perks = ''.join(f'<li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>{esc(x)}</li>' for x in p['perks'])
+        cards += f'''<article class="plan plan-{p["id"]} rv" style="--i:{i}">
+          <h3 class="h3">{crown}{esc(tier)}</h3>
+          <p class="plan-price"><b class="num">{esc(eur(p["price"]))}</b><span>/{esc(tr("mese"))}</span></p>
+          <ul class="plan-perks">{perks}</ul>
+          <button type="button" class="btn {"btn-p" if p["id"] == "premium" else "btn-g"}" data-plan="{p["id"]}">{esc(tr("Attiva {name}", name=tier))}</button>
+        </article>'''
+    return f'''<!--gen:plans--><section class="sec plans" id="abbonamenti" aria-labelledby="plansTitle">
+    <div class="wrap">
+      <p class="eyebrow rv">Abbonamento mensile</p>
+      <h2 class="d h2" id="plansTitle" style="margin-top:1rem"><span class="ln"><span class="rv">Sempre</span></span><span class="ln"><span class="rv" style="--i:1"><em>in ordine.</em></span></span></h2>
+      <p class="lead rv">Tagli ogni mese e sconti sui prodotti Darta. Si rinnova da solo, disdici quando vuoi.</p>
+      <div class="plans-row">
+        {cards}
+      </div>
+      <p class="note plans-note">Valido con tutti i barber. I servizi non usati non passano al mese dopo. Paghi con carta, Apple Pay o Google Pay sulla pagina sicura di Stripe.</p>
+    </div>
+  </section><!--/gen:plans-->'''
+
+
+PLANS_RE = r'<!--gen:plans-->.*?<!--/gen:plans-->'
+
+
 def home_page():
     """index.html (Italian, hand written) or its English twin, translated from it."""
     html = re.sub(GROUPS_RE, lambda m: groups_html(), INDEX, flags=re.S)
+    html = re.sub(PLANS_RE, lambda m: plans_html(), html, flags=re.S)
     return html if LANG == 'it' else finish(html, {'it': '/', 'en': '/en/'})
 
 

@@ -213,6 +213,22 @@ section{position:relative}
 .sw-onyx{background:#1b1b19}.sw-gobetti{background:#2f6f6a}.sw-chrome{background:linear-gradient(135deg,#8d918f,#f4f5f2,#8d918f)}.sw-holo{background:conic-gradient(#6cc0b8,#ad8cff,#ffaac8,#6cc0b8)}
 .toast{position:fixed;z-index:60;left:50%;bottom:calc(env(safe-area-inset-bottom) + 96px);transform:translate(-50%,20px);opacity:0;background:var(--text);color:var(--bg);padding:.85rem 1.2rem;border-radius:var(--pill);font-weight:600;font-size:.9375rem;transition:opacity .3s,transform .4s var(--ease);pointer-events:none;width:max-content;max-width:calc(100vw - 32px)}
 .toast.show{opacity:1;transform:translate(-50%,0)}
+/* Darta Club plans: two monthly memberships, Premium highlighted in the wall-sign teal */
+.plans-row{display:grid;gap:1.25rem;margin-top:clamp(2.5rem,6vw,4rem)}
+@media(min-width:900px){.plans-row{grid-template-columns:1fr 1fr;gap:2rem;align-items:stretch}}
+.plan{display:flex;flex-direction:column;gap:1.25rem;padding:clamp(1.5rem,4vw,2.4rem);background:var(--surface);border:1px solid var(--line);border-radius:var(--r)}
+.plans .lead{margin-top:1.25rem}
+.plan .h3{display:flex;align-items:center;gap:.5rem}
+.plan .h3 .i{width:1em;height:1em}
+.plan-premium{border-color:var(--accent);background:linear-gradient(160deg,rgba(108,192,184,.14),var(--surface) 55%)}
+.plan-premium .h3{color:var(--accent)}
+.plan-price b{font:800 clamp(2.6rem,9vw,3.4rem)/1 var(--fd)}
+.plan-price span{color:var(--muted);margin-left:.3rem}
+.plan-perks{list-style:none;display:grid;gap:.6rem;flex:1;align-content:start}
+.plan-perks li{display:flex;gap:.6rem;align-items:flex-start}
+.plan-perks .i{color:var(--accent);margin-top:.2em}
+.plan .btn{align-self:flex-start}
+.plans-note{margin-top:1.5rem;color:var(--dim);font-size:.9rem;max-width:60ch}
 .ideas{list-style:none}
 .ideas-row{display:grid;gap:0;margin-top:clamp(3rem,8vw,5rem)}
 .ideas li{padding:1.4rem 0;border-bottom:1px solid var(--line)}

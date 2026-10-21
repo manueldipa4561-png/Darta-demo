@@ -1,5 +1,5 @@
 // Builds the Checkout Session and coupon requests for Stripe.
-import type { Quote } from './pricing.ts';
+import type { PlanQuote, Quote } from './pricing.ts';
 import type { Param } from './stripe-api.ts';
 
 const SESSION_LIFETIME_S = 3600;
@@ -14,6 +14,8 @@ const TEXT = {
     shipStandard: 'Spedizione standard',
     back: '/shop#carrello',
     done: '/ordine',
+    plan: 'Si rinnova ogni mese allo stesso prezzo finché non disdici. Disdici quando vuoi dal link nell’email di Stripe: resta attivo fino alla fine del mese pagato.',
+    planBack: '/#abbonamenti',
   },
   en: {
     pickup: `Free pickup at the studio: ${SALON}, Tuesday to Saturday, 10am to 7pm. We'll message you when it's ready.`,
@@ -22,6 +24,8 @@ const TEXT = {
     shipStandard: 'Standard shipping',
     back: '/en/shop#cart',
     done: '/en/order',
+    plan: 'Renews every month at the same price until you cancel. Cancel any time from the link in Stripe’s email: it stays active until the end of the paid month.',
+    planBack: '/en/#abbonamenti',
   },
 } as const;
 
@@ -89,5 +93,27 @@ export function sessionParams(q: Quote, ctx: SessionContext) {
     },
     metadata: { order_no: ctx.orderNo, mode: q.mode, lang: q.lang, coupon: q.coupon || undefined },
     payment_intent_data: { description: `Darta Shop ${ctx.orderNo}`, metadata: { order_no: ctx.orderNo } },
+  };
+}
+
+/** A monthly Darta Club membership: Stripe charges the first month now and renews it by itself until the customer cancels. */
+export function planSessionParams(p: PlanQuote, ctx: SessionContext) {
+  const text = TEXT[p.lang];
+  return {
+    mode: 'subscription',
+    locale: p.lang,
+    client_reference_id: ctx.orderNo, // same DA- number as a shop order, so the webhook and the thank-you page treat it alike
+    success_url: `${ctx.siteUrl}${text.done}?s={CHECKOUT_SESSION_ID}`,
+    cancel_url: `${ctx.siteUrl}${text.planBack}`,
+    expires_at: ctx.now + SESSION_LIFETIME_S,
+    billing_address_collection: 'auto',
+    phone_number_collection: { enabled: true },
+    line_items: [{
+      quantity: 1,
+      price_data: { currency: 'eur', unit_amount: p.total, recurring: { interval: 'month' }, product_data: { name: p.name } },
+    }],
+    custom_text: { submit: { message: text.plan } },
+    metadata: { order_no: ctx.orderNo, mode: 'plan', plan: p.id, lang: p.lang },
+    subscription_data: { description: `${p.name} ${ctx.orderNo}`, metadata: { order_no: ctx.orderNo, plan: p.id } },
   };
 }

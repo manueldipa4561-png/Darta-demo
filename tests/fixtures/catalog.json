@@ -403,5 +403,27 @@
         "accent": "#6cc0b8"
       }
     }
+  ],
+  "plans": [
+    {
+      "id": "essential",
+      "name": "Darta Club Essential",
+      "price": 3490,
+      "perks": [
+        "2 tagli al mese",
+        "15% di sconto sui prodotti Darta"
+      ]
+    },
+    {
+      "id": "premium",
+      "name": "Darta Club Premium",
+      "price": 5490,
+      "perks": [
+        "2 servizi taglio e barba al mese",
+        "50% di sconto sui prodotti Darta",
+        "15% di sconto sull'abbigliamento",
+        "Prenotazione prioritaria"
+      ]
+    }
   ]
 }

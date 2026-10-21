@@ -319,5 +319,21 @@
   "Vedi i servizi": "See the services",
   "Scopri i prodotti": "Explore the products",
   "Prenota la tua poltrona": "Book your chair",
-  "Guarda come si usa": "See how it works"
+  "Guarda come si usa": "See how it works",
+  "15% di sconto sui prodotti Darta": "15% off Darta products",
+  "15% di sconto sull'abbigliamento": "15% off clothing",
+  "2 servizi taglio e barba al mese": "2 cut and beard services a month",
+  "2 tagli al mese": "2 cuts a month",
+  "50% di sconto sui prodotti Darta": "50% off Darta products",
+  "Prenotazione prioritaria": "Priority booking",
+  "Tagli ogni mese e sconti sui prodotti Darta. Si rinnova da solo, disdici quando vuoi.": "Cuts every month and discounts on Darta products. It renews by itself, cancel whenever you like.",
+  "Valido con tutti i barber. I servizi non usati non passano al mese dopo. Paghi con carta, Apple Pay o Google Pay sulla pagina sicura di Stripe.": "Valid with every barber. Unused services do not carry over to the next month. Pay by card, Apple Pay or Google Pay on Stripe's secure page.",
+  "Sempre": "Always",
+  "in ordine.": "sharp.",
+  "mese": "month",
+  "Attiva {name}": "Start {name}",
+  "Benvenuto nel Darta Club.": "Welcome to the Darta Club.",
+  "L’abbonamento è attivo: {total} al mese, si rinnova da solo. Controlla l’email: Stripe invia la ricevuta e il link per gestirlo o disdirlo.": "Your membership is active: {total} a month, renewing by itself. Check your email: Stripe sends the receipt and the link to manage or cancel it.",
+  "Demo: qui il cliente attiva l’abbonamento e paga con Stripe. Si accende con l’account Stripe del salone.": "Demo: this is where customers start the membership and pay with Stripe. It goes live with the studio's Stripe account.",
+  "Questo abbonamento non è più disponibile. Aggiorna la pagina.": "This membership is no longer available. Refresh the page."
 }

@@ -14,6 +14,7 @@ Stripe  --redirect-->  /ordine?s=cs_...  -->  Edge Function darta-order  -->  th
 - The browser sends only product ids, variants, quantities, coupon and pickup/shipping. **Prices are recomputed on the server** from `data/catalog.json`, and the session is refused if Stripe's total differs from ours.
 - Card data never touches this site or our functions. Apple Pay and Google Pay appear on Stripe's page by themselves when the customer's device supports them.
 - (2026-10-11: the shop no longer lists Gift Card, Abbonamento Fade, Fade Kit or Wax Powder; the old catalog is kept as `tests/fixtures/catalog.json` so the digital and kit rules stay tested.) Gift card and Abbonamento Fade are **not payable online yet** (they need a code and a recurring subscription). The checkout tells the customer to buy them in the salon.
+- **Darta Club memberships** (`plans` in `data/catalog.json`: Essential 34,90 EUR and Premium 54,90 EUR a month, from the plans Darta announced on Instagram). The "Attiva" buttons on the home and the shop send only `{ plan, lang }` to the same `darta-checkout` function, which opens Checkout in **subscription** mode at the catalog price. Stripe charges the first month, renews every month and retries failed cards by itself. The first payment is recorded like an order (`darta_orders`, same `DA-` number, salon email, thank-you page says "Benvenuto nel Darta Club"); **renewals and cancellations live only in Stripe** (Dashboard or app > Subscriptions), which is where the salon checks whether a customer is active.
 - Source: `supabase/functions/*` (Deno/TypeScript), table `public.darta_orders` in `supabase/migrations/`. Tests: `node --test tests/*.test.mjs` (Node 24).
 
 ## Turning it on (about 15 minutes, once the Stripe account exists)
@@ -31,7 +32,7 @@ Stripe  --redirect-->  /ordine?s=cs_...  -->  Edge Function darta-order  -->  th
    Never paste keys in chat, in the repo or in Netlify: only here. Secrets are shared by every function of the Supabase project, including other apps living there: for the live shop use a **dedicated Supabase project owned by the client** (the SQL in `supabase/migrations/` recreates everything, then redeploy the three functions).
 3. **Webhook.** Stripe Dashboard > Developers > Webhooks > Add endpoint:
    URL `https://kemfyrbrlsbuberjqzje.supabase.co/functions/v1/darta-stripe-webhook`
-   Events: `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`.
+   Events (one-off orders and the first month of a membership): `checkout.session.completed`, `checkout.session.async_payment_succeeded`, `checkout.session.async_payment_failed`.
    Stripe then shows a signing secret (`whsec_...`): add it as the Supabase secret `STRIPE_WEBHOOK_SECRET`. Leave Stripe's email alerts for failing webhook endpoints switched on (Webhooks > the endpoint > Alerts): a broken webhook means paid orders that the salon never hears about.
 4. **Salon email (optional).** Create a Resend account, verify the sending domain, then add `RESEND_API_KEY`, `ORDER_NOTIFY_TO` (comma separated) and `ORDER_NOTIFY_FROM` (for example `Darta Shop <shop@client-domain.it>`). Without them orders are still stored and visible in the Stripe Dashboard.
 5. **Try it.** On the shop add a product, go to checkout: the button now says "Paga". Use Stripe's test card `4242 4242 4242 4242`, any future date, any CVC. You land on `/ordine`, the order appears in Stripe > Payments and in the table `darta_orders`.
@@ -40,10 +41,14 @@ Stripe  --redirect-->  /ordine?s=cs_...  -->  Edge Function darta-order  -->  th
    - **Remove demo mode:** delete `<meta name="darta-demo" content="1">` from `index.html` and from the page shell in `tools/build-pages.py`, run `python3 tools/build-pages.py`, and push. From then on a server that says "payments are off" shows a disabled button and an apology, never a pretend order.
    - Remove `noindex` (`X-Robots-Tag` in `netlify.toml` and the robots meta in the page shell).
    - In Stripe, switch on customer receipt emails (Settings > Customer emails > Successful payments): the thank-you page tells customers to expect one.
+   - For the memberships: Settings > Billing > **Customer portal** on, with "cancel at end of billing period"; Settings > Billing > Subscriptions and emails: send renewal reminders and failed-payment emails **with the portal link**, and turn on Smart Retries. That link is how customers cancel without calling the salon.
+   - Membership checkout creates its Product and Price on the fly. With a restricted key, if Stripe refuses the session for permissions, add *write* on Products and Prices to it (test this once in test mode).
    - Read the checklist in [`SECURITY.md`](SECURITY.md).
 7. **Check by hand once in test mode** (mocks cannot prove these): a pickup order and a shipping order with the coupon `BENVENUTO10`; the shipping address shows in the Stripe payment and in `darta_orders`; the product photos appear on Stripe's page (`netlify.toml` sends `Cross-Origin-Resource-Policy: same-origin` on images; if the photos are missing, serve `/img/p/*` as `cross-origin`).
 
 ## Things to decide with the client
+
+- **Memberships.** How the barber checks a member in the chair (today: search the name in the Stripe app), whether the product discounts are applied at the till or as an online coupon for members (not built), and the terms for auto-renewal and cancellation that Italian consumer law asks for (lawyer or accountant, not us).
 
 - **Tax and invoices.** Prices are shown VAT included. Stripe is not configured for automatic tax or invoices; the accountant decides how receipts and e-invoices are issued.
 - **Refunds and fulfilment.** Refunds are done in the Stripe Dashboard. The `fulfilment` column of `darta_orders` (new, ready, shipped, picked_up, cancelled) is ready for an admin screen but nothing updates it yet.

@@ -5,7 +5,7 @@ import { readFileSync } from 'node:fs';
 
 const source = readFileSync(new URL('../js/pay.js', import.meta.url), 'utf8');
 async function load({ fetchImpl, cart, demo = true }) {
-  globalThis.document = { querySelector: (sel) => (sel === 'meta[name="darta-demo"]' && demo ? {} : null) };
+  globalThis.document = { querySelector: (sel) => (sel === 'meta[name="darta-demo"]' && demo ? {} : null), addEventListener: () => {} };
   globalThis.window = { DARTA: { lang: 'it', t: (s) => s, store: {
     lines: cart?.lines ?? [{ k: 'wax', id: 'wax', v: '', q: 2, extra: 'ignored' }],
     coupon: cart?.coupon ?? '',
@@ -82,4 +82,13 @@ test('order lookups only go out for well-formed session ids', async () => {
   assert.match(res.url, /darta-order\?s=cs_test_abcdef123$/);
   const off = await load({ fetchImpl: async () => { throw new Error('x'); } });
   assert.deepEqual(await off.order('cs_test_abcdef123'), { error: 'network' });
+});
+
+test('subscribe sends only the plan id and language, and returns the Stripe url', async () => {
+  let sent;
+  const pay = await load({ fetchImpl: async (url, init) => { sent = JSON.parse(init.body); return ok({ url: 'https://checkout.stripe.com/c/pay/cs_test_x' }); } });
+  assert.equal(await pay.subscribe('premium'), 'https://checkout.stripe.com/c/pay/cs_test_x');
+  assert.deepEqual(sent, { plan: 'premium', lang: 'it' });
+  const bad = await load({ fetchImpl: async () => ok({ url: 'https://evil.example/' }) });
+  await assert.rejects(bad.subscribe('premium'));
 });
