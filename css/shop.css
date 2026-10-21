@@ -347,7 +347,7 @@ dialog.co.out{animation:pdpOut .17s ease-in forwards}
 /* ===== footer + misc ===== */
 .credit a{display:inline-flex;align-items:center;gap:.55rem;color:var(--text);text-decoration:none;font-weight:600}
 .credit a:hover{text-decoration:underline;text-underline-offset:3px}
-.pds{width:30px;height:18px}
+.pds{width:40px;height:24px;flex:none}   /* the mark is 40:24: never let the flex row squeeze it */
 .ex.lnk{margin-left:.6rem;color:var(--accent);text-decoration:underline;text-underline-offset:3px}
 .demo-note{margin:0}
 
