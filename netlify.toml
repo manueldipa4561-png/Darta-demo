@@ -15,6 +15,12 @@
     X-Permitted-Cross-Domain-Policies = "none"
     X-Robots-Tag = "noindex, nofollow"            # demo: also covers images and JSON. Remove at go-live
 
+# The salon page may use the camera (QR scan, same origin only). Same policy as above otherwise.
+[[headers]]
+  for = "/salone*"
+  [headers.values]
+    Permissions-Policy = "camera=(self), microphone=(), geolocation=(), payment=(), usb=(), serial=(), bluetooth=(), hid=(), midi=(), display-capture=(), magnetometer=(), gyroscope=(), accelerometer=(), interest-cohort=(), browsing-topics=()"
+
 # Images keep their file names when they are replaced (new photos, new logo), so they must revalidate.
 # A long max-age here also pinned a 404 for a logo that was uploaded a few minutes after the page that used it.
 [[headers]]
@@ -69,6 +75,11 @@
   to = "/servizi.html"
   status = 200
   force = true
+
+[[redirects]]
+  from = "/salone"
+  to = "/salone.html"
+  status = 200
 
 [[redirects]]
   from = "/ordine"

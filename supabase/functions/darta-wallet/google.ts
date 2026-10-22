@@ -50,19 +50,55 @@ export function walletPayload(card: Card, cfg: Pick<GoogleConfig, 'issuerId'>, s
 const b64url = (bytes: Uint8Array) => btoa(String.fromCharCode(...bytes)).replace(/\+/g, '-').replace(/\//g, '_').replace(/=+$/, '');
 const b64urlText = (text: string) => b64url(new TextEncoder().encode(text));
 
-export async function saveLink(card: Card, cfg: GoogleConfig, siteUrl: string, nowSeconds: number): Promise<string> {
+async function signJwt(claims: unknown, keyPem: string): Promise<string> {
   const header = b64urlText(JSON.stringify({ alg: 'RS256', typ: 'JWT' }));
-  const body = b64urlText(JSON.stringify({
+  const body = b64urlText(JSON.stringify(claims));
+  const key = await crypto.subtle.importKey('pkcs8', privateKeyDer(keyPem) as BufferSource, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
+  const signature = new Uint8Array(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(`${header}.${body}`)));
+  return `${header}.${body}.${b64url(signature)}`;
+}
+
+export async function saveLink(card: Card, cfg: GoogleConfig, siteUrl: string, nowSeconds: number): Promise<string> {
+  const jwt = await signJwt({
     iss: cfg.serviceAccountEmail,
     aud: 'google',
     typ: 'savetowallet',
     iat: nowSeconds,
     origins: [siteUrl],
     payload: walletPayload(card, cfg, siteUrl),
-  }));
-  const key = await crypto.subtle.importKey('pkcs8', privateKeyDer(cfg.keyPem) as BufferSource, { name: 'RSASSA-PKCS1-v1_5', hash: 'SHA-256' }, false, ['sign']);
-  const signature = new Uint8Array(await crypto.subtle.sign('RSASSA-PKCS1-v1_5', key, new TextEncoder().encode(`${header}.${body}`)));
-  const link = `https://pay.google.com/gp/v/save/${header}.${body}.${b64url(signature)}`;
+  }, cfg.keyPem);
+  const link = `https://pay.google.com/gp/v/save/${jwt}`;
   if (link.length > MAX_LINK_LENGTH) throw new Error(`save link is ${link.length} characters, Google accepts ${MAX_LINK_LENGTH}`);
   return link;
+}
+
+export const TOKEN_URL = 'https://oauth2.googleapis.com/token';
+export const OBJECT_URL = 'https://walletobjects.googleapis.com/walletobjects/v1/loyaltyObject/';
+const SCOPE = 'https://www.googleapis.com/auth/wallet_object.issuer';
+
+/**
+ * Writes the new stamps onto the card already saved in Google Wallet; Google then refreshes it on the phone.
+ * false when the visitor never saved the card (Google answers 404), throws on any other failure.
+ */
+// ponytail: one OAuth token per stamp; cache it for its hour if the salon ever stamps many cards a minute
+export async function updateObject(card: Card, cfg: GoogleConfig, siteUrl: string, nowSeconds: number, http: typeof fetch): Promise<boolean> {
+  const assertion = await signJwt({ iss: cfg.serviceAccountEmail, scope: SCOPE, aud: TOKEN_URL, iat: nowSeconds, exp: nowSeconds + 600 }, cfg.keyPem);
+  const tokenRes = await http(TOKEN_URL, {
+    method: 'POST',
+    headers: { 'content-type': 'application/x-www-form-urlencoded' },
+    body: new URLSearchParams({ grant_type: 'urn:ietf:params:oauth:grant-type:jwt-bearer', assertion }).toString(),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (!tokenRes.ok) throw new Error(`google token ${tokenRes.status}`);
+  const { access_token } = await tokenRes.json();
+  const obj = walletPayload(card, cfg, siteUrl).loyaltyObjects[0];
+  const res = await http(OBJECT_URL + encodeURIComponent(obj.id), {
+    method: 'PATCH',
+    headers: { authorization: `Bearer ${access_token}`, 'content-type': 'application/json' },
+    body: JSON.stringify({ loyaltyPoints: obj.loyaltyPoints, secondaryLoyaltyPoints: obj.secondaryLoyaltyPoints, textModulesData: obj.textModulesData }),
+    signal: AbortSignal.timeout(8000),
+  });
+  if (res.status === 404) return false;
+  if (!res.ok) throw new Error(`google object ${res.status}`);
+  return true;
 }

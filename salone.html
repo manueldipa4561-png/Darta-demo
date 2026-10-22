@@ -1,0 +1,46 @@
+<!DOCTYPE html>
+<html lang="it">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<title>Timbri | Darta Barber Studio</title>
+<meta name="robots" content="noindex, nofollow">
+<meta name="theme-color" content="#0b0b0a">
+<link rel="icon" href="/img/logo.png">
+<link rel="stylesheet" href="/css/salon.css?v=33c47f03">
+</head>
+<body>
+<main>
+  <header>
+    <h1>Darta <em>Card</em><br>Timbri</h1>
+    <p class="lede">Solo per lo staff del salone. Un timbro a ogni taglio.</p>
+  </header>
+
+  <form id="pin" hidden>
+    <label>PIN del salone<input id="pin-in" type="password" inputmode="numeric" autocomplete="off" required maxlength="64"></label>
+    <button class="go" type="submit">Entra</button>
+  </form>
+
+  <form id="stamp" hidden>
+    <button class="alt" id="scan" type="button" hidden>Scansiona il QR</button>
+    <video id="cam" playsinline muted hidden></video>
+    <label>Numero tessera<input id="code" autocomplete="off" autocapitalize="characters" spellcheck="false" placeholder="es. 3F2B8C1E" maxlength="40" required></label>
+    <label>Barber<select id="barber"><option value="">Chi timbra?</option><option>Thomas</option><option>Mattia</option><option>Rrapi</option></select></label>
+    <button class="go" type="submit">Aggiungi timbro</button>
+  </form>
+
+  <p class="msg" id="msg" role="status" aria-live="polite"></p>
+
+  <section class="result" id="result" hidden aria-live="polite">
+    <p class="who" id="who"></p>
+    <p class="count" id="count"></p>
+    <div class="dots" id="dots" aria-hidden="true"></div>
+    <p class="small" id="note"></p>
+    <button class="alt" id="redeem" type="button" hidden>Taglio omaggio fatto: azzera</button>
+  </section>
+
+  <button class="out" id="out" type="button" hidden>Esci da questo telefono</button>
+</main>
+<script src="/js/salon.js?v=aba1e557"></script>
+</body>
+</html>
