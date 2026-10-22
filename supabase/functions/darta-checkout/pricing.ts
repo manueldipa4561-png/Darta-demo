@@ -13,7 +13,7 @@ export interface Catalog {
   products: Product[];
   plans?: Plan[];
 }
-/** A Darta Club membership: one fixed price, charged every month by Stripe until the customer cancels. */
+/** A Darta membership: one fixed price, charged every month by Stripe until the customer cancels. */
 export interface Plan { id: string; name: string; price: number }
 export interface PlanRequest { plan: string; lang: Lang }
 export interface PlanQuote { id: string; name: string; lang: Lang; total: number }

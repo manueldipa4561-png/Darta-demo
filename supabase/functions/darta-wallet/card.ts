@@ -35,10 +35,10 @@ export function rewardText(n: number, lang: Lang = 'it'): string {
 
 /** The words printed on the pass, in each language. */
 export const WORDS = {
-  it: { tier: 'LIVELLO', stamps: 'TIMBRI', barber: 'BARBER', holder: 'TITOLARE', next: 'PROSSIMO PREMIO', description: 'Tessera Darta Club',
+  it: { tier: 'LIVELLO', stamps: 'TIMBRI', barber: 'BARBER', holder: 'TITOLARE', next: 'PROSSIMO PREMIO', description: 'Darta Card',
     where: 'Dove', hours: 'Orari', hoursValue: 'Da martedì a sabato, 10:00 - 19:00', site: 'Sito', how: 'Come funziona',
     howValue: 'Un timbro a ogni taglio. Il decimo taglio è omaggio.', note: 'Nota', noteValue: 'Tessera dimostrativa: i timbri non sono ancora collegati al salone.', points: 'Timbri', level: 'Livello', nextHead: 'Prossimo premio' },
-  en: { tier: 'TIER', stamps: 'STAMPS', barber: 'BARBER', holder: 'CARDHOLDER', next: 'NEXT REWARD', description: 'Darta Club card',
+  en: { tier: 'TIER', stamps: 'STAMPS', barber: 'BARBER', holder: 'CARDHOLDER', next: 'NEXT REWARD', description: 'Darta Card',
     where: 'Where', hours: 'Hours', hoursValue: 'Tuesday to Saturday, 10am - 7pm', site: 'Website', how: 'How it works',
     howValue: 'One stamp per haircut. The tenth haircut is free.', note: 'Note', noteValue: 'Demo card: the stamps are not connected to the studio yet.', points: 'Stamps', level: 'Tier', nextHead: 'Next reward' },
 } as const;

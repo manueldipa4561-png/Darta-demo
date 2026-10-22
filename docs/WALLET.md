@@ -1,12 +1,13 @@
-# Loyalty card in Apple Wallet and Google Wallet
+# Darta Card in Apple Wallet and Google Wallet
 
-The "Aggiungi al Wallet" button on the Darta Club card is built and switched off until a wallet account exists. Until then it shows the demo message, so the live site never breaks.
+The **Darta Card** comes with a membership (Darta Essential or Darta Premium). The wallet button is built and switched off until a wallet account exists. Until then it shows the demo message, so the live site never breaks.
 
 ## What the customer gets
 
-- They design the card on the site (name, finish, stamp, barber), tap **Aggiungi al Wallet**, and the card opens in **Apple Wallet** (iPhone, iPad, Safari on Mac) or **Google Wallet** (Android). If both wallets are on and the device is unknown, two buttons let them choose.
+- Anyone can design the card on the home page (name, finish, stamp, barber), but nobody can stamp it there or add it to a wallet: the card is for members, and **only the salon stamps it**.
+- After paying a membership, the thank-you page (`/ordine`) shows **Aggiungi la Darta Card al Wallet**. It sends the design saved on the home page plus the Stripe checkout id; the `darta-wallet` function asks Stripe whether that checkout is a **paid subscription** and refuses anything else (`not_member`). The card is always issued with **0 stamps**, and the name comes from Stripe when none was typed. It opens in **Apple Wallet** (iPhone, iPad, Safari on Mac) or **Google Wallet** (Android); if both wallets are on and the device is unknown, two buttons let them choose. `darta-wallet` needs `STRIPE_READ_KEY` (or `STRIPE_SECRET_KEY`) for this check.
 - The pass shows the tier, the stamps (`3 / 10`, plus a strip of ten stamp circles on Apple), the barber, the name, how many haircuts are left until the free one, and a QR code with the card number. On the back: address, opening hours and a note that the card is a demo.
-- **It is a snapshot.** The stamps on the pass are the ones on the card when the customer tapped the button; they do not change when the customer is stamped in the salon, because the salon has no way to stamp yet. See "Next step" below.
+- **It is a snapshot.** The stamps on the pass are the ones on the card when the customer tapped the button; they do not change yet when the customer gets a cut, because the salon's stamping screen and the pass updates are not built. See "Next step" below.
 
 ## How it works
 

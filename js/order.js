@@ -18,8 +18,9 @@ const set=(title,text,{no='',items=[],link=''}={})=>{
 };
 
 function show(o){
-  if(o.paid&&o.plan){   // a Darta Club membership: the shop cart is not involved
-    set(tr('Benvenuto nel Darta Club.'),tr('L’abbonamento è attivo: {total} al mese, si rinnova da solo. Controlla l’email: Stripe invia la ricevuta e il link per gestirlo o disdirlo.',{total:eur(o.total)}),{no:o.orderNo,items:o.items});
+  if(o.paid&&o.plan){   // a membership: the shop cart is not involved, the Darta Card can go in the wallet
+    set(tr('Abbonamento attivo.'),tr('{total} al mese, con rinnovo automatico. Controlla l’email: Stripe invia la ricevuta e il link per gestirlo o disdirlo. La tua Darta Card è pronta: i timbri li mette il salone a ogni taglio.',{total:eur(o.total)}),{no:o.orderNo,items:o.items});
+    $('#ordCard').hidden=false;
     return true;
   }
   if(o.paid){
@@ -37,6 +38,37 @@ function show(o){
   }
   set(tr('Pagamento non completato.'),tr('Non è stato addebitato nulla. Il carrello è ancora lì: puoi riprovare quando vuoi.'),{link:D.path.shop+D.hash.cart});
   return true;
+}
+
+/* Darta Card to the wallet: the server issues it only for a paid subscription (the session id is the proof), always with
+   0 stamps, in the look the visitor chose on the home page. */
+const sessionId=()=>new URLSearchParams(location.search).get('s')||'';
+function design(){
+  try{const v=JSON.parse(localStorage.getItem('darta-card'))||{};return {name:v.name||'',finish:v.f||'onyx',icon:v.ic||'scissors',barber:v.b||'Thomas'}}
+  catch(e){return {name:'',finish:'onyx',icon:'scissors',barber:'Thomas'}}
+}
+async function addToWallet(which){
+  const btn=$('#ordWallet'),txt=btn.textContent;
+  $('#ordPick').hidden=true;btn.disabled=true;btn.textContent=tr('Preparo la tessera…');
+  try{
+    const made=await D.wallet.create({...design(),stamps:0,session:sessionId()});
+    const url=made[which];
+    if(typeof url!=='string'||!D.wallet.links[which].test(url))throw new Error('no link');
+    location.href=url;   // iPhone: the Add to Wallet sheet; Android: Google's save page
+  }catch(e){D.toast(D.wallet.message(e))}
+  finally{btn.disabled=false;btn.textContent=txt}
+}
+const wb=$('#ordWallet');
+if(wb){
+  wb.onclick=async()=>{
+    const av=D.wallet&&await D.wallet.availability();
+    if(!av||(!av.apple&&!av.google))return D.toast(tr('Demo: qui la tessera si aggiunge ad Apple o Google Wallet.'));
+    const which=D.wallet.choose(av,D.wallet.platform());
+    if(which)return addToWallet(which);
+    const pick=$('#ordPick');
+    pick.querySelectorAll('[data-wallet]').forEach(b=>{b.hidden=!av[b.dataset.wallet];b.onclick=()=>addToWallet(b.dataset.wallet)});
+    pick.hidden=false;   // both wallets on and we cannot tell the phone: let the customer pick
+  };
 }
 
 async function run(){

@@ -1,4 +1,4 @@
-// POST /darta-checkout: cart in, Stripe Checkout URL out. { plan } instead of a cart starts a monthly Darta Club membership.
+// POST /darta-checkout: cart in, Stripe Checkout URL out. { plan } instead of a cart starts a monthly Darta membership.
 // GET  /darta-checkout: { live } so the shop knows whether to offer real payment or stay in demo mode.
 import { allowedOrigins, reply } from './cors.ts';
 import { parseCart, parsePlan, quote, quotePlan } from './pricing.ts';

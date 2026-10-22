@@ -1,15 +1,18 @@
 // /darta-wallet
 //   GET                  -> { apple, google }: which wallets are switched on (so the shop knows whether to offer them)
-//   POST                 -> remembers the card the visitor designed and answers with the wallet links
+//   POST                 -> a member's Darta Card: needs the id of a paid subscription checkout, stores the card (always
+//                           0 stamps: only the salon stamps) and answers with the wallet links
 //   GET /apple/<card id> -> the Apple Wallet pass (.pkpass) for that card
 import { allowedOrigins, reply } from './cors.ts';
 import { appleConfig, buildPkpass, passAssets } from './apple.ts';
-import { parseCardInput } from './card.ts';
+import { cleanName, parseCardInput } from './card.ts';
 import type { Card, CardInput } from './card.ts';
 import { googleConfig, saveLink } from './google.ts';
+import { StripeError } from './stripe-api.ts';
 
 const METHODS = 'GET, POST, OPTIONS';
 const MAX_BODY = 1024;
+const SESSION_ID = /^cs_(test|live)_[A-Za-z0-9_]{8,200}$/;
 const CARD_ID = /\/apple\/([0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12})\/?$/;
 const MAKE = { max: 6, windowS: 600 };        // cards per visitor per 10 minutes
 const MAKE_ALL = { max: 300, windowS: 3600 };   // cards per hour for the whole shop
@@ -23,6 +26,7 @@ export interface WalletDeps {
   /** a picture from the site, by path such as /img/wallet/icon.png */
   loadAsset: (path: string) => Promise<Uint8Array>;
   rateLimit: (bucket: string, windowS: number, max: number) => Promise<boolean>;
+  stripe: (key: string, method: 'GET', path: string) => Promise<any>;
 }
 
 async function visitorKey(req: Request): Promise<string> {
@@ -77,14 +81,31 @@ export async function handleWallet(req: Request, deps: WalletDeps): Promise<Resp
   try { body = JSON.parse(raw); } catch { return send(400, { error: 'bad_card' }); }
   const parsed = parseCardInput(body);
   if (!parsed.ok) return send(400, { error: parsed.error });
+  const session = (body as Record<string, unknown>).session;
+  if (typeof session !== 'string' || !SESSION_ID.test(session)) return send(403, { error: 'not_member' });
+  const stripeKey = env('STRIPE_READ_KEY') ?? env('STRIPE_SECRET_KEY');
+  if (!stripeKey) return send(503, { error: 'not_configured' });
 
   const allowed = await deps.rateLimit(`wallet:${await visitorKey(req)}`, MAKE.windowS, MAKE.max)
     && await deps.rateLimit('wallet:all', MAKE_ALL.windowS, MAKE_ALL.max);
   if (!allowed) return send(429, { error: 'too_many_requests' });
 
+  // The Darta Card comes with a subscription: Stripe must confirm this checkout was a paid membership.
+  let input = parsed.value;
   try {
-    const id = await deps.insertCard(parsed.value);
-    const card: Card = { id, ...parsed.value };
+    const s = await deps.stripe(stripeKey, 'GET', `/v1/checkout/sessions/${session}`);
+    const paid = s?.payment_status === 'paid' || s?.payment_status === 'no_payment_required';
+    if (s?.mode !== 'subscription' || !paid) return send(403, { error: 'not_member' });
+    input = { ...input, stamps: 0, name: parsed.value.name === 'Ospite' ? cleanName(s.customer_details?.name) : parsed.value.name };
+  } catch (err) {
+    if (err instanceof StripeError && err.status === 404) return send(403, { error: 'not_member' });
+    console.error('wallet membership check failed', String(err));
+    return send(502, { error: 'wallet_unavailable' });
+  }
+
+  try {
+    const id = await deps.insertCard(input);
+    const card: Card = { id, ...input };
     return send(200, {
       id,
       apple: apple && supabaseUrl ? `${supabaseUrl}/functions/v1/darta-wallet/apple/${id}` : null,

@@ -96,7 +96,7 @@ export function sessionParams(q: Quote, ctx: SessionContext) {
   };
 }
 
-/** A monthly Darta Club membership: Stripe charges the first month now and renews it by itself until the customer cancels. */
+/** A monthly Darta membership: Stripe charges the first month now and renews it by itself until the customer cancels. */
 export function planSessionParams(p: PlanQuote, ctx: SessionContext) {
   const text = TEXT[p.lang];
   return {

@@ -429,6 +429,13 @@ def order_page():
         <p class="mono num" id="ordNo" hidden></p>
         <p id="ordTxt"></p>
         <ul class="done-list" id="ordList"></ul>
+        <div class="cta-row" id="ordCard" hidden>
+          <button type="button" class="btn btn-p" id="ordWallet">Aggiungi la Darta Card al Wallet</button>
+        </div>
+        <div class="lc-pick" id="ordPick" role="group" aria-label="Scegli il wallet" hidden>
+          <button type="button" class="btn btn-g" data-wallet="apple">Apple Wallet</button>
+          <button type="button" class="btn btn-g" data-wallet="google">Google Wallet</button>
+        </div>
         <div class="cta-row">
           <a class="btn btn-p" id="ordRetry" href="/shop#carrello" hidden>Torna al carrello</a>
           <a class="btn btn-p" href="/shop">Torna allo shop</a>
@@ -439,7 +446,7 @@ def order_page():
   </section>
 </main>'''
     return page('Il tuo ordine | Darta Barber Studio', 'Conferma del tuo ordine su Darta Barber Studio.', 'page-order', main,
-                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'order.js', 'main.js'], {'it': '/ordine', 'en': '/en/order'}, preload_catalog=False)
+                ['core.js', 'store.js', 'pay.js', 'cart.js', 'motion.js', 'wallet.js', 'order.js', 'main.js'], {'it': '/ordine', 'en': '/en/order'}, preload_catalog=False)
 
 
 # ---------------------------------------------------------------- services
@@ -536,15 +543,16 @@ GROUPS_RE = r'<!--gen:svc-groups-->.*?<!--/gen:svc-groups-->'
 
 
 def plans_html():
-    """The two Darta Club memberships (home and shop), from the plans in data/catalog.json. The buttons are wired in js/pay.js."""
+    """The two Darta memberships (home and shop), from the plans in data/catalog.json. The buttons are wired in js/pay.js."""
     cards = ''
     for i, p in enumerate(CAT_IT['plans']):
-        tier = p['name'].replace('Darta Club ', '')
+        tier = p['name'].replace('Darta ', '')
         crown = '<svg class="i" aria-hidden="true"><use href="#i-crown"/></svg>' if p['id'] == 'premium' else ''
         perks = ''.join(f'<li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>{esc(x)}</li>' for x in p['perks'])
         cards += f'''<article class="plan plan-{p["id"]} rv" style="--i:{i}">
           <h3 class="h3">{crown}{esc(tier)}</h3>
           <p class="plan-price"><b class="num">{esc(eur(p["price"]))}</b><span>/{esc(tr("mese"))}</span></p>
+          <p class="plan-renew">Rinnovo automatico ogni mese. Disdici quando vuoi.</p>
           <ul class="plan-perks">{perks}</ul>
           <button type="button" class="btn {"btn-p" if p["id"] == "premium" else "btn-g"}" data-plan="{p["id"]}">{esc(tr("Attiva {name}", name=tier))}</button>
         </article>'''
@@ -552,7 +560,7 @@ def plans_html():
     <div class="wrap">
       <p class="eyebrow rv">Abbonamento mensile</p>
       <h2 class="d h2" id="plansTitle" style="margin-top:1rem"><span class="ln"><span class="rv">Sempre</span></span><span class="ln"><span class="rv" style="--i:1"><em>in ordine.</em></span></span></h2>
-      <p class="lead rv">Tagli ogni mese e sconti sui prodotti Darta. Si rinnova da solo, disdici quando vuoi.</p>
+      <p class="lead rv">Tagli ogni mese, sconti sui prodotti Darta e la tua Darta Card. Si rinnova in automatico, disdici quando vuoi.</p>
       <div class="plans-row">
         {cards}
       </div>

@@ -175,7 +175,7 @@ test('English cards: the language is taken from the request and everything on th
   assert.match(rewardText(7, 'en'), /^3 more haircuts until/);
   assert.match(rewardText(10, 'en'), /unlocked/);
   const p = passJson({ ...CARD, lang: 'en' }, { passTypeId: 'pass.t', teamId: 'T' }, SITE);
-  assert.equal(p.description, 'Darta Club card');
+  assert.equal(p.description, 'Darta Card');
   assert.deepEqual(p.storeCard.secondaryFields.map((f) => f.label), ['STAMPS', 'BARBER']);
   assert.deepEqual(p.storeCard.auxiliaryFields.map((f) => f.label), ['CARDHOLDER', 'NEXT REWARD']);
   assert.equal(p.storeCard.backFields.find((f) => f.key === 'site').value, `${SITE}/en/`);

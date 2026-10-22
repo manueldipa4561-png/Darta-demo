@@ -1,4 +1,4 @@
-/* Darta wallet: adds the loyalty card to Apple Wallet or Google Wallet through the Supabase "darta-wallet" function.
+/* Darta wallet: adds the Darta Card (members only) to Apple Wallet or Google Wallet through the Supabase "darta-wallet" function.
    Until a wallet is set up on the server the function says so and the card button stays the demo message. */
 (()=>{
 'use strict';
@@ -11,7 +11,8 @@ const LINKS={
 };
 const MESSAGES={
   too_many_requests:'Troppi tentativi ravvicinati. Aspetta qualche minuto e riprova.',
-  bad_card:'Questa tessera non si può aggiungere. Aggiorna la pagina e riprova.'
+  bad_card:'Questa tessera non si può aggiungere. Aggiorna la pagina e riprova.',
+  not_member:'La Darta Card è inclusa nell’abbonamento: si aggiunge al Wallet dopo il pagamento.'
 };
 const FALLBACK='Non riesco ad aggiungere la tessera. Riprova tra poco.';
 

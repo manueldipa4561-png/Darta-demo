@@ -407,7 +407,7 @@
   "plans": [
     {
       "id": "essential",
-      "name": "Darta Club Essential",
+      "name": "Darta Essential",
       "price": 3490,
       "perks": [
         "2 tagli al mese",
@@ -416,7 +416,7 @@
     },
     {
       "id": "premium",
-      "name": "Darta Club Premium",
+      "name": "Darta Premium",
       "price": 5490,
       "perks": [
         "2 servizi taglio e barba al mese",

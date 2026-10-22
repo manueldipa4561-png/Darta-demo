@@ -2,10 +2,12 @@
 // Secrets, all optional: a wallet only switches on when its whole group is set. SITE_URL is required.
 //   Apple Wallet:  APPLE_PASS_TYPE_ID, APPLE_TEAM_ID, APPLE_PASS_CERT_PEM, APPLE_PASS_KEY_PEM, APPLE_WWDR_PEM
 //   Google Wallet: GOOGLE_WALLET_ISSUER_ID, GOOGLE_WALLET_SA_EMAIL, GOOGLE_WALLET_SA_KEY
+// Members only: STRIPE_READ_KEY (or STRIPE_SECRET_KEY) checks that the card request comes from a paid subscription.
 // SUPABASE_URL and SUPABASE_SERVICE_ROLE_KEY are provided by Supabase.
 import { createClient } from 'npm:@supabase/supabase-js@2';
 import { handleWallet } from './handler.ts';
 import type { Card } from './card.ts';
+import { stripeFetch } from './stripe-api.ts';
 
 const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {
   auth: { persistSession: false },
@@ -17,6 +19,7 @@ Deno.serve((req) =>
   handleWallet(req, {
     env: (k) => Deno.env.get(k),
     nowSeconds: () => Math.floor(Date.now() / 1000),
+    stripe: (key, method, path) => stripeFetch(key, method, path),
     insertCard: async (card) => {
       const { data, error } = await db.from('darta_cards').insert(card).select('id').single();
       if (error) throw new Error(error.message);

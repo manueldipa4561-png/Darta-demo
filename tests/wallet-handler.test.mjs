@@ -25,10 +25,12 @@ before(() => {
   googleEnv = { GOOGLE_WALLET_ISSUER_ID: '1234', GOOGLE_WALLET_SA_EMAIL: 'w@x.iam', GOOGLE_WALLET_SA_KEY: privateKey };
 });
 
-const CARD = { name: 'Lorenzo', finish: 'onyx', icon: 'scissors', barber: 'Thomas', stamps: 4 };
+const SESSION = 'cs_test_member123';
+const CARD = { name: 'Lorenzo', finish: 'onyx', icon: 'scissors', barber: 'Thomas', stamps: 4, session: SESSION };
+const MEMBER = { mode: 'subscription', payment_status: 'paid', customer_details: { name: 'Lorenzo Rossi' } };
 function deps(over = {}) {
   const log = { inserted: [], hits: [], assets: [] };
-  const env = { SITE_URL: SITE, SUPABASE_URL: SUPA, ...(over.env ?? {}) };
+  const env = { SITE_URL: SITE, SUPABASE_URL: SUPA, STRIPE_READ_KEY: 'rk_test_1', ...(over.env ?? {}) };
   return {
     log,
     env: (k) => env[k],
@@ -37,6 +39,7 @@ function deps(over = {}) {
     getCard: over.getCard ?? (async (id) => (id === ID ? { id, ...CARD } : null)),
     loadAsset: async (path) => { log.assets.push(path); return new Uint8Array([137, 80, 78, 71]); },
     rateLimit: over.rateLimit ?? (async (bucket, windowS, max) => { log.hits.push({ bucket, windowS, max }); return true; }),
+    stripe: over.stripe ?? (async (key, method, path) => { log.stripe = path; return MEMBER; }),
   };
 }
 const post = (body, headers = {}) => new Request('https://fn.example/functions/v1/darta-wallet', {
@@ -65,7 +68,8 @@ test('POST stores the card and answers with the links for the wallets that are o
   assert.equal(body.id, ID);
   assert.equal(body.apple, `${SUPA}/functions/v1/darta-wallet/apple/${ID}`);
   assert.match(body.google, /^https:\/\/pay\.google\.com\/gp\/v\/save\/ey/);
-  assert.deepEqual(d.log.inserted, [{ ...CARD, lang: 'it' }]);
+  const { session, ...stored } = CARD;
+  assert.deepEqual(d.log.inserted, [{ ...stored, stamps: 0, lang: 'it' }]);   // the session is checked, not stored
   assert.match(d.log.hits[0].bucket, /^wallet:[0-9a-f]{16}$/);
   assert.deepEqual([d.log.hits[1].bucket, d.log.hits[1].max], ['wallet:all', 300]);
 });
@@ -123,4 +127,28 @@ test('pass download: unknown card, malformed id, wallet off, outage', async () =
 test('a database outage is a clean 502', async () => {
   const res = await handleWallet(post(CARD), deps({ env: googleEnv, insertCard: async () => { throw new Error('db down'); } }));
   assert.equal(res.status, 502);
+});
+
+test('the Darta Card is for members: no paid subscription, no card', async () => {
+  const on = { env: googleEnv };
+  const refused = async (body, stripe) => {
+    const d = deps({ ...on, stripe });
+    const res = await handleWallet(post(body), d);
+    assert.equal(res.status, 403);
+    assert.equal((await res.json()).error, 'not_member');
+    assert.equal(d.log.inserted.length, 0);
+  };
+  const { session, ...noSession } = CARD;
+  await refused(noSession);
+  await refused({ ...CARD, session: 'not-a-session' });
+  await refused(CARD, async () => ({ mode: 'payment', payment_status: 'paid' }));          // a shop order is not a membership
+  await refused(CARD, async () => ({ mode: 'subscription', payment_status: 'unpaid' }));
+});
+
+test('a member card always starts at 0 stamps (only the salon stamps) and takes the name from Stripe when none was typed', async () => {
+  const d = deps({ env: googleEnv });
+  assert.equal((await handleWallet(post({ ...CARD, name: '', stamps: 9 }), d)).status, 200);
+  assert.equal(d.log.stripe, `/v1/checkout/sessions/${SESSION}`);
+  assert.equal(d.log.inserted[0].stamps, 0);
+  assert.equal(d.log.inserted[0].name, 'Lorenzo Rossi');
 });

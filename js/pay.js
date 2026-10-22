@@ -46,7 +46,7 @@ async function start(){
   throw Object.assign(new Error(json.error||'payment_unavailable'),{code:json.error||'payment_unavailable'});
 }
 
-/** Starts a monthly Darta Club membership (plan id only: the server knows the price) and returns Stripe's hosted page. */
+/** Starts a monthly Darta membership (plan id only: the server knows the price) and returns Stripe's hosted page. */
 async function subscribe(plan){
   let res,json={};
   try{
@@ -57,7 +57,7 @@ async function subscribe(plan){
   throw Object.assign(new Error(json.error||'payment_unavailable'),{code:json.error||'payment_unavailable'});
 }
 
-// every "Attiva" button of the Darta Club plans (home and shop)
+// every "Attiva" button of the Darta plans (home and shop)
 document.addEventListener('click',async e=>{
   const b=e.target.closest('[data-plan]');
   if(!b||b.disabled)return;

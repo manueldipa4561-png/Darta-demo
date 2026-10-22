@@ -259,7 +259,7 @@ test('a plan opens a monthly Stripe subscription priced from the catalog, whatev
   assert.equal(d.calls.length, 1); // no coupon for memberships
   const p = d.calls[0].params;
   assert.equal(p.mode, 'subscription');
-  assert.deepEqual(p.line_items, [{ quantity: 1, price_data: { currency: 'eur', unit_amount: 5490, recurring: { interval: 'month' }, product_data: { name: 'Darta Club Premium' } } }]);
+  assert.deepEqual(p.line_items, [{ quantity: 1, price_data: { currency: 'eur', unit_amount: 5490, recurring: { interval: 'month' }, product_data: { name: 'Darta Premium' } } }]);
   assert.equal(p.metadata.plan, 'premium');
   assert.match(p.client_reference_id, /^DA-/);
   assert.equal(p.cancel_url, `${SITE}/#abbonamenti`);

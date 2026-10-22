@@ -24,7 +24,7 @@ export function walletPayload(card: Card, cfg: Pick<GoogleConfig, 'issuerId'>, s
     loyaltyClasses: [{
       id: classId,
       issuerName: 'Darta Barber Studio',
-      programName: 'Darta Club',
+      programName: 'Darta Card',
       programLogo: { sourceUri: { uri: `${siteUrl}/img/wallet/logo@3x.png` } },
       reviewStatus: 'UNDER_REVIEW',
       countryCode: 'IT',

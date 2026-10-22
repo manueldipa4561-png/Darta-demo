@@ -23,7 +23,7 @@
 <link rel="preload" as="fetch" href="/data/catalog.json" crossorigin="anonymous">
 <link rel="preload" as="fetch" href="/data/catalog.en.json" crossorigin="anonymous">
 <script>/* set layout flags before first paint: GL corridor, first-visit curtain */(function(d){var r=matchMedia('(prefers-reduced-motion: reduce)').matches;if(!r){d.classList.add('gl');try{if(location.pathname.length<2&&!sessionStorage.getItem('darta-seen')&&!location.hash){d.classList.add('intro');sessionStorage.setItem('darta-seen','1')}}catch(e){}}})(document.documentElement)</script>
-<link rel="stylesheet" href="/css/styles.css?v=f1d880c8">
+<link rel="stylesheet" href="/css/styles.css?v=f9c35c25">
 <link rel="stylesheet" href="/css/shop.css?v=a8d35c03">
 <link rel="stylesheet" href="/css/scenes.css?v=37392533">
 </head>
@@ -207,16 +207,18 @@
     <div class="wrap">
       <p class="eyebrow rv">Monthly membership</p>
       <h2 class="d h2" id="plansTitle" style="margin-top:1rem"><span class="ln"><span class="rv">Always</span></span><span class="ln"><span class="rv" style="--i:1"><em>sharp.</em></span></span></h2>
-      <p class="lead rv">Cuts every month and discounts on Darta products. It renews by itself, cancel whenever you like.</p>
+      <p class="lead rv">Cuts every month, discounts on Darta products and your own Darta Card. Renews automatically, cancel anytime.</p>
       <div class="plans-row">
         <article class="plan plan-essential rv" style="--i:0">
           <h3 class="h3">Essential</h3>
           <p class="plan-price"><b class="num">€34.90</b><span>/month</span></p>
+          <p class="plan-renew">Renews automatically every month. Cancel anytime.</p>
           <ul class="plan-perks"><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>2 cuts a month</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>15% off Darta products</li></ul>
           <button type="button" class="btn btn-g" data-plan="essential">Start Essential</button>
         </article><article class="plan plan-premium rv" style="--i:1">
           <h3 class="h3"><svg class="i" aria-hidden="true"><use href="#i-crown"/></svg>Premium</h3>
           <p class="plan-price"><b class="num">€54.90</b><span>/month</span></p>
+          <p class="plan-renew">Renews automatically every month. Cancel anytime.</p>
           <ul class="plan-perks"><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>2 cut and beard services a month</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>50% off Darta products</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>15% off clothing</li><li><svg class="i" aria-hidden="true"><use href="#s-check"/></svg>Priority booking</li></ul>
           <button type="button" class="btn btn-p" data-plan="premium">Start Premium</button>
         </article>
@@ -225,12 +227,12 @@
     </div>
   </section><!--/gen:plans-->
 
-  <section class="sec" id="club">
+  <section class="sec" id="card" aria-labelledby="cardTitle">
     <div class="wrap club-grid">
       <div>
-        <p class="eyebrow rv">Ideas for the studio</p>
-        <h2 class="d h2" style="margin-top:1rem"><span class="ln"><span class="rv">Darta <em>club.</em></span></span></h2>
-        <p class="lead rv">The loyalty card lives in your phone's wallet. Design it your way, then tap Add stamp.</p>
+        <p class="eyebrow rv">Included with every membership</p>
+        <h2 class="d h2" id="cardTitle" style="margin-top:1rem"><span class="ln"><span class="rv">Darta <em>card.</em></span></span></h2>
+        <p class="lead rv">Every membership comes with a Darta Card. Keep it in your phone's Wallet if you like. Only Darta can stamp it, in the studio, every time you get a cut.</p>
         <div class="lc-stage rv">
           <div class="lc" id="lc" data-f="onyx">
             <div class="lc-sheen" aria-hidden="true"></div>
@@ -244,17 +246,12 @@
             </div>
           </div>
         </div>
-        <p class="lc-msg" id="stampTxt" aria-live="polite">The tenth haircut is free.</p>
+        <p class="lc-msg">The tenth haircut is free.</p>
         <div class="lc-actions">
-          <button type="button" class="btn btn-p" id="stampBtn"><svg class="i"><use href="#i-scissors"/></svg>Add stamp</button>
-          <button type="button" class="btn btn-g" id="walletBtn">Add to Wallet</button>
-        </div>
-        <div class="lc-pick" id="walletPick" role="group" aria-label="Choose a wallet" hidden>
-          <button type="button" class="btn btn-g" id="walletApple">Apple Wallet</button>
-          <button type="button" class="btn btn-g" id="walletGoogle">Google Wallet</button>
+          <a class="btn btn-p" href="#abbonamenti">Choose a membership<svg class="i" aria-hidden="true"><use href="#s-arrow"/></svg></a>
         </div>
       </div>
-      <div class="lc-edit" id="lcEdit" role="group" aria-label="Customise the card">
+      <div class="lc-edit" id="lcEdit" role="group" aria-label="Customise your Darta Card">
         <h3 class="h3">Customise it</h3>
         <label class="fld"><span>Name on the card</span><input type="text" id="inName" maxlength="16" autocomplete="off" placeholder="E.g. Lorenzo"></label>
         <fieldset class="fld"><legend>Finish</legend>
@@ -281,13 +278,6 @@
           </div>
         </fieldset>
       </div>
-    </div>
-    <div class="wrap">
-      <ul class="ideas ideas-row">
-        <li class="rv"><h3 class="h3">WhatsApp reminder</h3><p>The day before, a message arrives with the time and the barber. Fewer empty slots.</p></li>
-        <li class="rv"><h3 class="h3">Bring a friend</h3><p>Whoever brings in a new client gets a discount, and so does the friend.</p><span class="ex">Example: €5 each</span></li>
-        <li class="rv"><h3 class="h3">Booking statistics</h3><p>Busy days, most requested services, clients to call back. All in one dashboard.</p></li>
-      </ul>
     </div>
   </section>
 
@@ -420,15 +410,14 @@
 </dialog>
 <!--/shared:dialogs-->
 
-<script defer src="/js/en.js?v=ce8d456e"></script>
+<script defer src="/js/en.js?v=c146c39f"></script>
 <script defer src="/js/vendor/anime.umd.min.js?v=99b376c4"></script>
 <script defer src="/js/core.js?v=e44cd281"></script>
 <script defer src="/js/store.js?v=95e81d00"></script>
-<script defer src="/js/pay.js?v=6d3cad7c"></script>
+<script defer src="/js/pay.js?v=c0b6419f"></script>
 <script defer src="/js/cart.js?v=6e4e7199"></script>
 <script defer src="/js/motion.js?v=64437ee6"></script>
-<script defer src="/js/wallet.js?v=85b70cb7"></script>
-<script defer src="/js/club.js?v=ef17d4dd"></script>
+<script defer src="/js/club.js?v=90190813"></script>
 <script defer src="/js/journey.js?v=607d5d6e"></script>
 <script defer src="/js/shopintro.js?v=81412b73"></script>
 <script defer src="/js/works.js?v=36f25944"></script>
