@@ -35,9 +35,10 @@ const APPLE_ENV = () => ({
 const png = (n) => new Uint8Array([137, 80, 78, 71, 13, 10, 26, 10, n, n, n]);
 const assetsFor = (stamps) => new Map(passAssets(stamps).map(([name], i) => [name, png(i)]));
 
-test('card input: only known looks and 0..10 stamps are accepted, the name is cleaned', () => {
+test('card input: only known looks are accepted, the name is cleaned, and every card starts with 0 stamps', () => {
   assert.deepEqual(parseCardInput({ name: '  Lore\n<b>nzo  ', finish: 'gobetti', icon: 'fire', barber: 'Rrapi', stamps: 10 }).value,
-    { name: 'Lore b nzo', finish: 'gobetti', icon: 'fire', barber: 'Rrapi', stamps: 10, lang: 'it' });
+    { name: 'Lore b nzo', finish: 'gobetti', icon: 'fire', barber: 'Rrapi', stamps: 0, lang: 'it' });   // only the salon stamps
+  assert.equal(parseCardInput({ name: 'x', finish: 'onyx', icon: 'fire', barber: 'Thomas' }).value.stamps, 0);
   for (const bad of [null, 'x', {}, { ...CARD, finish: 'gold' }, { ...CARD, icon: 'x' }, { ...CARD, barber: 'Evil' },
     { ...CARD, stamps: 11 }, { ...CARD, stamps: -1 }, { ...CARD, stamps: 2.5 }, { ...CARD, stamps: '3' }]) {
     assert.equal(parseCardInput(bad).ok, false, JSON.stringify(bad));
@@ -78,7 +79,20 @@ test('pass.json: a store card with the QR, the stamps and the right ids', () => 
   assert.equal(p.barcodes[0].format, 'PKBarcodeFormatQR');
   assert.equal(p.barcodes[0].message, CARD.id);
   assert.match(p.backgroundColor, /^rgb\(\d+,\d+,\d+\)$/);
-  assert.ok(p.storeCard.backFields.some((f) => /dimostrativa/.test(f.value)));
+  assert.ok(p.storeCard.backFields.some((f) => /solo il salone/.test(f.value)));
+  assert.equal(p.webServiceURL, undefined);                  // no web service given: a snapshot, as before
+  assert.equal(p.authenticationToken, undefined);
+});
+
+test('pass.json: with the web service the pass asks for updates and announces a new stamp', () => {
+  const token = 'a'.repeat(64);
+  const p = passJson({ ...CARD, passToken: token }, { passTypeId: 'pass.test.darta', teamId: 'TEAM123456' }, SITE, 'https://proj.supabase.co/functions/v1/darta-wallet/apple-ws');
+  assert.equal(p.webServiceURL, 'https://proj.supabase.co/functions/v1/darta-wallet/apple-ws');
+  assert.equal(p.authenticationToken, token);
+  assert.ok(p.authenticationToken.length >= 16);             // Apple's minimum
+  assert.match(p.storeCard.secondaryFields[0].changeMessage, /%@/);
+  // a card without its token (just created, not read back yet) cannot ask for updates
+  assert.equal(passJson(CARD, { passTypeId: 'p', teamId: 't' }, SITE, 'https://x/apple-ws').webServiceURL, undefined);
 });
 
 test('pkpass: valid zip, manifest hashes match, and OpenSSL verifies the signature and the chain', async () => {

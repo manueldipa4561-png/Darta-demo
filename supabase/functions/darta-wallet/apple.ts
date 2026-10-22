@@ -34,7 +34,10 @@ export const passAssets = (stamps: number): [string, string][] => [
   ['strip@2x.png', `/img/wallet/strip-${stamps}@2x.png`],
 ];
 
-export function passJson(card: Card, cfg: Pick<AppleConfig, 'passTypeId' | 'teamId'>, siteUrl: string) {
+/** Where the pass asks for updates (Apple's web service, webservice.ts). Without it the pass is a snapshot. */
+export const webServiceUrl = (supabaseUrl: string) => `${supabaseUrl}/functions/v1/darta-wallet/apple-ws`;
+
+export function passJson(card: Card, cfg: Pick<AppleConfig, 'passTypeId' | 'teamId'>, siteUrl: string, serviceUrl?: string) {
   const theme = THEME[card.finish];
   const lang = langOf(card);
   const w = WORDS[lang];
@@ -49,10 +52,11 @@ export function passJson(card: Card, cfg: Pick<AppleConfig, 'passTypeId' | 'team
     backgroundColor: rgb(theme.bg),
     foregroundColor: rgb(theme.fg),
     labelColor: rgb(theme.label),
+    ...(serviceUrl && card.passToken ? { webServiceURL: serviceUrl, authenticationToken: card.passToken } : {}),
     storeCard: {
       headerFields: [{ key: 'tier', label: w.tier, value: tierOf(card.stamps) }],
       secondaryFields: [
-        { key: 'stamps', label: w.stamps, value: `${card.stamps} / ${GOAL}` },
+        { key: 'stamps', label: w.stamps, value: `${card.stamps} / ${GOAL}`, changeMessage: w.changed },
         { key: 'barber', label: w.barber, value: card.barber },
       ],
       auxiliaryFields: [
@@ -74,8 +78,8 @@ export function passJson(card: Card, cfg: Pick<AppleConfig, 'passTypeId' | 'team
 const toHex = (buf: ArrayBuffer) => [...new Uint8Array(buf)].map((b) => b.toString(16).padStart(2, '0')).join('');
 
 /** `assets` maps the names from passAssets() to the picture bytes. */
-export async function buildPkpass(card: Card, cfg: AppleConfig, siteUrl: string, assets: Map<string, Uint8Array>, now: Date): Promise<Uint8Array> {
-  const files: ZipFile[] = [{ name: 'pass.json', data: new TextEncoder().encode(JSON.stringify(passJson(card, cfg, siteUrl))) }];
+export async function buildPkpass(card: Card, cfg: AppleConfig, siteUrl: string, assets: Map<string, Uint8Array>, now: Date, serviceUrl?: string): Promise<Uint8Array> {
+  const files: ZipFile[] = [{ name: 'pass.json', data: new TextEncoder().encode(JSON.stringify(passJson(card, cfg, siteUrl, serviceUrl))) }];
   for (const [name] of passAssets(card.stamps)) {
     const data = assets.get(name);
     if (!data) throw new Error(`missing picture ${name}`);

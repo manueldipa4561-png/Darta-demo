@@ -9,7 +9,8 @@ export type Icon = typeof ICONS[number];
 export type Barber = typeof BARBERS[number];
 export type Lang = 'it' | 'en';
 export interface CardInput { name: string; finish: Finish; icon: Icon; barber: Barber; stamps: number; lang: Lang }
-export interface Card extends CardInput { id: string }
+/** passToken and updatedAt come from the database (Apple's web service); a card just created has neither yet. */
+export interface Card extends CardInput { id: string; passToken?: string; updatedAt?: string }
 export type Parsed = { ok: true; value: CardInput; error?: undefined } | { ok: false; error: string; value?: undefined };
 
 /** Colours of each finish on the pass: [r, g, b] background, text and small labels. */
@@ -37,10 +38,10 @@ export function rewardText(n: number, lang: Lang = 'it'): string {
 export const WORDS = {
   it: { tier: 'LIVELLO', stamps: 'TIMBRI', barber: 'BARBER', holder: 'TITOLARE', next: 'PROSSIMO PREMIO', description: 'Tessera Darta Club',
     where: 'Dove', hours: 'Orari', hoursValue: 'Da martedì a sabato, 10:00 - 19:00', site: 'Sito', how: 'Come funziona',
-    howValue: 'Un timbro a ogni taglio. Il decimo taglio è omaggio.', note: 'Nota', noteValue: 'Tessera dimostrativa: i timbri non sono ancora collegati al salone.', points: 'Timbri', level: 'Livello', nextHead: 'Prossimo premio' },
+    howValue: 'Un timbro a ogni taglio. Il decimo taglio è omaggio.', note: 'Nota', noteValue: 'I timbri li mette solo il salone, uno a ogni taglio.', points: 'Timbri', level: 'Livello', nextHead: 'Prossimo premio', changed: 'Timbri: %@' },
   en: { tier: 'TIER', stamps: 'STAMPS', barber: 'BARBER', holder: 'CARDHOLDER', next: 'NEXT REWARD', description: 'Darta Club card',
     where: 'Where', hours: 'Hours', hoursValue: 'Tuesday to Saturday, 10am - 7pm', site: 'Website', how: 'How it works',
-    howValue: 'One stamp per haircut. The tenth haircut is free.', note: 'Note', noteValue: 'Demo card: the stamps are not connected to the studio yet.', points: 'Stamps', level: 'Tier', nextHead: 'Next reward' },
+    howValue: 'One stamp per haircut. The tenth haircut is free.', note: 'Note', noteValue: 'Only the studio adds stamps, one per haircut.', points: 'Stamps', level: 'Tier', nextHead: 'Next reward', changed: 'Stamps: %@' },
 } as const;
 
 const oneOf = <T extends readonly string[]>(list: T, v: unknown): v is T[number] => typeof v === 'string' && list.includes(v);
@@ -55,7 +56,8 @@ export function parseCardInput(body: unknown): Parsed {
   if (!body || typeof body !== 'object') return { ok: false, error: 'bad_card' };
   const { name, finish, icon, barber, stamps } = body as Record<string, unknown>;
   if (!oneOf(FINISHES, finish) || !oneOf(ICONS, icon) || !oneOf(BARBERS, barber)) return { ok: false, error: 'bad_card' };
-  if (typeof stamps !== 'number' || !Number.isInteger(stamps) || stamps < 0 || stamps > GOAL) return { ok: false, error: 'bad_card' };
+  if (stamps !== undefined && (typeof stamps !== 'number' || !Number.isInteger(stamps) || stamps < 0 || stamps > GOAL)) return { ok: false, error: 'bad_card' };
   const lang: Lang = body && (body as Record<string, unknown>).lang === 'en' ? 'en' : 'it';
-  return { ok: true, value: { name: cleanName(name), finish, icon, barber, stamps, lang } };
+  // Every card starts empty whatever the page sends: only the salon adds stamps (salon.ts).
+  return { ok: true, value: { name: cleanName(name), finish, icon, barber, stamps: 0, lang } };
 }
